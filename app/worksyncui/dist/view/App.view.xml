@@ -1,0 +1,15 @@
+<mvc:View controllerName="com.amista.worksyncui.controller.App"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f">
+    <App id="app">
+        <f:FlexibleColumnLayout
+            id="fcl"
+            busy="{appView>/busy}"
+            layout="{appView>/layout}"
+            busyIndicatorDelay="{appView>/delay}"
+            backgroundDesign="Translucent">
+            </f:FlexibleColumnLayout>
+    </App>
+</mvc:View>

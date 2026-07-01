@@ -1,0 +1,16 @@
+- name: worksync-approuter
+    type: approuter.nodejs
+    path: app/router
+    requires:
+      - name: uaa_worksync
+      - name: worksync_html_repo_host
+      - name: worksync-destination-service
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{srv-url}
+          forwardAuthToken: true
+    parameters:
+      memory: 256M
+      disk-quota: 256M

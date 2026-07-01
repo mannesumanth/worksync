@@ -1,0 +1,36 @@
+{
+  "xsappname": "worksync",
+  "tenant-mode": "dedicated",
+  "description": "WorkSync Security",
+
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "Administrator"
+    },
+    {
+      "name": "$XSAPPNAME.Employee",
+      "description": "Employee"
+    }
+  ],
+
+  "role-templates": [
+    {
+      "name": "AdminRoleTemplate",
+      "description": "Administrator",
+      "scope-references": [
+        "$XSAPPNAME.Admin"
+      ]
+    },
+    {
+      "name": "EmployeeRoleTemplate",
+      "description": "Employee",
+      "scope-references": [
+        "$XSAPPNAME.Employee"
+      ]
+    }
+  ],
+
+  "attributes": [],
+  "authorities-inheritance": false
+}

@@ -1,0 +1,34 @@
+{
+  "welcomeFile": "/com.amista.worksyncui/index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout"
+  },
+  "routes": [
+    {
+      "source": "^/com.amista.worksyncui/(.*)$",
+      "target": "/com.amista.worksyncui/$1",
+      "destination": "ui5",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/odata/(.*)$",
+      "target": "/odata/$1",
+      "destination": "srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": true
+    },
+    {
+      "source": "^/resources/(.*)$",
+      "target": "/resources/$1",
+      "destination": "ui5-lib",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/test-resources/(.*)$",
+      "target": "/test-resources/$1",
+      "destination": "ui5-lib",
+      "authenticationType": "none"
+    }
+  ]
+}
