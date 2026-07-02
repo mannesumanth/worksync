@@ -168,16 +168,54 @@ sap.ui.define([
                 }
             },
             onCancelEmployee: function () {
-
                 const oModel = this.getView().getModel();
-
                 if (oModel.hasPendingChanges()) {
                     oModel.resetChanges();
                 }
-
                 this._oEditDialog.close();
+            },
+            onDeleteEmployeeSkill: async function (oEvent) {
+                const oContext = oEvent.getSource().getBindingContext();
 
-            }
+                if (!oContext) {
+                    return;
+                }
+                const oModel = this.getView().getModel();
+                try {
+                    await sap.m.MessageBox.confirm(
+                        "Are you sure you want to delete this skill?",
+                        {
+                            actions: [
+                                sap.m.MessageBox.Action.YES,
+                                sap.m.MessageBox.Action.NO
+                            ],
+                            emphasizedAction: sap.m.MessageBox.Action.YES,
+                            onClose: async (sAction) => {
+                                if (sAction !== sap.m.MessageBox.Action.YES) {
+                                    return;
+                                }
+                                try {
+                                    await oContext.delete("$auto");
+                                    sap.m.MessageToast.show(
+                                        "Employee skill deleted successfully."
+                                    );
+                                    this.getView().getBindingContext().refresh();
+                                } catch (e) {
+                                    sap.m.MessageBox.error(
+                                        e.message || "Failed to delete employee skill."
+                                    );
+                                }
+                            }
+                        }
+                    );
+                } catch (e) {
+                    sap.m.MessageBox.error(
+                        e.message || "Failed to delete employee skill."
+                    );
+
+                }
+
+            },
 
         }
     );

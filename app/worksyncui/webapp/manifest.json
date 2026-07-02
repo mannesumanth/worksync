@@ -75,7 +75,8 @@
         "sap.f": {},
         "sap.ui.unified": {},
         "sap.tnt": {},
-        "sap.viz": {}
+        "sap.viz": {},
+        "sap.suite.ui.microchart": {}
       }
     },
     "contentDensities": {
@@ -135,6 +136,14 @@
           "target": "Employee"
         },
         {
+          "name": "Forecast",
+          "pattern": "forecast",
+          "target": [
+            "Admin",
+            "Forecast"
+          ]
+        },
+        {
           "name": "AdminEmployeeDetail",
           "pattern": "employee/{employeeId}",
           "target": [
@@ -180,6 +189,12 @@
           "id": "ProjectDetail",
           "name": "ProjectDetail",
           "viewName": "ProjectDetail",
+          "controlAggregation": "midColumnPages"
+        },
+        "Forecast": {
+          "id": "Forecast",
+          "name": "Forecast",
+          "viewName": "Forecast",
           "controlAggregation": "midColumnPages"
         }
       }

@@ -1,6 +1,6 @@
 {
   "name": "worksync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "start": "cds-serve",
@@ -13,7 +13,8 @@
   "dependencies": {
     "@sap/cds": "^9",
     "@cap-js/hana": "^2",
-    "@sap/xssec": "^4"
+    "@sap/xssec": "^4",
+    "passport": "^0.6.0"
   },
   "devDependencies": {
     "@sap/cds-dk": "^9",
@@ -32,11 +33,14 @@
       "db": {
         "kind": "hana"
       },
-      "[hybrid]": {
+      "hybrid": {
         "auth": "xsuaa"
       },
-      "[production]": {
+      "production": {
         "auth": "xsuaa"
+      },
+      "uaa": {
+        "kind": "xsuaa"
       }
     }
   },

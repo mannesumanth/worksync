@@ -328,30 +328,30 @@ sap.ui.define([
             },
             onEditAllocation: async function (oEvent) {
 
-    if (!this._oEditAllocationDialog) {
+                if (!this._oEditAllocationDialog) {
 
-        this._oEditAllocationDialog = await Fragment.load({
-            id: this.getView().getId(),
-            name: "com.amista.worksyncui.view.fragments.EditAllocation",
-            controller: this
-        });
+                    this._oEditAllocationDialog = await Fragment.load({
+                        id: this.getView().getId(),
+                        name: "com.amista.worksyncui.view.fragments.EditAllocation",
+                        controller: this
+                    });
 
-        this.getView().addDependent(this._oEditAllocationDialog);
-    }
+                    this.getView().addDependent(this._oEditAllocationDialog);
+                }
 
-    const oAllocationContext = oEvent.getSource().getBindingContext();
+                const oAllocationContext = oEvent.getSource().getBindingContext();
 
-    const sAllocationId = oAllocationContext.getProperty("ID");
+                const sAllocationId = oAllocationContext.getProperty("ID");
 
-    this._oEditAllocationDialog.bindElement({
-        path: "/ALLOCATIONS(" + sAllocationId + ")",
-        parameters: {
-            $expand: "employee"
-        }
-    });
+                this._oEditAllocationDialog.bindElement({
+                    path: "/ALLOCATIONS(" + sAllocationId + ")",
+                    parameters: {
+                        $expand: "employee"
+                    }
+                });
 
-    this._oEditAllocationDialog.open();
-},
+                this._oEditAllocationDialog.open();
+            },
             onUpdateAllocation: async function () {
 
                 try {

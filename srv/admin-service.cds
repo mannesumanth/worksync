@@ -1,8 +1,6 @@
 using worksync.db as db from '../db/schema';
 
-// @requires: 'Admin'
-// @(path: '/odata/v4/admin')
-
+//@requires: 'authenticated-user'
 service AdminService{
 
     // Core Entities
@@ -26,6 +24,33 @@ service AdminService{
     entity EMPLOYEE_BACKUPS      as projection on db.EMPLOYEE_BACKUPS;
 
     entity PROJECT_RISK_ANALYSIS as projection on db.PROJECT_RISK_ANALYSIS;
+
+    type ResourceForecast {
+
+    ID                    : UUID;
+    EMP_ID                : String(20);
+    NAME                  : String(100);
+    DESIGNATION           : String(100);
+
+    CURRENT_ALLOCATION    : Decimal(5,2);
+    AVAILABLE_PERCENT     : Decimal(5,2);
+
+    CURRENT_PROJECT_COUNT : Integer;
+    NEXT_PROJECT_COUNT    : Integer;
+
+    CURRENT_PROJECT_NAME  : String(100);
+
+    CURRENT_STATUS        : String(30);
+    NEXT_STATUS           : String(30);
+
+    CURRENT_AVAILABLE     : Boolean;
+    NEXT_AVAILABLE        : Boolean;
+
+    NEXT_AVAILABLE_DATE   : Date;
+
+    LEAVE_END_DATE        : Date;
+    ALLOCATION_END_DATE   : Date;
+}
 
 
     function SearchEmployees(search: String,
@@ -70,4 +95,6 @@ service AdminService{
         pendingLeaves         : Integer;
     };
 
+    function GetResourceForecast()
+        returns array of ResourceForecast;
 }

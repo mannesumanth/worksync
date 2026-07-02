@@ -10,7 +10,6 @@ sap.ui.define([
         "com.amista.worksyncui.controller.Employee",
         {
             onInit: function () {
-            this.getView().setModel(oEmployeeModel);
                 this._loadProfile();
                 this._loadLeaves();
                 this._loadProjects();
@@ -18,11 +17,8 @@ sap.ui.define([
 
             },
             onToggleNavigation: function () {
-                const oToolPage =
-                    this.byId("employeeToolPage");
-                oToolPage.setSideExpanded(
-                    !oToolPage.getSideExpanded()
-                );
+                const oToolPage = this.byId("employeeToolPage");
+                oToolPage.setSideExpanded(!oToolPage.getSideExpanded());
             },
             onMenuSelect: function (oEvent) {
                 const sKey = oEvent.getParameter("item").getKey();
@@ -44,6 +40,7 @@ sap.ui.define([
                         oNav.to(this.byId("empdashboardPage"));
                 }
             },
+            //Load Profile
             _loadProfile: async function () {
                 try {
                     const response = await fetch(
@@ -52,32 +49,45 @@ sap.ui.define([
                     const data = await response.json();
                     console.log("Full Response:", data);
                     console.log("Employee:", data.value[0]);
-                    const oModel = new JSONModel(
-                        data.value[0]
-                    );
-                    this.getView().setModel(
-                        oModel,
-                        "employee"
-                    );
-
+                    const oModel = new JSONModel(data.value[0]);
+                    this.getView().setModel(oModel, "employee");
                 } catch (error) {
-                    console.error(
-                        "Profile Load Error",
-                        error
-                    );
+                    console.error("Profile Load Error", error);
 
                 }
             },
+            //Load Projects
+            _loadProjects: async function () {
+                try {
+                    const response = await fetch(
+                        "/odata/v4/employee/MyProjects?$orderby=createdAt desc"
+                    );
+                    const data = await response.json();
+                    console.log("Projects:", data);
+                    this.getView().setModel(new JSONModel(data), "projects");
+                } catch (error) {
+                    console.error("Projects Load Error", error);
+                }
+            },
+
+            //Load Skills
+            _loadSkills: async function () {
+                try {
+                    const response = await fetch("/odata/v4/employee/MySkills");
+                    const data = await response.json();
+                    console.log("Skills:", data);
+                    this.getView().setModel(new JSONModel(data), "skills");
+                } catch (error) {
+                    console.error("Skills Load Error", error);
+                }
+            },
+            //Load Leaves
             _loadLeaves: async function () {
                 try {
                     const response =
                         await fetch("/odata/v4/employee/MyLeaves");
-                    const data =
-                        await response.json();
-                    this.getView().setModel(
-                        new JSONModel(data),
-                        "leaves"
-                    );
+                    const data = await response.json();
+                    this.getView().setModel(new JSONModel(data), "leaves");
                     this._calculateLeaveStats(
                         data.value || []
                     );
@@ -86,12 +96,10 @@ sap.ui.define([
                     );
                     console.log("Leaves:", data.value);
                 } catch (error) {
-                    console.error(
-                        "Leaves Load Error",
-                        error
-                    );
+                    console.error("Leaves Load Error", error);
                 }
             },
+            //Calculate Leave Stats
             _calculateLeaveStats: function (aLeaves) {
                 let used = 0;
                 let pending = 0;
@@ -114,6 +122,8 @@ sap.ui.define([
                     "leaveStats"
                 );
             },
+
+            //Leave Status Formatter
             leaveStatusFormatter: function (sStatus) {
                 switch (sStatus) {
                     case "APPROVED":
@@ -126,37 +136,26 @@ sap.ui.define([
                         return "None";
                 }
             },
+            //Apply Leave
             onApplyLeave: async function () {
                 try {
-                    const leaveType =
-                        this.byId("leaveType")
-                            .getSelectedKey();
-                    const dFrom =
-                        this.byId("leaveStartDate")
-                            .getDateValue();
-                    const dTo =
-                        this.byId("leaveEndDate")
-                            .getDateValue();
+                    const leaveType = this.byId("leaveType").getSelectedKey();
+                    const dFrom = this.byId("leaveStartDate").getDateValue();
+                    const dTo = this.byId("leaveEndDate").getDateValue();
                     const oDateFormat =
                         sap.ui.core.format.DateFormat.getDateInstance({
                             pattern: "yyyy-MM-dd"
                         });
-                    const leaveFrom =
-                        oDateFormat.format(dFrom);
-                    const leaveTo =
-                        oDateFormat.format(dTo);
-                    const reason =
-                        this.byId("leaveReason")
-                            .getValue();
+                    const leaveFrom = oDateFormat.format(dFrom);
+                    const leaveTo = oDateFormat.format(dTo);
+                    const reason = this.byId("leaveReason").getValue();
                     if (
                         !leaveType ||
                         !leaveFrom ||
                         !leaveTo ||
                         !reason
                     ) {
-                        MessageBox.error(
-                            "Please fill all fields"
-                        );
+                        MessageBox.error("Please fill all fields");
                         return;
                     }
                     const response = await fetch(
@@ -176,24 +175,14 @@ sap.ui.define([
                         }
                     );
                     if (!response.ok) {
-                        throw new Error(
-                            "Leave submission failed"
-                        );
-
+                        throw new Error("Leave submission failed");
                     }
-                    MessageToast.show(
-                        "Leave applied successfully"
-                    );
-                    this.byId("leaveType")
-                        .setSelectedKey("");
-                    this.byId("leaveStartDate")
-                        .setValue("");
-                    this.byId("leaveEndDate")
-                        .setValue("");
-                    this.byId("leaveReason")
-                        .setValue("");
-                    this.byId("leaveDays")
-                        .setValue("0");
+                    MessageToast.show("Leave applied successfully");
+                    this.byId("leaveType").setSelectedKey("");
+                    this.byId("leaveStartDate").setValue("");
+                    this.byId("leaveEndDate").setValue("");
+                    this.byId("leaveReason").setValue("");
+                    this.byId("leaveDays").setValue("0");
                     this._loadLeaves();
                 } catch (error) {
                     MessageBox.error(
@@ -201,11 +190,13 @@ sap.ui.define([
                     );
                 }
             },
+            //Cancel Leave
             onCancelLeave: function () {
                 MessageToast.show(
                     "Cancel Leave action not implemented yet"
                 );
             },
+            //Load Leave Calendar
             _loadLeaveCalendar: function (aLeaves) {
                 const oCalendar =
                     this.byId("leaveCalendar");
@@ -239,6 +230,7 @@ sap.ui.define([
                     );
                 });
             },
+            //Calculate Leave Days
             onLeaveDateChange: function () {
                 const oFrom = this.byId("leaveStartDate");
                 const oTo = this.byId("leaveEndDate");
@@ -248,7 +240,32 @@ sap.ui.define([
                 }
                 const dFrom = oFrom.getDateValue();
                 const dTo = oTo.getDateValue();
+                // Check if a date falls on a weekend
+                const isWeekend = function (date) {
+                    const day = date.getDay(); // Sunday = 0, Saturday = 6
+                    return day === 0 || day === 6;
+                };
+                // Validate From Date
+                if (dFrom && isWeekend(dFrom)) {
+                    MessageBox.error("Leave cannot be applied on Saturday or Sunday.");
+                    oFrom.setValue("");
+                    this.byId("leaveDays").setValue("");
+                    return;
+                }
+                // Validate To Date
+                if (dTo && isWeekend(dTo)) {
+                    MessageBox.error("Leave cannot be applied on Saturday or Sunday.");
+                    oTo.setValue("");
+                    this.byId("leaveDays").setValue("");
+                    return;
+                }
+                // Calculate total days
                 if (dFrom && dTo) {
+                    if (dFrom > dTo) {
+                        MessageBox.error("From Date cannot be greater than To Date.");
+                        this.byId("leaveDays").setValue("");
+                        return;
+                    }
                     const iDays = Math.floor(
                         (dTo.getTime() - dFrom.getTime()) /
                         (1000 * 60 * 60 * 24)
@@ -256,42 +273,8 @@ sap.ui.define([
                     this.byId("leaveDays").setValue(iDays);
                 }
             },
-            _loadProjects: async function () {
-                try {
-                    const response = await fetch(
-                        "/odata/v4/employee/MyProjects"
-                    );
-                    const data = await response.json();
-                    console.log("Projects:", data);
-                    this.getView().setModel(
-                        new JSONModel(data),
-                        "projects"
-                    );
-                } catch (error) {
-                    console.error(
-                        "Projects Load Error",
-                        error
-                    );
-                }
-            },
-            _loadSkills: async function () {
-                try {
-                    const response = await fetch(
-                        "/odata/v4/employee/MySkills"
-                    );
-                    const data = await response.json();
-                    console.log("Skills:", data);
-                    this.getView().setModel(
-                        new JSONModel(data),
-                        "skills"
-                    );
-                } catch (error) {
-                    console.error(
-                        "Skills Load Error",
-                        error
-                    );
-                }
-            },
+
+            //Cancel Leave
             onCancelLeave: async function (oEvent) {
                 try {
                     const oLeave =
@@ -311,13 +294,9 @@ sap.ui.define([
                         }
                     );
                     if (!response.ok) {
-                        throw new Error(
-                            "Failed to cancel leave"
-                        );
+                        throw new Error("Failed to cancel leave");
                     }
-                    MessageToast.show(
-                        "Leave cancelled successfully"
-                    );
+                    MessageToast.show("Leave cancelled successfully");
                     this._loadLeaves();
                 } catch (error) {
                     MessageBox.error(

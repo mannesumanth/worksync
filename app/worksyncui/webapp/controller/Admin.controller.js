@@ -15,27 +15,59 @@ sap.ui.define([
         designations: "designationsPage",
         skillCategories: "skillCategoriesPage",
         skills: "adminskillsPage",
-        employeeSkills: "employeeSkillsPage",
         projects: "adminprojectsPage",
         allocations: "allocationsPage",
         leave: "leavePage",
         backups: "backupsPage",
         risks: "risksPage",
-        spof: "spofPage"
+        spof: "spofPage",
+        forecast: "forecastPage"
     };
 
     return Controller.extend("com.amista.worksyncui.controller.Admin", {
         onInit: function () {
-            this.getView().setModel(new JSONModel({ employees: [] }), "empSkills");
             this.getView().setModel(new JSONModel({ skills: [] }), "projectModel");
             this.getView().setModel(new JSONModel({ currentMonthAvailable: 0, nextMonthAvailable: 0, currentMonthLeaves: 0, nextMonthLeaves: 0, pendingLeaves: 0 }), "forecast");
+            this.getView().setModel(new JSONModel({
+                empCount: 0,
+                projCount: 0,
+                allocCount: 0,
+                leaveCount: 0,
+                skillCount: 0,
+                spofCount: 0,
+                spofPercent: 0,
+                leavePending: 0,
+                leaveApproved: 0,
+                leaveRejected: 0
+            }), "dash");
+
+            this._searchValue = "";
+            this._statusValue = "";
+            this._allocationValue = "";
+            this.getView().setModel(
+                new JSONModel({
+                    value: []
+                }),
+                "forecast"
+            );
+            this.getView().setModel(
+                new JSONModel({
+                    available: 0,
+                    bench: 0,
+                    leave: 0,
+                    utilization: 0,
+                    employeeCount: 0
+                }),
+                "summary"
+            );
 
             // Load counts after OData model is ready
             const oModel = this.getView().getModel();
             if (oModel) {
                 oModel.attachEventOnce("requestCompleted", () => {
                     this._loadDashboardCounts();
-                    this._loadEmployeeSkills();
+                    this._loadLeaveBreakdown();
+                    //this._loadEmployeeSkills();
                     this._loadAvailabilityForecast();
 
                 });
@@ -43,17 +75,16 @@ sap.ui.define([
             // Fallback for cds watch local dev
             setTimeout(() => {
                 this._loadDashboardCounts();
-                this._loadEmployeeSkills();
+                this._loadLeaveBreakdown();
+                //this._loadEmployeeSkills();
                 this.onLoadSpofRisks();
                 this._loadAvailabilityForecast();
 
             }, 1500);
 
             const oRouter = this.getOwnerComponent().getRouter();
-
             oRouter.getRoute("ProjectDetail")
                 .attachPatternMatched(this._onObjectMatched, this);
-
             this.getView().setModel(
                 new JSONModel({
                     recommendations: []
@@ -63,7 +94,6 @@ sap.ui.define([
         },
 
         // SIDEBAR NAVIGATION
-
         onNavSelect: function (oEvent) {
             const oItem = oEvent.getParameter("item");
             const sKey = oItem.getKey();   // e.g. "employees", "dashboard"
@@ -79,18 +109,58 @@ sap.ui.define([
             }
 
             // Side effects
-            if (sKey === "dashboard") this._loadDashboardCounts();
-            if (sKey === "employeeSkills") this._loadEmployeeSkills();
+            if (sKey === "dashboard") {
+                this._loadDashboardCounts();
+                this._loadLeaveBreakdown();
+                this._loadAvailabilityForecast();
+            }
+            // if (sKey === "employeeSkills") this._loadEmployeeSkills();
+            if (sKey === "forecast") this._loadForecast();
+        },
+        _loadForecast: async function () {
+            try {
+                const oModel = this.getView().getModel();
+                const oAction = oModel.bindContext("/GetResourceForecast(...)");
+                await oAction.invoke();
+                const aData =
+                    oAction.getBoundContext().getObject().value || [];
+                // Store forecast data
+                this.getView()
+                    .getModel("forecast")
+                    .setData({
+                        value: aData
+                    });
+                // Calculate summary
+                const available = aData.filter(e => e.CURRENT_STATUS === "Available").length;
+                const bench = aData.filter(e => e.CURRENT_STATUS === "Bench").length;
+                const leave = aData.filter(e => e.CURRENT_STATUS === "On Leave").length;
+                const utilization =
+                    aData.length
+                        ? Math.round(
+                            aData.reduce(
+                                (sum, emp) => sum + Number(emp.CURRENT_ALLOCATION),
+                                0
+                            ) / aData.length
+                        )
+                        : 0;
+
+                this.getView().getModel("summary")
+                    .setData({
+                        available,
+                        bench,
+                        leave,
+                        utilization,
+                        employeeCount: aData.length
+                    });
+            } catch (oError) {
+                console.error(oError);
+                sap.m.MessageBox.error("Failed to load resource forecast.");
+            }
         },
         _onObjectMatched: function (oEvent) {
-
-            const sProjectId =
-                oEvent.getParameter("arguments").projectId;
-
+            const sProjectId = oEvent.getParameter("arguments").projectId;
             this.getView().bindElement({
-
                 path: "/PROJECTS('" + sProjectId + "')",
-
                 parameters: {
                     $expand:
                         "manager," +
@@ -98,15 +168,12 @@ sap.ui.define([
                         "allocations($expand=employee)," +
                         "risks($expand=employee,skill)"
                 },
-
                 events: {
                     dataReceived: async () => {
-
                         const oProject =
                             this.getView()
                                 .getBindingContext()
                                 .getObject();
-
                         await this._loadRecommendations(oProject);
                     }
                 }
@@ -116,25 +183,19 @@ sap.ui.define([
         // Clicking a dashboard tile navigates to that section
         onTilePress: function (oEvent) {
 
-            const sKey =
-                oEvent.getSource().data("nav");
+            const sKey = oEvent.getSource().data("nav");
 
-            const oNavContainer =
-                this.byId("adminNavContainer");
-
+            const oNavContainer = this.byId("adminNavContainer");
             switch (sKey) {
                 case "employees":
                     oNavContainer.to(this.byId("employeesPage"));
                     break;
-
                 case "projects":
                     oNavContainer.to(this.byId("projectsPage"));
                     break;
-
                 case "allocations":
                     oNavContainer.to(this.byId("allocationsPage"));
                     break;
-
                 case "leave":
                     oNavContainer.to(this.byId("leavePage"));
                     break;
@@ -142,32 +203,29 @@ sap.ui.define([
                 case "risks":
                     oNavContainer.to(this.byId("risksPage"));
                     break;
-
                 case "skills":
                     oNavContainer.to(this.byId("skillsPage"));
                     break;
                 case "spof":
                     oNavContainer.to(this.byId("spofPage"));
                     break;
-
+                case "forecast":
+                    oNavContainer.to(this.byId("forecastPage"));
                 default:
                     MessageToast.show("Navigation not implemented for " + sKey);
             }
         },
 
         // DASHBOARD COUNTS
-
         _loadDashboardCounts: async function () {
             const oModel = this.getView().getModel();
             if (!oModel) return;
-
             const _count = async (sPath) => {
                 try {
                     const aCtx = await oModel.bindList(sPath).requestContexts(0, 9999);
                     return aCtx.length;
                 } catch (e) { return 0; }
             };
-
             const [nEmp, nProj, nAlloc, nLeave, nSkill] = await Promise.all([
                 _count("/EMPLOYEES"),
                 _count("/PROJECTS"),
@@ -182,14 +240,58 @@ sap.ui.define([
             this.byId("tileLeaveCount")?.setValue(String(nLeave));
             this.byId("tileSkillCount")?.setValue(String(nSkill));
 
+            const oDashModel = this.getView().getModel("dash");
+            oDashModel.setProperty("/empCount", nEmp);
+            oDashModel.setProperty("/projCount", nProj);
+            oDashModel.setProperty("/allocCount", nAlloc);
+            oDashModel.setProperty("/leaveCount", nLeave);
+            oDashModel.setProperty("/skillCount", nSkill);
+
             try {
                 const oFn = oModel.bindContext("/DetectSPOF(...)");
                 await oFn.invoke();
                 const aSpof = oFn.getBoundContext().getObject().value || [];
-                this.byId("tileSpofCount")?.setValue(String(aSpof.length));
+                const nSpof = aSpof.length;
+                this.byId("tileSpofCount")?.setValue(String(nSpof));
+
+                oDashModel.setProperty("/spofCount", nSpof);
+                oDashModel.setProperty(
+                    "/spofPercent",
+                    nSkill > 0 ? Math.round((nSpof / nSkill) * 100) : 0
+                );
             } catch (e) {
                 this.byId("tileSpofCount")?.setValue("—");
             }
+        },
+
+        // LEAVE REQUESTS — status breakdown for the dashboard donut chart
+
+        _loadLeaveBreakdown: async function () {
+            const oModel = this.getView().getModel();
+            if (!oModel) return;
+            const _countByStatus = async (sStatus) => {
+                try {
+                    const aCtx = await oModel
+                        .bindList("/LEAVE_CALENDAR", null, null, [
+                            new Filter("STATUS", FilterOperator.EQ, sStatus)
+                        ])
+                        .requestContexts(0, 9999);
+                    return aCtx.length;
+                } catch (e) {
+                    return 0;
+                }
+            };
+
+            const [nPending, nApproved, nRejected] = await Promise.all([
+                _countByStatus("PENDING"),
+                _countByStatus("APPROVED"),
+                _countByStatus("REJECTED")
+            ]);
+
+            const oDashModel = this.getView().getModel("dash");
+            oDashModel.setProperty("/leavePending", nPending);
+            oDashModel.setProperty("/leaveApproved", nApproved);
+            oDashModel.setProperty("/leaveRejected", nRejected);
         },
 
         // EMPLOYEE — Add Dialog
@@ -227,7 +329,6 @@ sap.ui.define([
                 const oEmpCtx = oModel.bindList("/EMPLOYEES").create(oPayload);
                 await oEmpCtx.created();
                 const sEmpId = oEmpCtx.getProperty("ID");
-
                 const aSkills = this.byId("empSkills").getSelectedKeys();
                 for (const sSkillId of aSkills) {
                     const oSkCtx = oModel.bindList("/EMPLOYEE_SKILLS").create({
@@ -238,7 +339,7 @@ sap.ui.define([
 
                 MessageToast.show("Employee Created Successfully");
                 this.byId("employeesTable")?.getBinding("items")?.refresh();
-                this._loadEmployeeSkills();
+                //this._loadEmployeeSkills();
                 this._loadDashboardCounts();
                 this._oEmployeeDialog.close();
                 this._clearEmployeeForm();
@@ -282,7 +383,6 @@ sap.ui.define([
         },
 
         onViewEmployee: function (oEvent) {
-
             const sEmployeeId =
                 oEvent.getSource()
                     .getBindingContext()
@@ -305,9 +405,7 @@ sap.ui.define([
             this._searchTimer = setTimeout(async () => {
                 try {
                     const sSearch = this.byId("employeeSearch").getValue();
-
                     const sStatus = this.byId("statusFilter").getSelectedKey();
-
                     const fMinExp =
                         parseFloat(
                             this.byId("experienceFilter")
@@ -322,8 +420,6 @@ sap.ui.define([
                     oAction.setParameter("top", 100);
                     await oAction.execute();
                     const aEmployees = oAction.getBoundContext().getObject().value || [];
-                    //this.getView().setModel(new JSONModel({ EMPLOYEES: [] }));
-
                     const oTable = this.byId("employeesTable");
                     const oBinding = oTable.getBinding("items");
                     this.getView().setModel(
@@ -334,7 +430,6 @@ sap.ui.define([
                     );
                     if (!aEmployees.length) {
                         oBinding.filter();
-
                         MessageToast.show("No employees found");
                         return;
                     }
@@ -345,7 +440,6 @@ sap.ui.define([
                             oEmp.ID
                         )
                     );
-
                     oBinding.filter([
                         new Filter({
                             filters: aFilters,
@@ -387,6 +481,62 @@ sap.ui.define([
                 this._oDesignationDialog.close();
             } catch (e) { MessageBox.error(e.message || "Failed"); }
         },
+        onDeleteDesignation: function (oEvent) {
+            const oContext = oEvent.getSource().getBindingContext();
+            if (!oContext) {return;}
+            const oModel = this.getView().getModel();
+            const oDesignation = oContext.getObject();
+            MessageBox.confirm(
+                "Are you sure you want to delete this designation?",
+                {
+                    actions: [
+                        MessageBox.Action.YES,
+                        MessageBox.Action.NO
+                    ],
+                    emphasizedAction: MessageBox.Action.NO,
+                    onClose: async (sAction) => {
+                        if (sAction !== MessageBox.Action.YES) {
+                            return;
+                        }
+                        try {
+                            // Check if any employee is using this designation
+                            const aEmployeeContexts = await oModel
+                                .bindList(
+                                    "/EMPLOYEES",
+                                    null,
+                                    null,
+                                    [
+                                        new Filter(
+                                            "DESIGNATION_ID",
+                                            FilterOperator.EQ,
+                                            oDesignation.ID
+                                        )
+                                    ]
+                                )
+                                .requestContexts(0, 1);
+                            if (aEmployeeContexts.length > 0) {
+                                MessageBox.warning(
+                                    "This designation is assigned to one or more employees and cannot be deleted."
+                                );
+                                return;
+                            }
+                            await oContext.delete("$auto");
+                            MessageToast.show(
+                                "Designation deleted successfully."
+                            );
+                            this.byId("designationsTable")
+                                .getBinding("items")
+                                .refresh();
+                        } catch (oError) {
+                            console.error(oError);
+                            MessageBox.error(
+                                oError.message || "Unable to delete designation."
+                            );
+                        }
+                    }
+                }
+            );
+        },
 
         // SKILL CATEGORY
 
@@ -417,6 +567,7 @@ sap.ui.define([
         },
 
         onEditSkillCategory: function () { this._editSelected("skillCategoriesTable", "CATEGORY_NAME"); },
+
         onDeleteSkillCategory: function () { this._deleteSelected("skillCategoriesTable"); },
 
         // SKILL
@@ -553,170 +704,91 @@ sap.ui.define([
         },
 
         onViewProject: function (oEvent) {
+            const sId = oEvent.getSource().getBindingContext().getProperty("ID");
+            const oFCL = this.getOwnerComponent().getRootControl().byId("fcl");
+            oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
 
-            const sId = oEvent.getSource()
-                .getBindingContext()
-                .getProperty("ID");
-
-            const oFCL = this.getOwnerComponent()
-                .getRootControl()
-                .byId("fcl");
-
-            oFCL.setLayout(
-                sap.f.LayoutType.TwoColumnsMidExpanded
-            );
-
-            this.getOwnerComponent()
-                .getRouter()
-                .navTo("ProjectDetail", {
+            this.getOwnerComponent().getRouter().navTo("ProjectDetail", {
                     projectId: sId
                 });
         },
         onProjectSearch: function (oEvent) {
-
             const sValue = oEvent.getParameter("newValue");
-
             const oTable = this.byId("projectsTable");
             const oBinding = oTable.getBinding("items");
-
             if (!sValue) {
                 oBinding.filter([]);
                 return;
             }
-
             const aFilters = [
                 new Filter("PROJECT_ID", FilterOperator.Contains, sValue),
                 new Filter("PROJECT_NAME", FilterOperator.Contains, sValue),
                 new Filter("DESCRIPTION", FilterOperator.Contains, sValue),
                 new Filter("STATUS", FilterOperator.Contains, sValue)
             ];
-
             oBinding.filter(new Filter({
                 filters: aFilters,
                 and: false
             }));
-
-        },
-
-        // EMPLOYEE SKILLS TAB
-
-        _loadEmployeeSkills: async function () {
-            const oModel = this.getView().getModel();
-            if (!oModel) return;
-            try {
-                const aCtx = await oModel.bindList("/EMPLOYEES", null, null, null, {
-                    $expand: "skills($expand=skill)"
-                }).requestContexts();
-
-                const aEmps = aCtx.map(oCtx => {
-                    const emp = oCtx.getObject();
-                    return {
-                        EMP_ID: emp.EMP_ID,
-                        NAME: emp.NAME,
-                        skillsText: emp.skills
-                            ? emp.skills.map(s => `${s.skill?.SKILL_NAME || "Unknown"} (Level ${s.PROFICIENCY_LEVEL})`).join(", ")
-                            : "—"
-                    };
-                });
-                this.getView().getModel("empSkills").setProperty("/employees", aEmps);
-            } catch (e) {
-                console.error("Failed to load employee skills:", e);
-            }
         },
         //SPOF Risks
         onLoadSpofRisks: async function () {
-
             const oModel = this.getView().getModel();
-
             try {
-
                 const oBinding = oModel.bindContext("/DetectSPOF(...)");
-
                 await oBinding.execute();
-
-                const oResult =
-                    oBinding.getBoundContext().getObject();
-
+                const oResult = oBinding.getBoundContext().getObject();
                 const aRisks = oResult.value || [];
+                const oRiskModel =new sap.ui.model.json.JSONModel({risks: aRisks});
 
-                const oRiskModel =
-                    new sap.ui.model.json.JSONModel({
-                        risks: aRisks
-                    });
-
-                this.getView().setModel(
-                    oRiskModel,
-                    "spof"
-                );
-
+                this.getView().setModel( oRiskModel,"spof");
                 this.byId("tileSpofCount")
                     ?.setValue(aRisks.length);
-
+                const oDashModel = this.getView().getModel("dash");
+                const nSkillCount = oDashModel.getProperty("/skillCount") || 0;
+                oDashModel.setProperty("/spofCount", aRisks.length);
+                oDashModel.setProperty(
+                    "/spofPercent",
+                    nSkillCount > 0 ? Math.round((aRisks.length / nSkillCount) * 100) : 0
+                );
             } catch (oError) {
-
-                console.error(
-                    "Error loading SPOF risks",
-                    oError
-                );
-
-                sap.m.MessageToast.show(
-                    "Failed to load SPOF Risks"
-                );
+                console.error("Error loading SPOF risks",oError);
+                sap.m.MessageToast.show("Failed to load SPOF Risks" );
             }
         },
-
         riskStateFormatter: function (sRiskLevel) {
-
             switch (sRiskLevel) {
-
                 case "HIGH":
                     return "Error";
-
                 case "MEDIUM":
                     return "Warning";
-
                 case "LOW":
                     return "Success";
-
                 default:
                     return "None";
             }
         },
         onApproveLeave: function (oEvent) {
-
             const oLeave =
-                oEvent.getSource()
-                    .getBindingContext()
-                    .getObject();
-
+                oEvent.getSource().getBindingContext().getObject();
             this._updateLeaveStatus(
                 oLeave.ID,
                 "APPROVED"
             );
-
         },
         onRejectLeave: function (oEvent) {
-
-            const oLeave =
-                oEvent.getSource()
-                    .getBindingContext()
-                    .getObject();
-
+            const oLeave =oEvent.getSource().getBindingContext().getObject();
             this._updateLeaveStatus(
                 oLeave.ID,
                 "REJECTED"
             );
-
         },
         _updateLeaveStatus: async function (
             leaveId,
             status
         ) {
-
             try {
-
-                const response = await fetch(
-                    "/odata/v4/admin/ApproveLeave",
+                const response = await fetch("/odata/v4/admin/ApproveLeave",
                     {
                         method: "POST",
                         headers: {
@@ -729,100 +801,62 @@ sap.ui.define([
                         })
                     }
                 );
-
                 if (!response.ok) {
-                    throw new Error(
-                        "Failed to update leave"
-                    );
+                    throw new Error( "Failed to update leave");
                 }
-
                 sap.m.MessageToast.show(
                     "Leave " +
                     status.toLowerCase() +
                     " successfully"
                 );
-
-                this.getView()
-                    .getModel()
-                    .refresh();
-
+                this.getView().getModel().refresh();
+                this._loadLeaveBreakdown();
+                this._loadAvailabilityForecast();
             } catch (error) {
-
                 sap.m.MessageBox.error(
                     error.message
                 );
-
             }
-
         },
         _loadAvailabilityForecast: async function () {
-
             try {
-
-                const oModel =
-                    this.getView().getModel();
-
-                const oAction =
-                    oModel.bindContext(
-                        "/GetAvailabilityForecast(...)"
-                    );
-
+                const oModel =this.getView().getModel();
+                const oAction =oModel.bindContext("/GetAvailabilityForecast(...)");
                 await oAction.execute();
-
-                const oData =
-                    oAction.getBoundContext()
-                        .getObject();
-                this.getView()
-                    .getModel("forecast")
-                    .setData(oData);
+                const oData =oAction.getBoundContext().getObject();
+                this.getView().getModel("forecast").setData(oData);
             } catch (e) {
                 console.error("Forecast Load Error", e);
             }
         },
         _loadRecommendations: async function (oProject) {
-
             const oModel = this.getView().getModel();
-
             let aRecommendations = [];
-
-            const aRequirements =
-                oProject.requirements || [];
-
+            const aRequirements =oProject.requirements || [];
             for (const oRequirement of aRequirements) {
-
-                const aSkills =
-                    oRequirement.requirementSkills || [];
-
+                const aSkills =oRequirement.requirementSkills || [];
                 for (const oSkill of aSkills) {
-
                     try {
-
                         const oAction =
                             oModel.bindContext(
                                 "/RecommendResources(...)"
                             );
-
                         console.log("Requirement Skill:", oSkill);
-
                         oAction.setParameter(
                             "skill_ID",
                             oSkill.skill?.ID || oSkill.skill_ID
                         );
-
                         oAction.setParameter(
                             "requiredLevel",
                             oSkill.REQUIRED_LEVEL
                         );
-
                         console.log(
                             "Calling RecommendResources",
                             oSkill.skill?.SKILL_NAME,
                             oSkill.skill?.ID || oSkill.skill_ID,
                             oSkill.REQUIRED_LEVEL
                         );
-
                         await oAction.execute();
-
                         const aResult =
                             oAction
                                 .getBoundContext()
@@ -830,28 +864,11 @@ sap.ui.define([
                                 .value || [];
 
                         aRecommendations.push(...aResult);
-
                     } catch (oError) {
                         console.error(oError);
                     }
                 }
             }
-
-            // Remove duplicates
-
-            // const oUnique = {};
-
-            // aRecommendations.forEach(emp => {
-
-            //     if (
-            //         !oUnique[emp.ID] ||
-            //         emp.AVAILABLE_PERCENT >
-            //         oUnique[emp.ID].AVAILABLE_PERCENT
-            //     ) {
-            //         oUnique[emp.ID] = emp;
-            //     }
-            // });
-
             const aFinal =
                 Object.values(oUnique)
                     .sort(
@@ -866,7 +883,194 @@ sap.ui.define([
                     "/recommendations",
                     aFinal
                 );
+        },
+        _loadForecast: async function () {
+            try {
+                const oModel = this.getOwnerComponent().getModel();
+                const oAction =
+                    oModel.bindContext("/GetResourceForecast(...)");
+                await oAction.invoke();
+                const aData =
+                    oAction.getBoundContext().getObject().value || [];
+                this.getView()
+                    .getModel("forecast")
+                    .setData({
+                        value: aData
+                    });
+                this._calculateSummary(aData);
+            } catch (e) {
+                console.error(e);
+                MessageToast.show(
+                    "Unable to load forecast."
+                );
+            }
+        },
+
+        _calculateSummary: function (aData) {
+            const available =
+                aData.filter(x =>
+                    x.CURRENT_STATUS === "Available"
+                ).length;
+            const bench =
+                aData.filter(x =>
+                    x.CURRENT_STATUS === "Bench"
+                ).length;
+            const leave =
+                aData.filter(x =>
+                    x.CURRENT_STATUS === "On Leave"
+                ).length;
+            const utilization =
+                aData.length
+                    ? Math.round(
+                        aData.reduce(
+                            (s, x) =>
+                                s + x.CURRENT_ALLOCATION,
+                            0
+                        ) / aData.length
+                    )
+                    : 0;
+            this.getView()
+                .getModel("summary")
+                .setData({
+                    available,
+                    bench,
+                    leave,
+                    utilization,
+                    employeeCount:
+                        aData.length
+
+                });
+        },
+        _applyFilters: function () {
+            const aFilters = [];
+            // Search
+            if (this._searchValue) {
+                aFilters.push(
+                    new Filter({
+                        filters: [
+                            new Filter(
+                                "NAME",
+                                FilterOperator.Contains,
+                                this._searchValue
+                            ),
+                            new Filter(
+                                "EMP_ID",
+                                FilterOperator.Contains,
+                                this._searchValue
+                            ),
+                            new Filter(
+                                "DESIGNATION",
+                                FilterOperator.Contains,
+                                this._searchValue
+                            )
+
+                        ],
+                        and: false
+                    })
+                );
+            }
+            // Status
+            if (this._statusValue) {
+                aFilters.push(
+                    new Filter(
+                        "CURRENT_STATUS",
+                        FilterOperator.EQ,
+                        this._statusValue
+                    )
+                );
+            }
+            // Allocation
+            if (this._allocationValue) {
+                switch (this._allocationValue) {
+                    case "0":
+                        aFilters.push(
+                            new Filter(
+                                "CURRENT_ALLOCATION",
+                                FilterOperator.EQ,
+                                0
+                            )
+                        );
+                        break;
+                    case "50":
+                        aFilters.push(
+                            new Filter(
+                                "CURRENT_ALLOCATION",
+                                FilterOperator.LT,
+                                50
+                            )
+                        );
+                        break;
+                    case "100":
+                        aFilters.push(
+                            new Filter(
+                                "CURRENT_ALLOCATION",
+                                FilterOperator.EQ,
+                                100
+                            )
+                        );
+                        break;
+                }
+            }
+            this.byId("forecastTable")
+                .getBinding("items")
+                .filter(aFilters);
+        },
+        onForecastSearch: function (oEvent) {
+            this._searchValue =
+                oEvent.getParameter("newValue");
+            this._applyFilters();
+        },
+        onStatusFilter: function (oEvent) {
+            this._statusValue =
+                oEvent.getSource().getSelectedKey();
+            this._applyFilters();
+        },
+        onAllocationFilter: function (oEvent) {
+            this._allocationValue =
+                oEvent.getSource().getSelectedKey();
+            this._applyFilters();
+        },
+        onClearFilters: function () {
+            this._searchValue = "";
+            this._statusValue = "";
+            this._allocationValue = "";
+            this.byId("forecastSearch").setValue("");
+            this.byId("statusFilter").setSelectedKey("");
+            this.byId("allocationFilter").setSelectedKey("");
+            this._applyFilters();
+            MessageToast.show("Filters cleared.");
+        },
+        onRefreshForecast: async function () {
+            await this._loadForecast();
+            this._searchValue = "";
+            this._statusValue = "";
+            this._allocationValue = "";
+            if (this.byId("forecastSearch")) {
+                this.byId("forecastSearch").setValue("");
+            }
+            if (this.byId("statusFilter")) {
+                this.byId("statusFilter").setSelectedKey("");
+            }
+            if (this.byId("allocationFilter")) {
+                this.byId("allocationFilter").setSelectedKey("");
+            }
+            this._applyFilters();
+            MessageToast.show("Forecast refreshed.");
+        },
+        onForecastPress: function (oEvent) {
+            const oContext =
+                oEvent.getSource()
+                    .getBindingContext("forecast");
+            if (!oContext) {
+                return;
+            }
+            const oData = oContext.getObject();
+            MessageToast.show(
+                "Employee : " + oData.NAME
+            );
         }
 
     });
+
 });
+
