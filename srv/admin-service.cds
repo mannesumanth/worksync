@@ -1,6 +1,7 @@
 using worksync.db as db from '../db/schema';
 
-//@requires: 'authenticated-user'
+@requires: 'authenticated-user'
+//@(requires: 'Admin')
 service AdminService{
 
     // Core Entities
@@ -97,4 +98,10 @@ service AdminService{
 
     function GetResourceForecast()
         returns array of ResourceForecast;
+    
+    function currentUser() returns {
+        id         : String;
+        isAdmin    : Boolean;
+        isEmployee : Boolean;
+    };
 }

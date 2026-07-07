@@ -26,7 +26,7 @@ module.exports = cds.service.impl(async function () {
         const employee = await db.run(
             SELECT.one.from(EMPLOYEES)
                 .where({
-                    EMAIL: 'manne.sumanth@amista.com' //req.user.id //
+                    EMAIL: req.user.id 
                 })
         );
         console.log("Logged User:", req.user.id);
@@ -36,7 +36,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'MyProfile', async req => {
         console.log("User =", req.user);
-        const email = 'manne.sumanth@amista.com';//req.user.id; //req.user.id
+        const email = req.user.id; //'manne.sumanth@amista.com';//req.user.id; 
         console.log("Email =", email);
         return await db.run(
             SELECT.one

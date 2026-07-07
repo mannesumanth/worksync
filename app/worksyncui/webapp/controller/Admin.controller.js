@@ -95,6 +95,20 @@ sap.ui.define([
 
         // SIDEBAR NAVIGATION
         onNavSelect: function (oEvent) {
+
+            const oFCL = this.getOwnerComponent()
+                .getRootControl()
+                .byId("fcl");
+
+            if (oFCL) {
+                oFCL.setLayout(sap.f.LayoutType.OneColumn);
+            }
+
+            this.getOwnerComponent()
+                .getRouter()
+                .navTo("Admin", {}, true);
+
+
             const oItem = oEvent.getParameter("item");
             const sKey = oItem.getKey();   // e.g. "employees", "dashboard"
 
@@ -117,7 +131,6 @@ sap.ui.define([
             // if (sKey === "employeeSkills") this._loadEmployeeSkills();
             if (sKey === "forecast") this._loadForecast();
         },
-        _loadForecast: async function () {
             try {
                 const oModel = this.getView().getModel();
                 const oAction = oModel.bindContext("/GetResourceForecast(...)");
@@ -156,7 +169,8 @@ sap.ui.define([
                 console.error(oError);
                 sap.m.MessageBox.error("Failed to load resource forecast.");
             }
-        },
+                _loadForecast: async function () {
+},
         _onObjectMatched: function (oEvent) {
             const sProjectId = oEvent.getParameter("arguments").projectId;
             this.getView().bindElement({
@@ -483,7 +497,7 @@ sap.ui.define([
         },
         onDeleteDesignation: function (oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
-            if (!oContext) {return;}
+            if (!oContext) { return; }
             const oModel = this.getView().getModel();
             const oDesignation = oContext.getObject();
             MessageBox.confirm(
@@ -524,9 +538,7 @@ sap.ui.define([
                             MessageToast.show(
                                 "Designation deleted successfully."
                             );
-                            this.byId("designationsTable")
-                                .getBinding("items")
-                                .refresh();
+                            this.byId("designationsTable").getBinding("items").refresh();
                         } catch (oError) {
                             console.error(oError);
                             MessageBox.error(
@@ -709,8 +721,8 @@ sap.ui.define([
             oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
 
             this.getOwnerComponent().getRouter().navTo("ProjectDetail", {
-                    projectId: sId
-                });
+                projectId: sId
+            });
         },
         onProjectSearch: function (oEvent) {
             const sValue = oEvent.getParameter("newValue");
@@ -739,9 +751,9 @@ sap.ui.define([
                 await oBinding.execute();
                 const oResult = oBinding.getBoundContext().getObject();
                 const aRisks = oResult.value || [];
-                const oRiskModel =new sap.ui.model.json.JSONModel({risks: aRisks});
+                const oRiskModel = new sap.ui.model.json.JSONModel({ risks: aRisks });
 
-                this.getView().setModel( oRiskModel,"spof");
+                this.getView().setModel(oRiskModel, "spof");
                 this.byId("tileSpofCount")
                     ?.setValue(aRisks.length);
                 const oDashModel = this.getView().getModel("dash");
@@ -752,8 +764,8 @@ sap.ui.define([
                     nSkillCount > 0 ? Math.round((aRisks.length / nSkillCount) * 100) : 0
                 );
             } catch (oError) {
-                console.error("Error loading SPOF risks",oError);
-                sap.m.MessageToast.show("Failed to load SPOF Risks" );
+                console.error("Error loading SPOF risks", oError);
+                sap.m.MessageToast.show("Failed to load SPOF Risks");
             }
         },
         riskStateFormatter: function (sRiskLevel) {
@@ -777,7 +789,7 @@ sap.ui.define([
             );
         },
         onRejectLeave: function (oEvent) {
-            const oLeave =oEvent.getSource().getBindingContext().getObject();
+            const oLeave = oEvent.getSource().getBindingContext().getObject();
             this._updateLeaveStatus(
                 oLeave.ID,
                 "REJECTED"
@@ -802,7 +814,7 @@ sap.ui.define([
                     }
                 );
                 if (!response.ok) {
-                    throw new Error( "Failed to update leave");
+                    throw new Error("Failed to update leave");
                 }
                 sap.m.MessageToast.show(
                     "Leave " +
@@ -820,10 +832,10 @@ sap.ui.define([
         },
         _loadAvailabilityForecast: async function () {
             try {
-                const oModel =this.getView().getModel();
-                const oAction =oModel.bindContext("/GetAvailabilityForecast(...)");
+                const oModel = this.getView().getModel();
+                const oAction = oModel.bindContext("/GetAvailabilityForecast(...)");
                 await oAction.execute();
-                const oData =oAction.getBoundContext().getObject();
+                const oData = oAction.getBoundContext().getObject();
                 this.getView().getModel("forecast").setData(oData);
             } catch (e) {
                 console.error("Forecast Load Error", e);
@@ -832,9 +844,9 @@ sap.ui.define([
         _loadRecommendations: async function (oProject) {
             const oModel = this.getView().getModel();
             let aRecommendations = [];
-            const aRequirements =oProject.requirements || [];
+            const aRequirements = oProject.requirements || [];
             for (const oRequirement of aRequirements) {
-                const aSkills =oRequirement.requirementSkills || [];
+                const aSkills = oRequirement.requirementSkills || [];
                 for (const oSkill of aSkills) {
                     try {
                         const oAction =
@@ -1011,9 +1023,7 @@ sap.ui.define([
                         break;
                 }
             }
-            this.byId("forecastTable")
-                .getBinding("items")
-                .filter(aFilters);
+            this.byId("forecastTable").getBinding("items").filter(aFilters);
         },
         onForecastSearch: function (oEvent) {
             this._searchValue =

@@ -1,7 +1,31 @@
 {
   "xsappname": "worksync",
   "tenant-mode": "dedicated",
-  "scopes": [],
-  "role-templates": [],
-  "attributes": []
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "Administrator access"
+    },
+    {
+      "name": "$XSAPPNAME.Employee",
+      "description": "Employee access"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Admin",
+      "description": "Administrator",
+      "scope-references": [
+        "$XSAPPNAME.Admin",
+        "$XSAPPNAME.Employee"
+      ]
+    },
+    {
+      "name": "Employee",
+      "description": "Employee",
+      "scope-references": [
+        "$XSAPPNAME.Employee"
+      ]
+    }
+  ]
 }

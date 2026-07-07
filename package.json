@@ -33,14 +33,11 @@
       "db": {
         "kind": "hana"
       },
-      "hybrid": {
-        "auth": "xsuaa"
-      },
-      "production": {
-        "auth": "xsuaa"
-      },
       "uaa": {
         "kind": "xsuaa"
+      },
+      "[production]": {
+        "auth": "xsuaa"
       }
     }
   },

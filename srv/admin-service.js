@@ -702,5 +702,12 @@ module.exports = cds.service.impl(async function () {
         return result;
 
     });
+    this.on("currentUser", req => {
+        return {
+            id: req.user.id,
+            isAdmin: req.user.is("Admin"),
+            isEmployee: req.user.is("Employee")
+        };
+    });
 
 });

@@ -98,6 +98,15 @@
           "autoExpandSelect": true,
           "earlyRequests": true
         }
+      },
+      "employee": {
+        "dataSource": "employeeService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
       }
     },
     "resources": {

@@ -13,31 +13,23 @@ sap.ui.define([
             const oRouter = this.getOwnerComponent().getRouter();
             try {
                 const oUser = await this._fetchCurrentUser();
-                const aScopes = (oUser && oUser.scopes) || [];
-                
-                const bIsAdmin = aScopes.some((s) => /\.Admin$/.test(s));
-                const bIsEmployee = aScopes.some((s) => /\.Employee$/.test(s));
-
-                if (bIsAdmin) {
+                console.log(oUser);
+                if (oUser.isAdmin) {
                     oRouter.navTo("Admin");
-                } else if (bIsEmployee) {
-                    oRouter.navTo("Employee");
                 } else {
-                    oRouter.navTo("Admin");
+                    oRouter.navTo("Employee");
                 }
-            } catch (oError) {
-                oRouter.navTo("Admin");
+            } catch (err) {
+                console.error("Failed to fetch user", err);
+                oRouter.navTo("Employee");
             }
         },
 
         _fetchCurrentUser: async function () {
-            const response = await fetch("/user-api/currentUser");
-            if (!response.ok) {
-                throw new Error(
-                    "/user-api/currentUser returned " + response.status
-                );
-            }
-            return response.json();
+            const oModel = this.getOwnerComponent().getModel();
+            const oBinding = oModel.bindContext("/currentUser(...)");
+            await oBinding.execute();
+            return oBinding.getBoundContext().getObject();
         }
     });
 

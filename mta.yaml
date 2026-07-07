@@ -8,11 +8,9 @@ modules:
     type: nodejs
     path: gen/srv
     requires:
+      - name: uaa_worksync
       - name: WorkSync-db
       - name: worksync-destination-service
-        parameters:
-          service-key:
-            name: worksync-destination-service-key
     provides:
       - name: srv-api
         properties:
@@ -33,6 +31,10 @@ modules:
         parameters:
           service-key:
             name: worksync_html_repo_host-key
+      - name: uaa_worksync
+        parameters:
+          service-key:
+            name: uaa_worksync-key
     parameters:
       content:
         instance:
@@ -40,6 +42,12 @@ modules:
             - Name: worksync_approuter_worksync_html_repo_host
               ServiceInstanceName: worksync-html5-app-host-service
               ServiceKeyName: worksync_html_repo_host-key
+              sap.cloud.service: worksync-approuter
+
+            - Authentication: OAuth2UserTokenExchange
+              Name: worksync_approuter_uaa_worksync
+              ServiceInstanceName: worksync-xsuaa-service
+              ServiceKeyName: uaa_worksync-key
               sap.cloud.service: worksync-approuter
 
           existing_destinations_policy: ignore
@@ -59,6 +67,7 @@ modules:
       - name: worksync_html_repo_host
         parameters:
           content-target: true
+      - name: uaa_worksync
     build-parameters:
       build-result: resources
       requires:
@@ -76,27 +85,7 @@ modules:
       commands:
         - npm install
         - npm run build:cf
-      supported-platforms:
-        []
-  - name: worksync
-    type: approuter.nodejs
-    path: app/router
-    parameters:
-      keep-existing-routes: true
-      disk-quota: 256M
-      memory: 256M
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: srv-api # must be used in xs-app.json as well
-          url: ~{srv-url}
-          forwardAuthToken: true
-    provides:
-      - name: app-api
-        properties:
-          app-protocol: ${protocol}
-          app-uri: ${default-uri}
+      supported-platforms: []
 
 resources:
   - name: worksync-destination-service
@@ -128,7 +117,9 @@ resources:
                 URL: ~{srv-api/srv-url}
 
             existing_destinations_policy: update
+
         version: 1.0.2
+
       service: destination
       service-name: worksync-destination-service
       service-plan: lite
@@ -142,6 +133,21 @@ resources:
       service: html5-apps-repo
       service-name: worksync-html5-app-host-service
       service-plan: app-host
+
+  - name: uaa_worksync
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        oauth2-configuration:
+          credential-types:
+            - binding-secret
+            - x509
+        tenant-mode: dedicated
+        xsappname: worksync-${org}-${space}
+      path: ./xs-security.json
+      service: xsuaa
+      service-name: worksync-xsuaa-service
+      service-plan: application
 
   - name: WorkSync-db
     type: com.sap.xs.hdi-container
