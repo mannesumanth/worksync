@@ -352,55 +352,50 @@
                     <content>
                         <!-- Leave Balance Summary -->
                         <HBox
-                            justifyContent="Start"
-                            wrap="Wrap"
-                            class="sapUiMediumMargin"
-                        >
-                            <fc:Card
-                                width="15rem"
-                                height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
-                                <fc:header>
-                                    <card:NumericHeader
-                                        title="Available"
-                                        subtitle="Leave Balance"
-                                        number="{leaveStats>/available}"
-                                        state="Good"
-                                    />
-                                </fc:header>
-                            </fc:Card>
+    justifyContent="Start"
+    wrap="Wrap"
+    class="sapUiMediumMargin">
 
-                            <fc:Card
-                                width="15rem"
-                                height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
-                                <fc:header>
-                                    <card:NumericHeader
-                                        title="Used"
-                                        subtitle="Leave Taken"
-                                        number="{leaveStats>/used}"
-                                        state="None"
-                                    />
-                                </fc:header>
-                            </fc:Card>
+    <fc:Card
+        width="15rem"
+        height="10rem"
+        class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+        <fc:header>
+            <card:NumericHeader
+                title="Available"
+                subtitle="Leave Balance"
+                number="{leaveStats>/available}"
+                state="Good"/>
+        </fc:header>
+    </fc:Card>
 
-                            <fc:Card
-                                width="15rem"
-                                height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
-                                <fc:header>
-                                    <card:NumericHeader
-                                        title="Pending"
-                                        subtitle="Awaiting Approval"
-                                        number="{leaveStats>/pending}"
-                                        state="Critical"
-                                    />
-                                </fc:header>
-                            </fc:Card>
-                        </HBox>
+    <fc:Card
+        width="15rem"
+        height="10rem"
+        class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+        <fc:header>
+            <card:NumericHeader
+                title="Used"
+                subtitle="Leave Taken"
+                number="{leaveStats>/used}"
+                state="None"/>
+        </fc:header>
+    </fc:Card>
+
+    <fc:Card
+        width="15rem"
+        height="10rem"
+        class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+        <fc:header>
+            <card:NumericHeader
+                title="Pending"
+                subtitle="Awaiting Approval"
+                number="{leaveStats>/pending}"
+                state="Critical"/>
+        </fc:header>
+    </fc:Card>
+
+</HBox>
                         <Panel
                             headerText="My Leave Calendar"
                             expandable="false"

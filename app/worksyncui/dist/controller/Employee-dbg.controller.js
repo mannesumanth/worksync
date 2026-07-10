@@ -41,103 +41,103 @@ sap.ui.define([
                 }
             },
             //Load Profile
-            _loadProfile: async function () {
-                try {
-                    const oModel = this.getOwnerComponent().getModel("employee");
+           _loadProfile: async function () {
+    try {
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const aContexts = await oModel
-                        .bindList("/MyProfile")
-                        .requestContexts(0, 1);
+        const aContexts = await oModel
+            .bindList("/MyProfile")
+            .requestContexts(0, 1);
 
-                    if (aContexts.length) {
-                        this.getView().setBindingContext(aContexts[0], "employee");
-                    }
+        if (aContexts.length) {
+            this.getView().setBindingContext(aContexts[0], "employee");
+        }
 
-                } catch (err) {
-                    console.error("Profile Load Error", err);
-                }
-            },
+    } catch (err) {
+        console.error("Profile Load Error", err);
+    }
+},
             //Load Projects
             _loadProjects: async function () {
 
-                try {
+    try {
 
-                    const oModel = this.getOwnerComponent().getModel("employee");
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const aContexts = await oModel
-                        .bindList("/MyProjects")
-                        .requestContexts();
+        const aContexts = await oModel
+            .bindList("/MyProjects")
+            .requestContexts();
 
-                    this.getView().setModel(
-                        new sap.ui.model.json.JSONModel({
-                            value: aContexts.map(c => c.getObject())
-                        }),
-                        "projects"
-                    );
+        this.getView().setModel(
+            new sap.ui.model.json.JSONModel({
+                value: aContexts.map(c => c.getObject())
+            }),
+            "projects"
+        );
 
-                } catch (err) {
+    } catch (err) {
 
-                    console.error(err);
+        console.error(err);
 
-                }
+    }
 
-            },
+},
 
             //Load Skills
             _loadSkills: async function () {
 
-                try {
+    try {
 
-                    const oModel = this.getOwnerComponent().getModel("employee");
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const aContexts = await oModel
-                        .bindList("/MySkills")
-                        .requestContexts();
+        const aContexts = await oModel
+            .bindList("/MySkills")
+            .requestContexts();
 
-                    this.getView().setModel(
-                        new sap.ui.model.json.JSONModel({
-                            value: aContexts.map(c => c.getObject())
-                        }),
-                        "skills"
-                    );
+        this.getView().setModel(
+            new sap.ui.model.json.JSONModel({
+                value: aContexts.map(c => c.getObject())
+            }),
+            "skills"
+        );
 
-                } catch (err) {
+    } catch (err) {
 
-                    console.error(err);
+        console.error(err);
 
-                }
+    }
 
-            },
+},
             //Load Leave
             _loadLeaves: async function () {
 
-                try {
+    try {
 
-                    const oModel = this.getOwnerComponent().getModel("employee");
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const aContexts = await oModel
-                        .bindList("/MyLeaves")
-                        .requestContexts();
+        const aContexts = await oModel
+            .bindList("/MyLeaves")
+            .requestContexts();
 
-                    const aLeaves = aContexts.map(c => c.getObject());
+        const aLeaves = aContexts.map(c => c.getObject());
 
-                    this.getView().setModel(
-                        new sap.ui.model.json.JSONModel({
-                            value: aLeaves
-                        }),
-                        "leaves"
-                    );
+        this.getView().setModel(
+            new sap.ui.model.json.JSONModel({
+                value: aLeaves
+            }),
+            "leaves"
+        );
 
-                    this._calculateLeaveStats(aLeaves);
-                    this._loadLeaveCalendar(aLeaves);
+        this._calculateLeaveStats(aLeaves);
+        this._loadLeaveCalendar(aLeaves);
 
-                } catch (err) {
+    } catch (err) {
 
-                    console.error(err);
+        console.error(err);
 
-                }
+    }
 
-            },
+},
             //Calculate Leave Stats
             _calculateLeaveStats: function (aLeaves) {
                 let used = 0;
@@ -178,79 +178,79 @@ sap.ui.define([
             //Apply Leave
             onApplyLeave: async function () {
 
-                try {
+    try {
 
-                    const leaveType = this.byId("leaveType").getSelectedKey();
-                    const dFrom = this.byId("leaveStartDate").getDateValue();
-                    const dTo = this.byId("leaveEndDate").getDateValue();
-                    const reason = this.byId("leaveReason").getValue();
+        const leaveType = this.byId("leaveType").getSelectedKey();
+        const dFrom = this.byId("leaveStartDate").getDateValue();
+        const dTo = this.byId("leaveEndDate").getDateValue();
+        const reason = this.byId("leaveReason").getValue();
 
-                    if (!leaveType || !dFrom || !dTo || !reason) {
-                        MessageBox.error("Please fill all fields");
-                        return;
-                    }
+        if (!leaveType || !dFrom || !dTo || !reason) {
+            MessageBox.error("Please fill all fields");
+            return;
+        }
 
-                    const oFormat = sap.ui.core.format.DateFormat.getDateInstance({
-                        pattern: "yyyy-MM-dd"
-                    });
+        const oFormat = sap.ui.core.format.DateFormat.getDateInstance({
+            pattern: "yyyy-MM-dd"
+        });
 
-                    const oModel = this.getOwnerComponent().getModel("employee");
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const oAction = oModel.bindContext("/ApplyLeave(...)");
+        const oAction = oModel.bindContext("/ApplyLeave(...)");
 
-                    oAction.setParameter("leaveType", leaveType);
-                    oAction.setParameter("leaveFrom", oFormat.format(dFrom));
-                    oAction.setParameter("leaveTo", oFormat.format(dTo));
-                    oAction.setParameter("reason", reason);
+        oAction.setParameter("leaveType", leaveType);
+        oAction.setParameter("leaveFrom", oFormat.format(dFrom));
+        oAction.setParameter("leaveTo", oFormat.format(dTo));
+        oAction.setParameter("reason", reason);
 
-                    await oAction.execute();
+        await oAction.execute();
 
-                    MessageToast.show("Leave applied successfully");
+        MessageToast.show("Leave applied successfully");
 
-                    this.byId("leaveType").setSelectedKey("");
-                    this.byId("leaveStartDate").setValue("");
-                    this.byId("leaveEndDate").setValue("");
-                    this.byId("leaveReason").setValue("");
-                    this.byId("leaveDays").setValue("");
+        this.byId("leaveType").setSelectedKey("");
+        this.byId("leaveStartDate").setValue("");
+        this.byId("leaveEndDate").setValue("");
+        this.byId("leaveReason").setValue("");
+        this.byId("leaveDays").setValue("");
 
-                    await this._loadLeaves();
+        await this._loadLeaves();
 
-                } catch (err) {
+    } catch (err) {
 
-                    console.error(err);
-                    MessageBox.error(err.message || "Unable to apply leave");
+        console.error(err);
+        MessageBox.error(err.message || "Unable to apply leave");
 
-                }
-            },
+    }
+},
             //Cancel Leave
             onCancelLeave: async function (oEvent) {
 
-                try {
+    try {
 
-                    const oLeave = oEvent.getSource()
-                        .getBindingContext("leaves")
-                        .getObject();
+        const oLeave = oEvent.getSource()
+            .getBindingContext("leaves")
+            .getObject();
 
-                    const oModel = this.getOwnerComponent().getModel("employee");
+        const oModel = this.getOwnerComponent().getModel("employee");
 
-                    const oAction = oModel.bindContext("/CancelLeave(...)");
+        const oAction = oModel.bindContext("/CancelLeave(...)");
 
-                    oAction.setParameter("leaveId", oLeave.ID);
+        oAction.setParameter("leaveId", oLeave.ID);
 
-                    await oAction.execute();
+        await oAction.execute();
 
-                    MessageToast.show("Leave cancelled successfully");
+        MessageToast.show("Leave cancelled successfully");
 
-                    await this._loadLeaves();
+        await this._loadLeaves();
 
-                } catch (err) {
+    } catch (err) {
 
-                    console.error(err);
-                    MessageBox.error(err.message || "Unable to cancel leave");
+        console.error(err);
+        MessageBox.error(err.message || "Unable to cancel leave");
 
-                }
+    }
 
-            },
+},
             //Load Leave Calendar
             _loadLeaveCalendar: function (aLeaves) {
                 const oCalendar =

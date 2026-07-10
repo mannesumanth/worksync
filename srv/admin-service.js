@@ -345,11 +345,7 @@ module.exports = cds.service.impl(async function () {
         if (status) {
             query.where({ STATUS: status });
         }
-
-        if (designation) {
-            query.where({ DESIGNATION_ID: designation });
-        }
-
+        
         if (minExp > 0.0) {
             query.where({ EXPERIENCE: { '>=': minExp } });
         }
@@ -703,8 +699,19 @@ module.exports = cds.service.impl(async function () {
 
     });
     this.on("currentUser", req => {
+
+        console.log("========== CURRENT USER ==========");
+        console.log("User:", req.user);
+        console.log("ID:", req.user.id);
+        console.log("Scopes:", req.user.scopes);
+        console.log("Attributes:", req.user.attr);
+        console.log("Admin?", req.user.is("Admin"));
+        console.log("Employee?", req.user.is("Employee"));
+
         return {
             id: req.user.id,
+            scopes: req.user.scopes,
+            attr: req.user.attr,
             isAdmin: req.user.is("Admin"),
             isEmployee: req.user.is("Employee")
         };

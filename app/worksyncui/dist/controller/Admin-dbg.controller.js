@@ -454,7 +454,7 @@ sap.ui.define([
         // EMPLOYEE SEARCH
 
         onEmployeeFilterChange: function () {
-            //clearTimeout(this._searchTimer);
+            clearTimeout(this._searchTimer);
             this._searchTimer = setTimeout(async () => {
                 try {
                     const sSearch = this.byId("employeeSearch").getValue();

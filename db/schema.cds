@@ -3,12 +3,10 @@ namespace worksync.db;
 using { managed } from '@sap/cds/common';
 
   // ENUMS
-
 type Role : String enum {
     ADMIN;
     EMPLOYEE;
 }
-
 type EmployeeStatus : String enum {
     ONBOARDING;
     ACTIVE;
@@ -17,7 +15,6 @@ type EmployeeStatus : String enum {
     RESIGNED;
     TERMINATED;
 }
-
 type ProjectStatus : String enum {
     ACTIVE;
     COMPLETED;
@@ -26,50 +23,36 @@ type ProjectStatus : String enum {
     CANCELLED;
     DRAFT;
 }
-
 type ProjectPriority : String enum {
     LOW;
     MEDIUM;
     HIGH;
     CRITICAL;
 }
-
 type AllocationStatus : String enum {
     PLANNED;
     ACTIVE;
     RELEASED;
     COMPLETED;
 }
-
 type LeaveStatus : String enum {
     PENDING;
     APPROVED;
     REJECTED;
-    CANCELLED;
 }
-
 type LeaveType : String enum {
     CASUAL;
     SICK;
     EARNED;
     MATERNITY;
-    PATERNITY;
     UNPAID;
 }
-
 type RiskType : String enum {
     SPOF;
     SKILL_GAP;
     RESOURCE_SHORTAGE;
     OVERALLOCATION;
 }
-
-type RiskStatus : String enum {
-    OPEN;
-    MITIGATED;
-    CLOSED;
-}
-
 //EMPLOYEES
 entity EMPLOYEES : managed {
     key ID                  : UUID;
@@ -100,7 +83,6 @@ entity DESIGNATIONS : managed {
     NAME               : String(100) @mandatory @assert.unique;
     LEVEL              : Integer;
 }
-
   // SKILL CATEGORY
 entity SKILL_CATEGORIES : managed {
     key ID                  : UUID;
@@ -155,10 +137,6 @@ entity PROJECTS : managed {
 
     allocations             : Composition of many ALLOCATIONS
                               on allocations.project = $self;
-
-    risks                   : Composition of many PROJECT_RISK_ANALYSIS
-                              on risks.project = $self;
-
     virtual TEAM_SIZE : Integer;
     virtual TOTAL_ALLOCATION : Decimal(7,2);
 }
@@ -247,29 +225,4 @@ entity LEAVE_BALANCE : managed {
 
     EARNED_AVAILABLE        : Integer default 0;
     EARNED_USED             : Integer default 0;
-}
-
-   //EMPLOYEE BACKUPS
-
-entity EMPLOYEE_BACKUPS : managed {
-    key ID                  : UUID;
-    employee                : Association to EMPLOYEES @mandatory;
-    backupEmployee          : Association to EMPLOYEES @mandatory;
-    skill                   : Association to SKILLS;
-    IS_ACTIVE               : Boolean default true;
-}
-
-   //PROJECT RISK ANALYSIS
-
-entity PROJECT_RISK_ANALYSIS : managed {
-    key ID                  : UUID;
-    RISK_ID                 : String(20);
-    project                 : Association to PROJECTS @mandatory;
-    employee                : Association to EMPLOYEES;
-    skill                   : Association to SKILLS;
-    RISK_TYPE               : RiskType;
-    RISK_STATUS             : RiskStatus default 'OPEN';
-    @assert.range:[1,10]
-    RISK_SCORE              : Integer;
-    COMMENTS                : String(500);
 }

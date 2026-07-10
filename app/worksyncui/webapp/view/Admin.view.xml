@@ -1,103 +1,45 @@
-<mvc:View
-    controllerName="com.amista.worksyncui.controller.Admin"
+<mvc:View controllerName="com.amista.worksyncui.controller.Admin"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:tnt="sap.tnt"
     xmlns:core="sap.ui.core"
-    xmlns:f="sap.ui.layout.form"
-    displayBlock="true"
+    xmlns:f="sap.ui.layout.form" displayBlock="true"
     xmlns:layout="sap.ui.layout"
     xmlns:fc="sap.f"
     xmlns:card="sap.f.cards"
-    xmlns:suite="sap.suite.ui.microchart"
->
+    xmlns:suite="sap.suite.ui.microchart">
     <tnt:ToolPage id="adminToolPage">
         <!-- SIDE NAVIGATION-->
         <tnt:sideContent>
             <tnt:SideNavigation itemSelect=".onNavSelect">
                 <tnt:NavigationList>
-                    <tnt:NavigationListItem
-                        text="Dashboard"
-                        icon="sap-icon://home"
-                        key="dashboard"
-                    />
+                    <tnt:NavigationListItem text="Dashboard" icon="sap-icon://home" key="dashboard" />
 
-                    <tnt:NavigationListItem
-                        text="Master Data"
-                        icon="sap-icon://database"
-                    >
-                        <tnt:NavigationListItem
-                            text="Employees"
-                            icon="sap-icon://employee"
-                            key="employees"
-                        />
+                    <tnt:NavigationListItem text="Master Data" icon="sap-icon://database">
+                        <tnt:NavigationListItem text="Employees" icon="sap-icon://employee" key="employees" />
 
-                        <tnt:NavigationListItem
-                            text="Designations"
-                            icon="sap-icon://manager"
-                            key="designations"
-                        />
+                        <tnt:NavigationListItem text="Designations" icon="sap-icon://manager" key="designations" />
 
-                        <tnt:NavigationListItem
-                            text="Skill Categories"
-                            icon="sap-icon://group"
-                            key="skillCategories"
-                        />
+                        <tnt:NavigationListItem text="Skill Categories" icon="sap-icon://group" key="skillCategories" />
 
-                        <tnt:NavigationListItem
-                            text="Skills"
-                            icon="sap-icon://competitor"
-                            key="skills"
-                        />
+                        <tnt:NavigationListItem text="Skills" icon="sap-icon://competitor" key="skills" />
 
-                        <!-- <tnt:NavigationListItem
-                            text="Employee Skills"
-                            icon="sap-icon://education"
-                            key="employeeSkills"/> -->
+                        <!-- <tnt:NavigationListItem text="Employee Skills" icon="sap-icon://education" key="employeeSkills"/> -->
                     </tnt:NavigationListItem>
 
-                    <tnt:NavigationListItem
-                        text="Projects"
-                        icon="sap-icon://project-definition-triangle-2"
-                    >
-                        <tnt:NavigationListItem
-                            text="Projects"
-                            icon="sap-icon://project-definition-triangle-2"
-                            key="projects"
-                        />
+                    <tnt:NavigationListItem text="Projects" icon="sap-icon://project-definition-triangle-2">
+                        <tnt:NavigationListItem text="Projects" icon="sap-icon://project-definition-triangle-2" key="projects" />
 
-                        <tnt:NavigationListItem
-                            text="Allocations"
-                            icon="sap-icon://business-objects-experience"
-                            key="allocations"
-                        />
+                        <tnt:NavigationListItem text="Allocations" icon="sap-icon://business-objects-experience" key="allocations" />
                     </tnt:NavigationListItem>
 
-                    <tnt:NavigationListItem
-                        text="Leave Management"
-                        icon="sap-icon://calendar"
-                    >
-                        <tnt:NavigationListItem
-                            text="Leave Calendar"
-                            icon="sap-icon://calendar"
-                            key="leave"
-                        />
+                    <tnt:NavigationListItem text="Leave Management" icon="sap-icon://calendar">
+                        <tnt:NavigationListItem text="Leave Calendar" icon="sap-icon://calendar" key="leave" />
                     </tnt:NavigationListItem>
 
-                    <tnt:NavigationListItem
-                        text="Analytics"
-                        icon="sap-icon://business-objects-experience"
-                    >
-                        <tnt:NavigationListItem
-                            text="SPOF Risks"
-                            icon="sap-icon://alert"
-                            key="spof"
-                        />
-                        <tnt:NavigationListItem
-                            key="forecast"
-                            text="Forecast"
-                            icon="sap-icon://line-chart"
-                        />
+                    <tnt:NavigationListItem text="Analytics" icon="sap-icon://business-objects-experience">
+                        <tnt:NavigationListItem text="SPOF Risks" icon="sap-icon://alert" key="spof" />
+                        <tnt:NavigationListItem key="forecast" text="Forecast" icon="sap-icon://line-chart" />
                     </tnt:NavigationListItem>
                 </tnt:NavigationList>
             </tnt:SideNavigation>
@@ -108,265 +50,111 @@
         <tnt:mainContents>
             <NavContainer id="adminNavContainer">
                 <!-- DASHBOARD PAGE -->
-                <Page
-                    id="dashboardPage"
-                    title="Dashboard"
-                    showHeader="true"
-                >
+                <Page id="dashboardPage" title="Dashboard" showHeader="true">
                     <content>
                         <VBox class="sapUiResponsiveMargin">
                             <!-- KEY METRICS -->
-                            <Title
-                                text="Key Metrics"
-                                level="H3"
-                                class="sapUiSmallMarginTop sapUiTinyMarginBottom"
-                            />
-                            <HBox
-                                wrap="Wrap"
-                                class="sapUiTinyMarginBottom"
-                            >
-                                <GenericTile
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                                    header="Employees"
-                                    subheader="Total Headcount"
-                                    press="onTilePress"
-                                >
+                            <Title text="Key Metrics" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap" class="sapUiTinyMarginBottom">
+                                <GenericTile class="sapUiTinyMarginEnd sapUiTinyMarginBottom" header="Employees" subheader="Total Headcount" press="onTilePress">
                                     <customData>
-                                        <core:CustomData
-                                            key="nav"
-                                            value="employees"
-                                        />
+                                        <core:CustomData key="nav" value="employees" />
                                     </customData>
                                     <TileContent>
-                                        <NumericContent
-                                            id="tileEmpCount"
-                                            value="0"
-                                            icon="sap-icon://employee"
-                                        />
+                                        <NumericContent id="tileEmpCount" value="0" icon="sap-icon://employee" />
                                     </TileContent>
                                 </GenericTile>
-                                <GenericTile
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                                    header="Projects"
-                                    subheader="Active Projects"
-                                    press="onTilePress"
-                                >
+                                <GenericTile class="sapUiTinyMarginEnd sapUiTinyMarginBottom" header="Projects" subheader="Active Projects" press="onTilePress">
                                     <customData>
-                                        <core:CustomData
-                                            key="nav"
-                                            value="projects"
-                                        />
+                                        <core:CustomData key="nav" value="projects" />
                                     </customData>
                                     <TileContent>
-                                        <NumericContent
-                                            id="tileProjCount"
-                                            value="0"
-                                            icon="sap-icon://project-definition-triangle-2"
-                                        />
+                                        <NumericContent id="tileProjCount" value="0" icon="sap-icon://project-definition-triangle-2" />
                                     </TileContent>
                                 </GenericTile>
-                                <GenericTile
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                                    header="Allocations"
-                                    subheader="Active Allocations"
-                                    press="onTilePress"
-                                >
+                                <GenericTile class="sapUiTinyMarginEnd sapUiTinyMarginBottom" header="Allocations" subheader="Active Allocations" press="onTilePress">
                                     <customData>
-                                        <core:CustomData
-                                            key="nav"
-                                            value="allocations"
-                                        />
+                                        <core:CustomData key="nav" value="allocations" />
                                     </customData>
                                     <TileContent>
-                                        <NumericContent
-                                            id="tileAllocCount"
-                                            value="0"
-                                            icon="sap-icon://business-objects-experience"
-                                        />
+                                        <NumericContent id="tileAllocCount" value="0" icon="sap-icon://business-objects-experience" />
                                     </TileContent>
                                 </GenericTile>
-                                <GenericTile
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                                    header="SPOF Risks"
-                                    subheader="Critical Skills"
-                                    press="onTilePress"
-                                >
+                                <GenericTile class="sapUiTinyMarginEnd sapUiTinyMarginBottom" header="SPOF Risks" subheader="Critical Skills" press="onTilePress">
                                     <customData>
-                                        <core:CustomData
-                                            key="nav"
-                                            value="spof"
-                                        />
+                                        <core:CustomData key="nav" value="spof" />
                                     </customData>
                                     <TileContent>
-                                        <NumericContent
-                                            id="tileSpofCount"
-                                            value="0"
-                                            valueColor="Critical"
-                                            icon="sap-icon://alert"
-                                        />
+                                        <NumericContent id="tileSpofCount" value="0" valueColor="Critical" icon="sap-icon://alert" />
                                     </TileContent>
                                 </GenericTile>
-                                <GenericTile
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
-                                    header="Skills"
-                                    subheader="Registered Skills"
-                                    press="onTilePress"
-                                >
+                                <GenericTile class="sapUiTinyMarginEnd sapUiTinyMarginBottom" header="Skills" subheader="Registered Skills" press="onTilePress">
                                     <customData>
-                                        <core:CustomData
-                                            key="nav"
-                                            value="skills"
-                                        />
+                                        <core:CustomData key="nav" value="skills" />
                                     </customData>
                                     <TileContent>
-                                        <NumericContent
-                                            id="tileSkillCount"
-                                            value="0"
-                                            icon="sap-icon://competitor"
-                                        />
+                                        <NumericContent id="tileSkillCount" value="0" icon="sap-icon://competitor" />
                                     </TileContent>
                                 </GenericTile>
                             </HBox>
 
                             <!-- ANALYTICS / VISUALIZATION FRAMES -->
-                            <Title
-                                text="Analytics &amp; Insights"
-                                level="H3"
-                                class="sapUiSmallMarginTop sapUiTinyMarginBottom"
-                            />
+                            <Title text="Analytics &amp; Insights" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
                             <HBox wrap="Wrap">
                                 <!-- Workforce availability -->
-                                <fc:Card
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom dashboardCard"
-                                    width="22rem"
-                                >
+                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
                                     <fc:header>
-                                        <card:Header
-                                            title="Workforce Availability"
-                                            subtitle="Employees free of full-time leave"
-                                            iconSrc="sap-icon://team"
-                                            press="onTilePress"
-                                        >
+                                        <card:Header title="Workforce Availability" subtitle="Employees free of full-time leave" iconSrc="sap-icon://team" press="onTilePress">
                                             <card:customData>
-                                                <core:CustomData
-                                                    key="nav"
-                                                    value="leave"
-                                                />
+                                                <core:CustomData key="nav" value="forecast" />
                                             </card:customData>
                                         </card:Header>
                                     </fc:header>
                                     <fc:content>
                                         <VBox class="sapUiSmallMargin">
-                                            <suite:ComparisonMicroChart
-                                                size="M"
-                                                colorPalette="sapUiChartPaletteQualitativeHue1, sapUiChartPaletteQualitativeHue2"
-                                            >
+                                            <suite:ComparisonMicroChart size="M" colorPalette="sapUiChartPaletteQualitativeHue1, sapUiChartPaletteQualitativeHue2">
                                                 <suite:data>
-                                                    <suite:ComparisonMicroChartData
-                                                        title="This Month"
-                                                        value="{forecast>/currentMonthAvailable}"
-                                                        displayValue="{forecast>/currentMonthAvailable}"
-                                                        color="Good"
-                                                    />
-                                                    <suite:ComparisonMicroChartData
-                                                        title="Next Month"
-                                                        value="{forecast>/nextMonthAvailable}"
-                                                        displayValue="{forecast>/nextMonthAvailable}"
-                                                        color="Neutral"
-                                                    />
+                                                    <suite:ComparisonMicroChartData title="This Month" value="{forecast>/currentMonthAvailable}" displayValue="{forecast>/currentMonthAvailable}" color="Good" />
+                                                    <suite:ComparisonMicroChartData title="Next Month" value="{forecast>/nextMonthAvailable}" displayValue="{forecast>/nextMonthAvailable}" color="Neutral" />
                                                 </suite:data>
                                             </suite:ComparisonMicroChart>
-                                            <Text
-                                                text="{forecast>/pendingLeaves} leave request(s) awaiting approval"
-                                                class="sapUiTinyMarginTop"
-                                            />
+                                            <Text text="{forecast>/pendingLeaves} leave request(s) awaiting approval" class="sapUiTinyMarginTop" />
                                         </VBox>
                                     </fc:content>
                                 </fc:Card>
 
                                 <!-- SPOF risk -->
-                                <fc:Card
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom dashboardCard"
-                                    width="18rem"
-                                >
+                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
                                     <fc:header>
-                                        <card:Header
-                                            title="Single Point of Failure Risk"
-                                            subtitle="% of skills held by only one person"
-                                            iconSrc="sap-icon://alert"
-                                            press="onTilePress"
-                                        >
+                                        <card:Header title="Single Point of Failure Risk" subtitle="% of skills held by only one person" iconSrc="sap-icon://alert" press="onTilePress">
                                             <card:customData>
-                                                <core:CustomData
-                                                    key="nav"
-                                                    value="spof"
-                                                />
+                                                <core:CustomData key="nav" value="spof" />
                                             </card:customData>
                                         </card:Header>
                                     </fc:header>
                                     <fc:content>
-                                        <VBox
-                                            class="sapUiSmallMargin"
-                                            alignItems="Center"
-                                        >
-                                            <suite:RadialMicroChart
-                                                id="spofRadialChart"
-                                                size="L"
-                                                percentage="{dash>/spofPercent}"
-                                                valueColor="Error"
-                                            />
-                                            <Text
-                                                text="{dash>/spofCount} of {dash>/skillCount} skills at risk"
-                                                class="sapUiTinyMarginTop"
-                                            />
+                                        <VBox class="sapUiSmallMargin" alignItems="Center">
+                                            <suite:RadialMicroChart id="spofRadialChart" size="L" percentage="{dash>/spofPercent}" valueColor="Error" />
+                                            <Text text="{dash>/spofCount} of {dash>/skillCount} skills at risk" class="sapUiTinyMarginTop" />
                                         </VBox>
                                     </fc:content>
                                 </fc:Card>
 
                                 <!-- Leave requests breakdown -->
-                                <fc:Card
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom dashboardCard"
-                                    width="20rem"
-                                >
+                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
                                     <fc:header>
-                                        <card:Header
-                                            title="Leave Requests"
-                                            subtitle="Breakdown by status"
-                                            iconSrc="sap-icon://calendar"
-                                            press="onTilePress"
-                                        >
+                                        <card:Header title="Leave Requests" subtitle="Breakdown by status" iconSrc="sap-icon://calendar" press="onTilePress">
                                             <card:customData>
-                                                <core:CustomData
-                                                    key="nav"
-                                                    value="leave"
-                                                />
+                                                <core:CustomData key="nav" value="leave" />
                                             </card:customData>
                                         </card:Header>
                                     </fc:header>
                                     <fc:content>
-                                        <suite:InteractiveDonutChart
-                                            id="leaveDonutChart"
-                                            class="sapUiSmallMargin"
-                                        >
+                                        <suite:InteractiveDonutChart id="leaveDonutChart" class="sapUiSmallMargin">
                                             <suite:segments>
-                                                <suite:InteractiveDonutChartSegment
-                                                    label="Pending"
-                                                    value="{dash>/leavePending}"
-                                                    displayedValue="{dash>/leavePending}"
-                                                    color="Critical"
-                                                />
-                                                <suite:InteractiveDonutChartSegment
-                                                    label="Approved"
-                                                    value="{dash>/leaveApproved}"
-                                                    displayedValue="{dash>/leaveApproved}"
-                                                    color="Good"
-                                                />
-                                                <suite:InteractiveDonutChartSegment
-                                                    label="Rejected"
-                                                    value="{dash>/leaveRejected}"
-                                                    displayedValue="{dash>/leaveRejected}"
-                                                    color="Error"
-                                                />
+                                                <suite:InteractiveDonutChartSegment label="Pending" value="{dash>/leavePending}" displayedValue="{dash>/leavePending}" color="Critical" />
+                                                <suite:InteractiveDonutChartSegment label="Approved" value="{dash>/leaveApproved}" displayedValue="{dash>/leaveApproved}" color="Good" />
+                                                <suite:InteractiveDonutChartSegment label="Rejected" value="{dash>/leaveRejected}" displayedValue="{dash>/leaveRejected}" color="Error" />
                                             </suite:segments>
                                         </suite:InteractiveDonutChart>
                                     </fc:content>
@@ -376,88 +164,37 @@
                     </content>
                 </Page>
                 <!-- EMPLOYEES PAGE-->
-                <Page
-                    id="employeesPage"
-                    title="Employees"
-                    showHeader="true"
-                >
+                <Page id="employeesPage" title="Employees" showHeader="true">
                     <headerContent>
-                        <Button
-                            text="Add Employee"
-                            icon="sap-icon://add"
-                            type="Emphasized"
-                            press="onAddEmployee"
-                        />
+                        <Button text="Add Employee" icon="sap-icon://add" type="Emphasized" press="onAddEmployee" />
                     </headerContent>
 
                     <content>
                         <VBox class="sapUiMediumMargin">
                             <Toolbar class="sapUiSmallMarginBottom">
-                                <SearchField
-                                    id="employeeSearch"
-                                    width="20rem"
-                                    placeholder="Search by Employee ID, Name or Email"
-                                    liveChange=".onEmployeeFilterChange"
-                                />
+                                <SearchField id="employeeSearch" width="20rem" placeholder="Search by Employee ID, Name or Email" liveChange=".onEmployeeFilterChange" />
 
                                 <ToolbarSpacer />
 
-                                <Select
-                                    id="statusFilter1"
-                                    width="11rem"
-                                    change=".onEmployeeFilterChange"
-                                >
-                                    <core:Item
-                                        key=""
-                                        text="All Status"
-                                    />
-                                    <core:Item
-                                        key="ACTIVE"
-                                        text="Active"
-                                    />
-                                    <core:Item
-                                        key="ONBOARDING"
-                                        text="Onboarding"
-                                    />
-                                    <core:Item
-                                        key="ON_LEAVE"
-                                        text="On Leave"
-                                    />
-                                    <core:Item
-                                        key="BENCH"
-                                        text="Bench"
-                                    />
-                                    <core:Item
-                                        key="RESIGNED"
-                                        text="Resigned"
-                                    />
-                                    <core:Item
-                                        key="TERMINATED"
-                                        text="Terminated"
-                                    />
+                                <Select id="statusFilter1" width="11rem" change=".onEmployeeFilterChange">
+                                    <core:Item key="" text="All Status" />
+                                    <core:Item key="ACTIVE" text="Active" />
+                                    <core:Item key="ONBOARDING" text="Onboarding" />
+                                    <core:Item key="ON_LEAVE" text="On Leave" />
+                                    <core:Item key="BENCH" text="Bench" />
+                                    <core:Item key="RESIGNED" text="Resigned" />
+                                    <core:Item key="TERMINATED" text="Terminated" />
                                 </Select>
 
-                                <Input
-                                    id="experienceFilter"
-                                    width="10rem"
-                                    placeholder="Minimum Exp"
-                                    liveChange="onEmployeeFilterChange"
-                                />
+                                <Input id="experienceFilter" width="10rem" placeholder="Minimum Exp" liveChange=".onEmployeeFilterChange" />
                             </Toolbar>
 
-                            <Table
-                                id="employeesTable"
-                                mode="None"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                noDataText="No employees found"
-                                items="{
+                            <Table id="employeesTable" mode="None" inset="false" sticky="ColumnHeaders" noDataText="No employees found" items="{
                     path: '/EMPLOYEES',
                     sorter: {
                         path: 'EMP_ID'
                     }
-                }"
-                            >
+                }">
                                 <columns>
                                     <Column width="7rem">
                                         <Text text="EMP ID" />
@@ -475,17 +212,11 @@
                                         <Text text="Designation" />
                                     </Column>
 
-                                    <Column
-                                        width="8rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="8rem" hAlign="Center">
                                         <Text text="Experience" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Status" />
                                     </Column>
 
@@ -493,10 +224,7 @@
                                         <Text text="Allocation" />
                                     </Column>
 
-                                    <Column
-                                        width="5rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="5rem" hAlign="Center">
                                         <Text text="View" />
                                     </Column>
                                 </columns>
@@ -512,38 +240,22 @@
 
                                             <Text text="{DESIGNATION/NAME}" />
 
-                                            <Text
-                                                text="{EXPERIENCE} yrs"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{EXPERIENCE} yrs" textAlign="Center" />
 
-                                            <ObjectStatus
-                                                text="{STATUS}"
-                                                state="{=
-                                    ${STATUS} === 'ACTIVE' ? 'Success' :
+                                            <ObjectStatus text="{STATUS}" state="{=
+                                              ${STATUS} === 'ACTIVE' ? 'Success' :
                                     ${STATUS} === 'ON_LEAVE' ? 'Warning' :
                                     ${STATUS} === 'BENCH' ? 'Information' :
                                     'Error'
-                                }"
-                                            />
+                                }" />
 
-                                            <ProgressIndicator
-                                                width="9rem"
-                                                percentValue="{ALLOCATION_PERCENT}"
-                                                displayValue="{ALLOCATION_PERCENT}%"
-                                                state="{=
+                                            <ProgressIndicator width="9rem" percentValue="{ALLOCATION_PERCENT}" displayValue="{ALLOCATION_PERCENT}%" state="{=
                                     ${ALLOCATION_PERCENT} >= 100 ? 'Error' :
                                     ${ALLOCATION_PERCENT} >= 80 ? 'Warning' :
                                     'Success'
-                                }"
-                                            />
+                                }" />
 
-                                            <Button
-                                                icon="sap-icon://display"
-                                                tooltip="View Employee"
-                                                type="Transparent"
-                                                press="onViewEmployee"
-                                            />
+                                            <Button icon="sap-icon://display" tooltip="View Employee" type="Transparent" press="onViewEmployee" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -552,28 +264,14 @@
                     </content>
                 </Page>
                 <!-- DESIGNATIONS PAGE -->
-                <Page
-                    id="designationsPage"
-                    title="Designations"
-                >
+                <Page id="designationsPage" title="Designations">
                     <headerContent>
-                        <Button
-                            text="Add Designation"
-                            icon="sap-icon://add"
-                            type="Emphasized"
-                            press=".onOpenDesignationDialog"
-                        />
+                        <Button text="Add Designation" icon="sap-icon://add" type="Emphasized" press=".onOpenDesignationDialog" />
                     </headerContent>
 
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="designationsTable"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                noDataText="No designations available"
-                                items="{/DESIGNATIONS}"
-                            >
+                            <Table id="designationsTable" inset="false" sticky="ColumnHeaders" noDataText="No designations available" items="{/DESIGNATIONS}">
                                 <columns>
                                     <Column width="10rem">
                                         <Text text="Designation ID" />
@@ -583,17 +281,11 @@
                                         <Text text="Designation Name" />
                                     </Column>
 
-                                    <Column
-                                        width="8rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="8rem" hAlign="Center">
                                         <Text text="Level" />
                                     </Column>
 
-                                    <Column
-                                        width="6rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="6rem" hAlign="Center">
                                         <Text text="Action" />
                                     </Column>
                                 </columns>
@@ -605,17 +297,9 @@
 
                                             <Text text="{NAME}" />
 
-                                            <Text
-                                                text="{LEVEL}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{LEVEL}" textAlign="Center" />
 
-                                            <Button
-                                                icon="sap-icon://delete"
-                                                type="Transparent"
-                                                tooltip="Delete Designation"
-                                                press=".onDeleteDesignation"
-                                            />
+                                            <Button icon="sap-icon://delete" type="Transparent" tooltip="Delete Designation" press=".onDeleteDesignation" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -624,36 +308,16 @@
                     </content>
                 </Page>
                 <!-- SKILL CATEGORIES PAGE  -->
-                <Page
-                    id="skillCategoriesPage"
-                    title="Skill Categories"
-                >
+                <Page id="skillCategoriesPage" title="Skill Categories">
                     <headerContent>
-                        <Button
-                            text="Add Category"
-                            icon="sap-icon://add"
-                            type="Emphasized"
-                            press=".onOpenSkillCategoryDialog"
-                        />
+                        <Button text="Add Category" icon="sap-icon://add" type="Emphasized" press=".onOpenSkillCategoryDialog" />
 
-                        <Button
-                            text="Delete"
-                            icon="sap-icon://delete"
-                            type="Negative"
-                            press="onDeleteSkillCategory"
-                        />
+                        <Button text="Delete" icon="sap-icon://delete" type="Negative" press="onDeleteSkillCategory" />
                     </headerContent>
 
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="skillCategoriesTable"
-                                mode="SingleSelectLeft"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                noDataText="No skill categories available"
-                                items="{/SKILL_CATEGORIES}"
-                            >
+                            <Table id="skillCategoriesTable" mode="SingleSelectLeft" inset="false" sticky="ColumnHeaders" noDataText="No skill categories available" items="{/SKILL_CATEGORIES}">
                                 <columns>
                                     <Column width="10rem">
                                         <Text text="Category ID" />
@@ -677,41 +341,21 @@
                     </content>
                 </Page>
                 <!-- SKILLS PAGE -->
-                <Page
-                    id="adminskillsPage"
-                    title="Skills"
-                >
+                <Page id="adminskillsPage" title="Skills">
                     <headerContent>
-                        <Button
-                            text="Add Skill"
-                            icon="sap-icon://add"
-                            type="Emphasized"
-                            press="onOpenSkillDialog"
-                        />
+                        <Button text="Add Skill" icon="sap-icon://add" type="Emphasized" press="onOpenSkillDialog" />
 
-                        <Button
-                            text="Delete"
-                            icon="sap-icon://delete"
-                            type="Negative"
-                            press="onDeleteSkill"
-                        />
+                        <Button text="Delete" icon="sap-icon://delete" type="Negative" press="onDeleteSkill" />
                     </headerContent>
 
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="skillsTable"
-                                mode="SingleSelectLeft"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                noDataText="No skills available"
-                                items="{
+                            <Table id="skillsTable" mode="SingleSelectLeft" inset="false" sticky="ColumnHeaders" noDataText="No skills available" items="{
                     path: '/SKILLS',
                     parameters: {
                         $expand: 'category'
                     }
-                }"
-                            >
+                }">
                                 <columns>
                                     <Column width="9rem">
                                         <Text text="Skill ID" />
@@ -733,9 +377,7 @@
 
                                             <Text text="{SKILL_NAME}" />
 
-                                            <Text
-                                                text="{category/CATEGORY_NAME}"
-                                            />
+                                            <Text text="{category/CATEGORY_NAME}" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -744,10 +386,7 @@
                     </content>
                 </Page>
                 <!-- EMPLOYEE SKILLS PAGE 
-                <Page
-                    id="employeeSkillsPage"
-                    title="Employee Skills"
-                >
+                <Page id="employeeSkillsPage" title="Employee Skills">
                     <content>
                         <Table items="{empSkills>/employees}">
                             <columns>
@@ -774,45 +413,20 @@
                     </content>
                 </Page> -->
                 <!-- PROJECTS PAGE -->
-                <Page
-                    id="adminprojectsPage"
-                    title="Projects"
-                >
+                <Page id="adminprojectsPage" title="Projects">
                     <headerContent>
-                        <Button
-                            text="Create Project"
-                            icon="sap-icon://add"
-                            type="Emphasized"
-                            press="onCreateProject"
-                        />
+                        <Button text="Create Project" icon="sap-icon://add" type="Emphasized" press="onCreateProject" />
                     </headerContent>
 
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="projectsTable"
-                                mode="None"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="20"
-                                growingScrollToLoad="true"
-                                noDataText="No projects available"
-                                items="{/PROJECTS}"
-                            >
+                            <Table id="projectsTable" mode="None" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No projects available" items="{/PROJECTS}">
                                 <headerToolbar>
                                     <OverflowToolbar>
-                                        <Title
-                                            text="Project List"
-                                            level="H3"
-                                        />
+                                        <Title text="Project List" level="H3" />
 
                                         <ToolbarSpacer />
-                                        <SearchField
-                                            width="18rem"
-                                            placeholder="Search by Project ID or Name"
-                                            liveChange=".onProjectSearch"
-                                        />
+                                        <SearchField width="18rem" placeholder="Search by Project ID or Name" liveChange=".onProjectSearch" />
                                     </OverflowToolbar>
                                 </headerToolbar>
 
@@ -829,76 +443,45 @@
                                         <Text text="Description" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Start Date" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="End Date" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Status" />
                                     </Column>
 
-                                    <Column
-                                        width="5rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="5rem" hAlign="Center">
                                         <Text text="View" />
                                     </Column>
                                 </columns>
 
                                 <items>
-                                    <ColumnListItem
-                                        type="Active"
-                                        press="onViewProject"
-                                    >
+                                    <ColumnListItem type="Active" press="onViewProject">
                                         <cells>
-                                            <ObjectIdentifier
-                                                title="{PROJECT_ID}"
-                                            />
+                                            <ObjectIdentifier title="{PROJECT_ID}" />
 
                                             <Text text="{PROJECT_NAME}" />
 
                                             <Text text="{DESCRIPTION}" />
 
-                                            <Text
-                                                text="{START_DATE}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{START_DATE}" textAlign="Center" />
 
-                                            <Text
-                                                text="{END_DATE}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{END_DATE}" textAlign="Center" />
 
-                                            <ObjectStatus
-                                                text="{STATUS}"
-                                                state="{=
+                                            <ObjectStatus text="{STATUS}" state="{=
                                     ${STATUS} === 'ACTIVE' ? 'Success' :
                                     ${STATUS} === 'ON_HOLD' ? 'Warning' :
                                     ${STATUS} === 'COMPLETED' ? 'Information' :
                                     ${STATUS} === 'CANCELLED' ? 'Error' :
                                     'None'
-                                }"
-                                            />
+                                }" />
 
-                                            <Button
-                                                icon="sap-icon://display"
-                                                type="Transparent"
-                                                tooltip="View Project Details"
-                                                press="onViewProject"
-                                            />
+                                            <Button icon="sap-icon://display" type="Transparent" tooltip="View Project Details" press="onViewProject" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -907,33 +490,18 @@
                     </content>
                 </Page>
                 <!-- ALLOCATIONS PAGE                    -->
-                <Page
-                    id="allocationsPage"
-                    title="Allocations"
-                >
+                <Page id="allocationsPage" title="Allocations">
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="allocationsTable"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="20"
-                                growingScrollToLoad="true"
-                                noDataText="No allocations available"
-                                items="{
+                            <Table id="allocationsTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No allocations available" items="{
                     path: '/ALLOCATIONS',
                     parameters: {
                         $expand: 'employee,project'
                     }
-                }"
-                            >
+                }">
                                 <headerToolbar>
                                     <OverflowToolbar>
-                                        <Title
-                                            text="Allocation List"
-                                            level="H3"
-                                        />
+                                        <Title text="Allocation List" level="H3" />
 
                                         <ToolbarSpacer />
                                     </OverflowToolbar>
@@ -951,24 +519,15 @@
                                         <Text text="Project" />
                                     </Column>
 
-                                    <Column
-                                        width="10rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Allocation" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Start Date" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="End Date" />
                                     </Column>
                                 </columns>
@@ -980,30 +539,17 @@
 
                                             <Text text="{employee/NAME}" />
 
-                                            <Text
-                                                text="{project/PROJECT_NAME}"
-                                            />
+                                            <Text text="{project/PROJECT_NAME}" />
 
-                                            <ProgressIndicator
-                                                width="8rem"
-                                                percentValue="{ALLOCATION_PERCENTAGE}"
-                                                displayValue="{ALLOCATION_PERCENTAGE}%"
-                                                state="{=
+                                            <ProgressIndicator width="10rem" percentValue="{ALLOCATION_PERCENTAGE}" displayValue="{ALLOCATION_PERCENTAGE}%" state="{=
                                     ${ALLOCATION_PERCENTAGE} >= 100 ? 'Error' :
                                     ${ALLOCATION_PERCENTAGE} >= 80 ? 'Warning' :
                                     'Success'
-                                }"
-                                            />
+                                }" />
 
-                                            <Text
-                                                text="{START_DATE}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{START_DATE}" textAlign="Center" />
 
-                                            <Text
-                                                text="{END_DATE}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{END_DATE}" textAlign="Center" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -1013,34 +559,19 @@
                 </Page>
                 <!-- LEAVE CALENDAR PAGE  -->
 
-                <Page
-                    id="leavePage"
-                    title="Leave Calendar"
-                >
+                <Page id="leavePage" title="Leave Calendar">
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="leaveTable"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="20"
-                                growingScrollToLoad="true"
-                                noDataText="No leave requests available"
-                                items="{
+                            <Table id="leaveTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No leave requests available" items="{
                     path: '/LEAVE_CALENDAR',
                     parameters: {
                         $expand: 'employee',
                         $orderby: 'createdAt desc'
                     }
-                }"
-                            >
+                }">
                                 <headerToolbar>
                                     <OverflowToolbar>
-                                        <Title
-                                            text="Leave Requests"
-                                            level="H3"
-                                        />
+                                        <Title text="Leave Requests" level="H3" />
                                         <ToolbarSpacer />
                                     </OverflowToolbar>
                                 </headerToolbar>
@@ -1057,23 +588,14 @@
                                         <Text text="Leave Type" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="From" />
                                     </Column>
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="To" />
                                     </Column>
 
-                                    <Column
-                                        width="9rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="9rem" hAlign="Center">
                                         <Text text="Status" />
                                     </Column>
 
@@ -1091,46 +613,24 @@
 
                                             <Text text="{LEAVE_TYPE}" />
 
-                                            <Text
-                                                text="{LEAVE_FROM}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{LEAVE_FROM}" textAlign="Center" />
 
-                                            <Text
-                                                text="{LEAVE_TO}"
-                                                textAlign="Center"
-                                            />
+                                            <Text text="{LEAVE_TO}" textAlign="Center" />
 
-                                            <ObjectStatus
-                                                text="{STATUS}"
-                                                state="{=
+                                            <ObjectStatus text="{STATUS}" state="{=
                                     ${STATUS} === 'APPROVED' ? 'Success' :
                                     ${STATUS} === 'REJECTED' ? 'Error' :
                                     ${STATUS} === 'PENDING' ? 'Warning' :
                                     'None'
-                                }"
-                                            />
+                                }" />
 
-                                            <Select
-                                                width="100%"
-                                                selectedKey="{STATUS}"
-                                                change="onLeaveStatusChange"
-                                            >
+                                            <Select width="100%" selectedKey="{STATUS}" change="onLeaveStatusChange">
                                                 <items>
-                                                    <core:Item
-                                                        key="APPROVED"
-                                                        text="Approve"
-                                                    />
+                                                    <core:Item key="APPROVED" text="Approve" />
 
-                                                    <core:Item
-                                                        key="REJECTED"
-                                                        text="Reject"
-                                                    />
+                                                    <core:Item key="REJECTED" text="Reject" />
 
-                                                    <core:Item
-                                                        key="PENDING"
-                                                        text="Pending"
-                                                    />
+                                                    <core:Item key="PENDING" text="Pending" />
                                                 </items>
                                             </Select>
                                         </cells>
@@ -1141,35 +641,17 @@
                     </content>
                 </Page>
                 <!-- Placeholder for SPOF Risks -->
-                <Page
-                    id="spofPage"
-                    title="SPOF Risks"
-                >
+                <Page id="spofPage" title="SPOF Risks">
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table
-                                id="spofTable"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="20"
-                                growingScrollToLoad="true"
-                                noDataText="No SPOF risks identified"
-                                items="{spof>/risks}"
-                            >
+                            <Table id="spofTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No SPOF risks identified" items="{spof>/risks}">
                                 <headerToolbar>
                                     <OverflowToolbar>
-                                        <Title
-                                            text="Single Point of Failure Risks"
-                                            level="H3"
-                                        />
+                                        <Title text="Single Point of Failure Risks" level="H3" />
 
                                         <ToolbarSpacer />
 
-                                        <ObjectStatus
-                                            text="{= ${spof>/risks}.length + ' Risks Found'}"
-                                            state="Warning"
-                                        />
+                                        <ObjectStatus text="{= ${spof>/risks}.length + ' Risks Found'}" state="Warning" />
                                     </OverflowToolbar>
                                 </headerToolbar>
 
@@ -1186,10 +668,7 @@
                                         <Text text="Employee ID" />
                                     </Column>
 
-                                    <Column
-                                        width="10rem"
-                                        hAlign="Center"
-                                    >
+                                    <Column width="10rem" hAlign="Center">
                                         <Text text="Risk Level" />
                                     </Column>
                                 </columns>
@@ -1197,23 +676,16 @@
                                 <items>
                                     <ColumnListItem>
                                         <cells>
-                                            <ObjectIdentifier
-                                                title="{spof>SKILL_NAME}"
-                                            />
+                                            <ObjectIdentifier title="{spof>SKILL_NAME}" />
 
-                                            <ObjectIdentifier
-                                                title="{spof>EMPLOYEE_NAME}"
-                                            />
+                                            <ObjectIdentifier title="{spof>EMPLOYEE_NAME}" />
 
                                             <Text text="{spof>EMP_ID}" />
 
-                                            <ObjectStatus
-                                                text="{spof>RISK_LEVEL}"
-                                                state="{
+                                            <ObjectStatus text="{spof>RISK_LEVEL}" state="{
                                     path: 'spof>RISK_LEVEL',
                                     formatter: '.riskStateFormatter'
-                                }"
-                                            />
+                                }" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -1222,176 +694,84 @@
                     </content>
                 </Page>
                 <!-- FORECAST PAGE -->
-                <Page
-                    id="forecastPage"
-                    title="Resource Forecast"
-                >
+                <Page id="forecastPage" title="Resource Forecast">
                     <content>
                         <VBox class="sapUiMediumMargin">
                             <!-- Header -->
 
-                            <Title
-                                text="Resource Forecast"
-                                level="H2"
-                            />
+                            <Title text="Resource Forecast" level="H2" />
 
-                            <Text
-                                text="Current and upcoming employee availability"
-                            />
+                            <Text text="Current and upcoming employee availability" />
                             <!-- Summary -->
-                            <HBox
-                                wrap="Wrap"
-                                justifyContent="SpaceBetween"
-                                class="sapUiMediumMarginBottom sapUiSmallMarginTop"
-                            >
-                                <GenericTile
-                                    header="Available"
-                                    subheader="Current Month"
-                                    press="onSummaryPress"
-                                >
-                                    <TileContent>
-                                        <NumericContent
-                                            value="{summary>/available}"
-                                            icon="sap-icon://employee"
-                                        />
-                                    </TileContent>
-                                </GenericTile>
+                            <HBox wrap="Wrap" justifyContent="SpaceBetween" class="sapUiMediumMarginBottom sapUiSmallMarginTop">
+                                <fc:Card width="15rem" height="10rem">
+                                    <fc:header>
+                                        <card:NumericHeader title="Available Employees" subtitle="Current Month" number="{summary>/available}" />
+                                    </fc:header>
+                                </fc:Card>
 
-                                <GenericTile
-                                    header="Bench"
-                                    subheader="No Allocation"
-                                >
-                                    <TileContent>
-                                        <NumericContent
-                                            value="{summary>/bench}"
-                                            icon="sap-icon://employee-pane"
-                                        />
-                                    </TileContent>
-                                </GenericTile>
+                                <fc:Card width="15rem" height="10rem">
+                                    <fc:header>
+                                        <card:NumericHeader title="Employees OnBench" subtitle="No Allocation" number="{summary>/bench}" />
+                                    </fc:header>
+                                </fc:Card>
 
-                                <GenericTile
-                                    header="On Leave"
-                                    subheader="Unavailable"
-                                >
-                                    <TileContent>
-                                        <NumericContent
-                                            value="{summary>/leave}"
-                                            icon="sap-icon://calendar"
-                                        />
-                                    </TileContent>
-                                </GenericTile>
+                                <fc:Card width="15rem" height="10rem">
+                                    <fc:header>
+                                        <card:NumericHeader title="Employees On Leave" subtitle="Unavailable" number="{summary>/leave}" />
+                                    </fc:header>
+                                </fc:Card>
 
-                                <GenericTile
-                                    header="Average Utilization"
-                                    subheader="Current Month"
-                                >
-                                    <TileContent>
-                                        <NumericContent
-                                            value="{summary>/utilization}"
-                                            icon="sap-icon://activity-2"
-                                        />
-                                    </TileContent>
-                                </GenericTile>
-                                <Button
-                                    icon="sap-icon://refresh"
-                                    text="Refresh"
-                                    press="onRefreshForecast"
-                                />
+                                <fc:Card width="15rem" height="10rem">
+                                    <fc:header>
+                                        <card:NumericHeader title="Utilization" subtitle="Current Month" number="{summary>/utilization}" unitOfMeasurement="%" />
+                                    </fc:header>
+                                </fc:Card>
+                            </HBox>
+
+                            <HBox justifyContent="End">
+                                <Button text="Refresh" icon="sap-icon://refresh" type="Emphasized" press="onRefreshForecast" />
                             </HBox>
 
                             <!-- Search -->
 
                             <OverflowToolbar>
-                                <SearchField
-                                    id="forecastSearch"
-                                    width="18rem"
-                                    placeholder="Search Employee"
-                                    liveChange="onForecastSearch"
-                                />
+                                <SearchField id="forecastSearch" width="18rem" placeholder="Search Employee" liveChange="onForecastSearch" />
 
                                 <ToolbarSpacer />
 
-                                <Select
-                                    id="statusFilter"
-                                    width="12rem"
-                                    change="onStatusFilter"
-                                >
+                                <Select id="statusFilter" width="12rem" change="onStatusFilter">
                                     <items>
-                                        <core:Item
-                                            key=""
-                                            text="All Status"
-                                        />
+                                        <core:Item key="" text="All Status" />
 
-                                        <core:Item
-                                            key="Available"
-                                            text="Available"
-                                        />
+                                        <core:Item key="AVAILABLE" text="Available" />
 
-                                        <core:Item
-                                            key="Bench"
-                                            text="Bench"
-                                        />
+                                        <core:Item key="BENCH" text="Bench" />
 
-                                        <core:Item
-                                            key="On Leave"
-                                            text="On Leave"
-                                        />
+                                        <core:Item key="On Leave" text="On Leave" />
 
-                                        <core:Item
-                                            key="Fully Allocated"
-                                            text="Fully Allocated"
-                                        />
+                                        <core:Item key="FULLY_ALLOCATED" text="Fully Allocated" />
                                     </items>
                                 </Select>
 
-                                <Select
-                                    id="allocationFilter"
-                                    width="12rem"
-                                    change="onAllocationFilter"
-                                >
+                                <Select id="allocationFilter" width="12rem" change="onAllocationFilter">
                                     <items>
-                                        <core:Item
-                                            key=""
-                                            text="All Allocation"
-                                        />
+                                        <core:Item key="" text="All Allocation" />
 
-                                        <core:Item
-                                            key="0"
-                                            text="0%"
-                                        />
+                                        <core:Item key="0" text="0%" />
 
-                                        <core:Item
-                                            key="50"
-                                            text="Below 50%"
-                                        />
+                                        <core:Item key="50" text="Below 50%" />
 
-                                        <core:Item
-                                            key="100"
-                                            text="100%"
-                                        />
+                                        <core:Item key="100" text="100%" />
                                     </items>
                                 </Select>
                             </OverflowToolbar>
-                            <Table
-                                id="forecastTable"
-                                inset="false"
-                                growing="true"
-                                growingThreshold="20"
-                                growingScrollToLoad="true"
-                                sticky="ColumnHeaders"
-                                items="{forecast>/value}"
-                                class="sapUiMediumMarginTop"
-                            >
+                            <Table id="forecastTable" inset="false" growing="true" growingThreshold="20" growingScrollToLoad="true" sticky="ColumnHeaders" items="{forecast>/value}" class="sapUiMediumMarginTop">
                                 <headerToolbar>
                                     <OverflowToolbar>
-                                        <Title
-                                            text="Employee Forecast"
-                                            level="H3"
-                                        />
+                                        <Title text="Employee Forecast" level="H3" />
                                         <ToolbarSpacer />
-                                        <Text
-                                            text="{= ${forecast>/value}.length + ' Employees'}"
-                                        />
+                                        <Text text="{= ${forecast>/value}.length + ' Employees'}" />
                                     </OverflowToolbar>
                                 </headerToolbar>
                                 <columns>
@@ -1407,10 +787,7 @@
                                     <Column width="11rem">
                                         <Text text="Available" />
                                     </Column>
-                                    <Column
-                                        hAlign="Center"
-                                        width="7rem"
-                                    >
+                                    <Column hAlign="Center" width="7rem">
                                         <Text text="Projects" />
                                     </Column>
                                     <Column width="10rem">
@@ -1421,45 +798,28 @@
                                     </Column>
                                 </columns>
                                 <items>
-                                    <ColumnListItem
-                                        type="Navigation"
-                                        press="onForecastPress"
-                                    >
+                                    <ColumnListItem type="Navigation" press="onForecastPress">
                                         <cells>
                                             <!-- Employee -->
-                                            <ObjectIdentifier
-                                                title="{forecast>NAME}"
-                                                text="{forecast>EMP_ID}"
-                                            />
+                                            <ObjectIdentifier title="{forecast>NAME}" text="{forecast>EMP_ID}" />
                                             <!-- Designation -->
-                                            <Text
-                                                text="{forecast>DESIGNATION}"
-                                            />
+                                            <Text text="{forecast>DESIGNATION}" />
                                             <!-- Allocation -->
                                             <VBox>
-                                                <ProgressIndicator
-                                                    percentValue="{forecast>CURRENT_ALLOCATION}"
-                                                    displayValue="{forecast>CURRENT_ALLOCATION}%"
-                                                    state="Success"
-                                                />
+                                                <ProgressIndicator percentValue="{forecast>CURRENT_ALLOCATION}" displayValue="{forecast>CURRENT_ALLOCATION}%" state="Success" />
                                             </VBox>
                                             <!-- Available -->
                                             <VBox>
-                                                <ProgressIndicator
-                                                    percentValue="{forecast>AVAILABLE_PERCENT}"
-                                                    displayValue="{forecast>AVAILABLE_PERCENT}%"
-                                                    state="Information"
-                                                />
+                                                <ProgressIndicator width="9rem" percentValue="{forecast>AVAILABLE_PERCENT}" displayValue="{forecast>AVAILABLE_PERCENT}%" state="{=
+                                    ${AVAILABLE_PERCENT} >= 100 ? 'Error' :
+                                    ${AVAILABLE_PERCENT} >= 80 ? 'Warning' :
+                                    'Success'
+                                }" />
                                             </VBox>
                                             <!-- Projects -->
-                                            <ObjectNumber
-                                                number="{forecast>CURRENT_PROJECT_COUNT}"
-                                                unit="Projects"
-                                            />
+                                            <ObjectNumber number="{forecast>CURRENT_PROJECT_COUNT}" unit="Projects" />
                                             <!-- Status -->
-                                            <ObjectStatus
-                                                text="{forecast>CURRENT_STATUS}"
-                                                state="{
+                                            <ObjectStatus text="{forecast>CURRENT_STATUS}" state="{
                                         = ${forecast>CURRENT_STATUS} === 'Available'
                                         ? 'Success'
                                         : ${forecast>CURRENT_STATUS} === 'Bench'
@@ -1467,20 +827,11 @@
                                         : ${forecast>CURRENT_STATUS} === 'On Leave'
                                         ? 'Warning'
                                         : 'Error'
-                                    }"
-                                            />
+                                    }" />
                                             <!-- Next Available -->
-                                            <ObjectIdentifier
-                                                title="{forecast>NEXT_AVAILABLE_DATE}"
-                                                text="Availability"
-                                            />
+                                            <ObjectIdentifier title="{forecast>NEXT_AVAILABLE_DATE}" text="Availability" />
                                             <!-- Acton -->
-                                            <Button
-                                                icon="sap-icon://inspect"
-                                                type="Transparent"
-                                                tooltip="View Forecast"
-                                                press="onForecastPress"
-                                            />
+                                            <Button icon="sap-icon://inspect" type="Transparent" tooltip="View Forecast" press="onForecastPress" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
