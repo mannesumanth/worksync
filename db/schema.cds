@@ -1,5 +1,4 @@
 namespace worksync.db;
-
 using { managed } from '@sap/cds/common';
 
   // ENUMS
@@ -8,10 +7,8 @@ type Role : String enum {
     EMPLOYEE;
 }
 type EmployeeStatus : String enum {
-    ONBOARDING;
     ACTIVE;
     ON_LEAVE;
-    BENCH;
     RESIGNED;
     TERMINATED;
 }
@@ -29,30 +26,27 @@ type ProjectPriority : String enum {
     HIGH;
     CRITICAL;
 }
-type AllocationStatus : String enum {
-    PLANNED;
-    ACTIVE;
-    RELEASED;
-    COMPLETED;
-}
 type LeaveStatus : String enum {
     PENDING;
     APPROVED;
     REJECTED;
+    CANCELLED;
 }
 type LeaveType : String enum {
     CASUAL;
     SICK;
     EARNED;
     MATERNITY;
+    PATERNITY;
     UNPAID;
 }
-type RiskType : String enum {
-    SPOF;
-    SKILL_GAP;
-    RESOURCE_SHORTAGE;
-    OVERALLOCATION;
+type ProficiencyLevel : String enum {
+    BEGINNER;
+    INTERMEDIATE;
+    ADVANCED;
+    EXPERT;
 }
+
 //EMPLOYEES
 entity EMPLOYEES : managed {
     key ID                  : UUID;
@@ -83,6 +77,7 @@ entity DESIGNATIONS : managed {
     NAME               : String(100) @mandatory @assert.unique;
     LEVEL              : Integer;
 }
+
   // SKILL CATEGORY
 entity SKILL_CATEGORIES : managed {
     key ID                  : UUID;
@@ -98,83 +93,51 @@ entity SKILLS : managed {
     SKILL_NAME              : String(100) @mandatory @assert.unique;
     category                : Association to SKILL_CATEGORIES @mandatory ;
 }
-
    // EMPLOYEE SKILLS
 entity EMPLOYEE_SKILLS : managed {
-
     key ID                  : UUID;
     employee                : Association to EMPLOYEES @mandatory;
     skill                   : Association to SKILLS @mandatory;
-
-    @assert.range:[1,5]
-    PROFICIENCY_LEVEL       : Integer default 1;
+    PROFICIENCY_LEVEL       : ProficiencyLevel default 'BEGINNER';
 }
-
    //PROJECTS
-
-entity PROJECTS : managed {
-
+   entity PROJECTS : managed {
     key ID                  : UUID;
-
     PROJECT_ID              : String(20) @readonly;
     PROJECT_NAME            : String(100) @mandatory;
     DESCRIPTION             : String(500) @mandatory;
-
     START_DATE              : Date @mandatory;
     END_DATE                : Date @mandatory;
-
     STATUS                  : ProjectStatus default 'ACTIVE';
-
     @assert.range:[0,100]
     PROJECT_PROGRESS        : Decimal(5,2) default 0;
-
     PRIORITY                : ProjectPriority default 'MEDIUM';
-
     manager                 : Association to EMPLOYEES;
-
     requirements            : Composition of many PROJECT_REQUIREMENTS
                               on requirements.project = $self;
-
     allocations             : Composition of many ALLOCATIONS
                               on allocations.project = $self;
     virtual TEAM_SIZE : Integer;
     virtual TOTAL_ALLOCATION : Decimal(7,2);
 }
-
   // PROJECT REQUIREMENTS
-
 entity PROJECT_REQUIREMENTS : managed {
-
     key ID                  : UUID;
-
     REQUIREMENT_ID          : String(20) @readonly;
-
     project                 : Association to PROJECTS @mandatory;
-
     requirementSkills       : Composition of many REQUIREMENT_SKILLS
                               on requirementSkills.requirement = $self;
 }
-
    // REQUIREMENT SKILLS
-
 entity REQUIREMENT_SKILLS : managed {
-
     key ID                  : UUID;
-
     requirement             : Association to PROJECT_REQUIREMENTS @mandatory;
-
     skill                   : Association to SKILLS @mandatory;
-
-    @assert.range:[1,5]
-    REQUIRED_LEVEL          : Integer default 1;
-
+    REQUIRED_LEVEL          : ProficiencyLevel default 'BEGINNER';
     REQUIRED_RESOURCES      : Integer default 1;
 }
-
    //ALLOCATIONS
-
 entity ALLOCATIONS : managed {
-
     key ID                  : UUID;
     ALLOCATION_ID           : String(20) @readonly;
     employee                : Association to EMPLOYEES @mandatory;
@@ -182,47 +145,30 @@ entity ALLOCATIONS : managed {
     @assert.range:[0,100]
     ALLOCATION_PERCENTAGE   : Decimal(5,2);
     PROJECT_ROLE            : String(50);
-    STATUS                  : AllocationStatus default 'ACTIVE';
     START_DATE              : Date @mandatory;
     END_DATE                : Date @mandatory;
 }
    //LEAVE CALENDAR
 entity LEAVE_CALENDAR : managed {
-
     key ID                  : UUID;
-
     LEAVE_ID                : String(20) @readonly;
-
     employee                : Association to EMPLOYEES @mandatory;
-
     LEAVE_TYPE              : LeaveType @mandatory;
-
     LEAVE_FROM              : Date @mandatory;
     LEAVE_TO                : Date @mandatory;
-
-    virtual NO_OF_DAYS : Integer;
-
+    virtual NO_OF_DAYS      : Integer;
     REASON                  : String(500);
-
     APPROVED_BY             : Association to EMPLOYEES;
-
     STATUS                  : LeaveStatus default 'PENDING';
 }
-
 entity LEAVE_BALANCE : managed {
-
     key ID                  : UUID;
-
     employee                : Association to EMPLOYEES @mandatory;
-
     YEAR                    : Integer @mandatory;
-
     CASUAL_AVAILABLE        : Integer default 0;
     CASUAL_USED             : Integer default 0;
-
     SICK_AVAILABLE          : Integer default 0;
     SICK_USED               : Integer default 0;
-
     EARNED_AVAILABLE        : Integer default 0;
     EARNED_USED             : Integer default 0;
 }
