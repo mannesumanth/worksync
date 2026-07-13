@@ -1,0 +1,263 @@
+<mvc:View
+    controllerName="com.amista.worksyncui.controller.admin.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:fc="sap.f"
+    xmlns:card="sap.f.cards"
+    xmlns:suite="sap.suite.ui.microchart"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
+<Page id="dashboardPage" title="Dashboard" showHeader="true">
+                    <content>
+                        <VBox class="sapUiResponsiveMargin">
+                            <!-- KEY METRICS -->
+                            <Title
+    text="Overview"
+    level="H2"
+    class="sapUiSmallMarginBottom"/>
+
+<HBox
+    wrap="Wrap"
+    justifyContent="SpaceBetween">
+
+    <!-- Employees -->
+    <fc:Card
+        width="16rem"
+        class="sapUiSmallMargin">
+
+        <fc:header>
+            <card:Header
+                title="Employees"
+                subtitle="Total Workforce"
+                iconSrc="sap-icon://employee"/>
+        </fc:header>
+
+        <fc:content>
+
+            <VBox
+                alignItems="Center"
+                class="sapUiMediumMargin">
+
+                <ObjectNumber
+                    number="{dash>/empCount}"
+                    emphasized="true"
+                    state="Success"/>
+
+                <Text text="Employees"/>
+
+            </VBox>
+
+        </fc:content>
+
+    </fc:Card>
+
+    <!-- Projects -->
+
+    <fc:Card
+        width="16rem"
+        class="sapUiSmallMargin">
+
+        <fc:header>
+            <card:Header
+                title="Projects"
+                subtitle="Active Projects"
+                iconSrc="sap-icon://project-definition-triangle-2"/>
+        </fc:header>
+
+        <fc:content>
+
+            <VBox
+                alignItems="Center"
+                class="sapUiMediumMargin">
+
+                <ObjectNumber
+                    number="{dash>/projCount}"
+                    state="Information"/>
+
+                <Text text="Projects"/>
+
+            </VBox>
+
+        </fc:content>
+
+    </fc:Card>
+
+    <!-- Skills -->
+
+    <fc:Card
+        width="16rem"
+        class="sapUiSmallMargin">
+
+        <fc:header>
+            <card:Header
+                title="Skills"
+                subtitle="Registered Skills"
+                iconSrc="sap-icon://competitor"/>
+        </fc:header>
+
+        <fc:content>
+
+            <VBox
+                alignItems="Center"
+                class="sapUiMediumMargin">
+
+                <ObjectNumber
+                    number="{dash>/skillCount}"
+                    state="Success"/>
+
+                <Text text="Skills"/>
+
+            </VBox>
+
+        </fc:content>
+
+    </fc:Card>
+
+    <!-- SPOF -->
+
+    <fc:Card
+        width="16rem"
+        class="sapUiSmallMargin">
+
+        <fc:header>
+            <card:Header
+                title="SPOF"
+                subtitle="Risk Skills"
+                iconSrc="sap-icon://alert"/>
+        </fc:header>
+
+        <fc:content>
+
+            <VBox
+                alignItems="Center"
+                class="sapUiMediumMargin">
+
+                <ObjectNumber
+                    number="{dash>/spofCount}"
+                    state="Error"/>
+
+                <Text text="{dash>/spofPercent}% Risk"/>
+
+            </VBox>
+
+        </fc:content>
+
+    </fc:Card>
+
+</HBox>
+
+                            <!-- ANALYTICS / VISUALIZATION FRAMES -->
+                            <Title text="Analytics &amp; Insights" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap">
+                                <!-- Workforce availability -->
+                                <fc:Card
+    width="32rem"
+    class="sapUiSmallMargin">
+
+    <fc:header>
+
+        <card:Header
+            title="Resource Availability"
+            subtitle="Current vs Next Month"
+            iconSrc="sap-icon://line-chart"/>
+
+    </fc:header>
+
+    <fc:content>
+
+        <viz:VizFrame
+            id="availabilityChart"
+            vizType="column"
+            width="100%"
+            height="300px"
+            uiConfig="{applicationSet:'fiori'}">
+
+            <viz:dataset>
+
+                <viz.data:FlattenedDataset
+                    data="{availabilityChart>/data}">
+
+                    <viz.data:dimensions>
+
+                        <viz.data:DimensionDefinition
+                            name="Month"
+                            value="{availabilityChart>Month}"/>
+
+                    </viz.data:dimensions>
+
+                    <viz.data:measures>
+
+                        <viz.data:MeasureDefinition
+                            name="Available Employees"
+                            value="{availabilityChart>Available}"/>
+
+                    </viz.data:measures>
+
+                </viz.data:FlattenedDataset>
+
+            </viz:dataset>
+
+            <viz:feeds>
+
+                <viz.feeds:FeedItem
+                    uid="valueAxis"
+                    type="Measure"
+                    values="Available Employees"/>
+
+                <viz.feeds:FeedItem
+                    uid="categoryAxis"
+                    type="Dimension"
+                    values="Month"/>
+
+            </viz:feeds>
+
+        </viz:VizFrame>
+
+    </fc:content>
+
+</fc:Card>
+
+                                <!-- SPOF risk -->
+                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                                    <fc:header>
+                                        <card:Header title="Single Point of Failure Risk" subtitle="% of skills held by only one person" iconSrc="sap-icon://alert" press="onTilePress">
+                                            <card:customData>
+                                                <core:CustomData key="nav" value="spof" />
+                                            </card:customData>
+                                        </card:Header>
+                                    </fc:header>
+                                    <fc:content>
+                                        <VBox class="sapUiSmallMargin" alignItems="Center">
+                                            <suite:RadialMicroChart id="spofRadialChart" size="L" percentage="{dash>/spofPercent}" valueColor="Error" />
+                                            <Text text="{dash>/spofCount} of {dash>/skillCount} skills at risk" class="sapUiTinyMarginTop" />
+                                        </VBox>
+                                    </fc:content>
+                                </fc:Card>
+
+                                <!-- Leave requests breakdown -->
+                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                                    <fc:header>
+                                        <card:Header title="Leave Requests" subtitle="Breakdown by status" iconSrc="sap-icon://calendar" press="onTilePress">
+                                            <card:customData>
+                                                <core:CustomData key="nav" value="leave" />
+                                            </card:customData>
+                                        </card:Header>
+                                    </fc:header>
+                                    <fc:content>
+                                        <suite:InteractiveDonutChart id="leaveDonutChart" class="sapUiSmallMargin">
+                                            <suite:segments>
+                                                <suite:InteractiveDonutChartSegment label="Pending" value="{dash>/leavePending}" displayedValue="{dash>/leavePending}" color="Critical" />
+                                                <suite:InteractiveDonutChartSegment label="Approved" value="{dash>/leaveApproved}" displayedValue="{dash>/leaveApproved}" color="Good" />
+                                                <suite:InteractiveDonutChartSegment label="Rejected" value="{dash>/leaveRejected}" displayedValue="{dash>/leaveRejected}" color="Error" />
+                                            </suite:segments>
+                                        </suite:InteractiveDonutChart>
+                                    </fc:content>
+                                </fc:Card>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </Page>
+
+</mvc:View>
