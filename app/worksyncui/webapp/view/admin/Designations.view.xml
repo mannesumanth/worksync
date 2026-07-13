@@ -1,0 +1,51 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:tnt="sap.tnt"
+    controllerName="com.amista.worksyncui.controller.admin.Designations"
+    displayBlock="true">
+
+    <Page id="designationsPage" title="Designations">
+                    <headerContent>
+                        <Button text="Add Designation" icon="sap-icon://add" type="Emphasized" press=".onOpenDesignationDialog" />
+                    </headerContent>
+
+                    <content>
+                        <VBox class="sapUiMediumMargin">
+                            <Table id="designationsTable" inset="false" sticky="ColumnHeaders" noDataText="No designations available" items="{/DESIGNATIONS}">
+                                <columns>
+                                    <Column width="10rem">
+                                        <Text text="Designation ID" />
+                                    </Column>
+
+                                    <Column width="18rem">
+                                        <Text text="Designation Name" />
+                                    </Column>
+
+                                    <Column width="8rem" hAlign="Center">
+                                        <Text text="Level" />
+                                    </Column>
+
+                                    <Column width="6rem" hAlign="Center">
+                                        <Text text="Action" />
+                                    </Column>
+                                </columns>
+
+                                <items>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{DESIGNATION_ID}" />
+
+                                            <Text text="{NAME}" />
+
+                                            <Text text="{LEVEL}" textAlign="Center" />
+
+                                            <Button icon="sap-icon://delete" type="Transparent" tooltip="Delete Designation" press=".onDeleteDesignation" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </content>
+                </Page>
+</mvc:View>

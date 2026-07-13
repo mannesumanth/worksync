@@ -47,16 +47,23 @@ type ProficiencyLevel : String enum {
     EXPERT;
 }
 
+type Gender : String enum {
+    MALE;
+    FEMALE;
+    OTHER;
+}
+
 //EMPLOYEES
 entity EMPLOYEES : managed {
     key ID                  : UUID;
-    EMP_ID                  : String(20) @readonly;
+    EMP_ID                  : String(20) @readonly @assert.unique;
     NAME                    : String(100) @mandatory @assert.unique;
     EMAIL                   : String(100) @mandatory @assert.unique;
+    GENDER                  : Gender @mandatory;
     PHONE_NUMBER            : String(15) @mandatory;
     DATE_OF_BIRTH           : Date @mandatory;
     JOINING_DATE            : Date @mandatory;
-    DESIGNATION             : Association to DESIGNATIONS @mandatory;
+    designation            : Association to DESIGNATIONS @mandatory;
     EXPERIENCE              : Decimal(4,1) default 0;
     ROLE                    : Role default 'EMPLOYEE';
     STATUS                  : EmployeeStatus default 'ACTIVE';
@@ -75,7 +82,6 @@ entity DESIGNATIONS : managed {
     key ID             : UUID;
     DESIGNATION_ID     : String(20) @readonly @assert.unique;
     NAME               : String(100) @mandatory @assert.unique;
-    LEVEL              : Integer;
 }
 
   // SKILL CATEGORY
@@ -103,14 +109,12 @@ entity EMPLOYEE_SKILLS : managed {
    //PROJECTS
    entity PROJECTS : managed {
     key ID                  : UUID;
-    PROJECT_ID              : String(20) @readonly;
-    PROJECT_NAME            : String(100) @mandatory;
-    DESCRIPTION             : String(500) @mandatory;
+    PROJECT_ID              : String(20) @readonly @assert.unique;
+    PROJECT_NAME            : String(100) @mandatory @assert.unique;
+    DESCRIPTION             : LargeString @mandatory;
     START_DATE              : Date @mandatory;
     END_DATE                : Date @mandatory;
     STATUS                  : ProjectStatus default 'ACTIVE';
-    @assert.range:[0,100]
-    PROJECT_PROGRESS        : Decimal(5,2) default 0;
     PRIORITY                : ProjectPriority default 'MEDIUM';
     manager                 : Association to EMPLOYEES;
     requirements            : Composition of many PROJECT_REQUIREMENTS
@@ -123,7 +127,7 @@ entity EMPLOYEE_SKILLS : managed {
   // PROJECT REQUIREMENTS
 entity PROJECT_REQUIREMENTS : managed {
     key ID                  : UUID;
-    REQUIREMENT_ID          : String(20) @readonly;
+    REQUIREMENT_ID          : String(20) @readonly @assert.unique;
     project                 : Association to PROJECTS @mandatory;
     requirementSkills       : Composition of many REQUIREMENT_SKILLS
                               on requirementSkills.requirement = $self;
@@ -139,7 +143,7 @@ entity REQUIREMENT_SKILLS : managed {
    //ALLOCATIONS
 entity ALLOCATIONS : managed {
     key ID                  : UUID;
-    ALLOCATION_ID           : String(20) @readonly;
+    ALLOCATION_ID           : String(20) @readonly @assert.unique;
     employee                : Association to EMPLOYEES @mandatory;
     project                 : Association to PROJECTS @mandatory;
     @assert.range:[0,100]
@@ -151,10 +155,10 @@ entity ALLOCATIONS : managed {
    //LEAVE CALENDAR
 entity LEAVE_CALENDAR : managed {
     key ID                  : UUID;
-    LEAVE_ID                : String(20) @readonly;
+    LEAVE_ID                : String(20) @readonly @assert.unique;
     employee                : Association to EMPLOYEES @mandatory;
     LEAVE_TYPE              : LeaveType @mandatory;
-    LEAVE_FROM              : Date @mandatory;
+    LEAVE_FROM              : Date  @mandatory;
     LEAVE_TO                : Date @mandatory;
     virtual NO_OF_DAYS      : Integer;
     REASON                  : String(500);
@@ -165,10 +169,10 @@ entity LEAVE_BALANCE : managed {
     key ID                  : UUID;
     employee                : Association to EMPLOYEES @mandatory;
     YEAR                    : Integer @mandatory;
-    CASUAL_AVAILABLE        : Integer default 0;
+    CASUAL_AVAILABLE        : Integer default 12;
     CASUAL_USED             : Integer default 0;
-    SICK_AVAILABLE          : Integer default 0;
+    SICK_AVAILABLE          : Integer default 12;
     SICK_USED               : Integer default 0;
-    EARNED_AVAILABLE        : Integer default 0;
+    EARNED_AVAILABLE        : Integer default 18;
     EARNED_USED             : Integer default 0;
 }

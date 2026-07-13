@@ -124,7 +124,7 @@
         "transition": "slide",
         "type": "View",
         "viewType": "XML",
-        "path": "com.amista.worksyncui.view",
+        "path": "com.amista.worksyncui.view.admin",
         "async": true,
         "viewPath": "com.amista.worksyncui.view"
       },
@@ -179,7 +179,7 @@
         "Admin": {
           "id": "Admin",
           "name": "Admin",
-          "viewName": "Admin",
+          "viewName": "admin.Admin",
           "controlAggregation": "beginColumnPages"
         },
         "Employee": {

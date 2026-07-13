@@ -1,0 +1,170 @@
+<mvc:View
+    controllerName="com.amista.worksyncui.controller.admin.Employees"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Page
+        id="employeesPage"
+        title="Employees"
+    >
+        <headerContent>
+            <Button
+                text="Add Employee"
+                icon="sap-icon://add"
+                type="Emphasized"
+                press="onAddEmployee"
+            />
+        </headerContent>
+        <content>
+            <VBox
+                width="100%" 
+                class="sapUiMediumMargin">
+                <OverflowToolbar class="sapUiSmallMarginBottom">
+                    <SearchField
+                        id="employeeSearch"
+                        width="100%"
+                        placeholder="Search by Employee ID, Name or Email"
+                        liveChange="onEmployeeFilterChange"
+                    >
+                        <layoutData>
+                            <OverflowToolbarLayoutData
+                                minWidth="200px"
+                                maxWidth="500px"
+                                shrinkable="true"
+                            />
+                        </layoutData>
+                    </SearchField>
+                    <Select
+                        id="statusFilter1"
+                        width="11rem"
+                        change="onEmployeeFilterChange"
+                    >
+                        <core:Item
+                            key=""
+                            text="All Status"
+                        />
+                        <core:Item
+                            key="ACTIVE"
+                            text="Active"
+                        />
+                        <core:Item
+                            key="ONBOARDING"
+                            text="Onboarding"
+                        />
+                        <core:Item
+                            key="ON_LEAVE"
+                            text="On Leave"
+                        />
+                        <core:Item
+                            key="BENCH"
+                            text="Bench"
+                        />
+                        <core:Item
+                            key="RESIGNED"
+                            text="Resigned"
+                        />
+                        <core:Item
+                            key="TERMINATED"
+                            text="Terminated"
+                        />
+                    </Select>
+                    <Input
+                        id="experienceFilter"
+                        width="10rem"
+                        placeholder="Minimum Exp"
+                        liveChange="onEmployeeFilterChange"
+                    />
+                </OverflowToolbar>
+                <Table
+                    id="employeesTable"
+                    width="100%"
+                    mode="None"
+                    inset="false"
+                    sticky="ColumnHeaders"
+                    noDataText="No employees found"
+                    items="{
+                        path: '/EMPLOYEES',
+                        sorter: {
+                            path: 'EMP_ID'
+                        }
+                    }"
+                >
+                    <columns>
+                        <Column width="100%">
+                            <Text text="EMP ID" />
+                        </Column>
+                        <Column width="100%">
+                            <Text text="Employee Name" />
+                        </Column>
+                        <Column width="100%">
+                            <Text text="Email" />
+                        </Column>
+                        <Column width="100%">
+                            <Text text="Designation" />
+                        </Column>
+                        <Column
+                           width="100%"
+                            hAlign="Center"
+                        >
+                            <Text text="Experience" />
+                        </Column>
+                        <Column
+                            width="100%"
+                            hAlign="Center"
+                        >
+                            <Text text="Status" />
+                        </Column>
+                        <Column width="100%">
+                            <Text text="Allocation" />
+                        </Column>
+                        <Column
+                            width="100%"
+                            hAlign="Center"
+                        >
+                            <Text text="View" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{EMP_ID}" />
+                                <Text text="{NAME}" />
+                                <Text text="{EMAIL}" />
+                                <Text text="{designation/NAME}" />
+                                <Text text="{EXPERIENCE} yrs" />
+                                <ObjectStatus
+                                    text="{STATUS}"
+                                    state="{=
+                                        ${STATUS} === 'ACTIVE' ? 'Success' :
+                                        ${STATUS} === 'ON_LEAVE' ? 'Warning' :
+                                        ${STATUS} === 'BENCH' ? 'Information' :
+                                        'Error'
+                                    }"
+                                />
+
+                                <ProgressIndicator
+                                    width="100%"
+                                    percentValue="{ALLOCATION_PERCENT}"
+                                    displayValue="{ALLOCATION_PERCENT}%"
+                                    state="{=
+                                        ${ALLOCATION_PERCENT} >= 100 ? 'Error' :
+                                        ${ALLOCATION_PERCENT} >= 80 ? 'Warning' :
+                                        'Success'
+                                    }"
+                                />
+
+                                <Button
+                                    icon="sap-icon://display"
+                                    tooltip="View Employee"
+                                    type="Transparent"
+                                    press="onViewEmployee"
+                                />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

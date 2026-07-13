@@ -1,0 +1,87 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    controllerName="com.amista.worksyncui.controller.admin.LeaveCalender"
+    xmlns:core="sap.ui.core">
+ <Page id="leavePage" title="Leave Calendar">
+                    <content>
+                        <VBox class="sapUiMediumMargin">
+                            <Table id="leaveTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No leave requests available" items="{
+                    path: '/LEAVE_CALENDAR',
+                    parameters: {
+                        $expand: 'employee',
+                        $orderby: 'createdAt desc'
+                    }
+                }">
+                                <headerToolbar>
+                                    <OverflowToolbar>
+                                        <Title text="Leave Requests" level="H3" />
+                                        <ToolbarSpacer />
+                                    </OverflowToolbar>
+                                </headerToolbar>
+                                <columns>
+                                    <Column width="8rem">
+                                        <Text text="Leave ID" />
+                                    </Column>
+
+                                    <Column width="15rem">
+                                        <Text text="Employee" />
+                                    </Column>
+
+                                    <Column width="10rem">
+                                        <Text text="Leave Type" />
+                                    </Column>
+
+                                    <Column width="9rem" hAlign="Center">
+                                        <Text text="From" />
+                                    </Column>
+                                    <Column width="9rem" hAlign="Center">
+                                        <Text text="To" />
+                                    </Column>
+
+                                    <Column width="9rem" hAlign="Center">
+                                        <Text text="Status" />
+                                    </Column>
+
+                                    <Column width="12rem">
+                                        <Text text="Update Status" />
+                                    </Column>
+                                </columns>
+
+                                <items>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{LEAVE_ID}" />
+
+                                            <Text text="{employee/NAME}" />
+
+                                            <Text text="{LEAVE_TYPE}" />
+
+                                            <Text text="{LEAVE_FROM}" textAlign="Center" />
+
+                                            <Text text="{LEAVE_TO}" textAlign="Center" />
+
+                                            <ObjectStatus text="{STATUS}" state="{=
+                                    ${STATUS} === 'APPROVED' ? 'Success' :
+                                    ${STATUS} === 'REJECTED' ? 'Error' :
+                                    ${STATUS} === 'PENDING' ? 'Warning' :
+                                    'None'
+                                }" />
+
+                                            <Select width="100%" selectedKey="{STATUS}" change="onLeaveStatusChange">
+                                                <items>
+                                                    <core:Item key="APPROVED" text="Approve" />
+
+                                                    <core:Item key="REJECTED" text="Reject" />
+
+                                                    <core:Item key="PENDING" text="Pending" />
+                                                </items>
+                                            </Select>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+                    </content>
+                </Page>
+</mvc:View>
