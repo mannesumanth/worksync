@@ -198,8 +198,8 @@
 				},
 				"AdminEmployeeDetail": {
 					"id": "AdminEmployeeDetail",
-					"name": "AdminEmployeeDetail",
-					"viewName": "AdminEmployeeDetail",
+					"name": "admin.AdminEmployeeDetail",
+					"viewName": "admin.AdminEmployeeDetail",
 					"controlAggregation": "midColumnPages"
 				},
 				"ProjectDetail": {

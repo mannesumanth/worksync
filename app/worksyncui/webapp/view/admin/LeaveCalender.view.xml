@@ -20,30 +20,30 @@
                                     </OverflowToolbar>
                                 </headerToolbar>
                                 <columns>
-                                    <Column width="8rem">
+                                    <Column>
                                         <Text text="Leave ID" />
                                     </Column>
 
-                                    <Column width="15rem">
+                                    <Column >
                                         <Text text="Employee" />
                                     </Column>
 
-                                    <Column width="10rem">
+                                    <Column >
                                         <Text text="Leave Type" />
                                     </Column>
 
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column>
                                         <Text text="From" />
                                     </Column>
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column >
                                         <Text text="To" />
                                     </Column>
 
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column >
                                         <Text text="Status" />
                                     </Column>
 
-                                    <Column width="12rem">
+                                    <Column >
                                         <Text text="Update Status" />
                                     </Column>
                                 </columns>

@@ -53,23 +53,6 @@
                     valueFormat="yyyy-MM-dd"
                     displayFormat="dd MMM yyyy"/>
 
-                <Label text="Status"/>
-
-                <Select selectedKey="{STATUS}">
-                    <core:Item
-                        key="ACTIVE"
-                        text="Active"/>
-
-                    <core:Item
-                        key="RELEASED"
-                        text="Released"/>
-
-                    <core:Item
-                        key="COMPLETED"
-                        text="Completed"/>
-
-                </Select>
-
             </f:SimpleForm>
 
         </content>

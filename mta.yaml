@@ -86,7 +86,7 @@ modules:
         - npm install
         - npm run build:cf
       supported-platforms: []
-
+  
 resources:
   - name: worksync-destination-service
     type: org.cloudfoundry.managed-service
@@ -133,6 +133,12 @@ resources:
       service: html5-apps-repo
       service-name: worksync-html5-app-host-service
       service-plan: app-host
+  
+  - name: worksync_html_repo_runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-runtime
 
   - name: uaa_worksync
     type: org.cloudfoundry.managed-service

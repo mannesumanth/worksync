@@ -1,11 +1,10 @@
 using worksync.db as db from '../db/schema';
-
 @requires: 'authenticated-user'
 //@(requires: 'Admin')
 service AdminService {
 
     // Core Entities
-    entity EMPLOYEES            as projection on db.EMPLOYEES;
+    entity EMPLOYEES as projection on db.EMPLOYEES ;
     entity DESIGNATIONS         as projection on db.DESIGNATIONS;
 
     entity SKILL_CATEGORIES     as projection on db.SKILL_CATEGORIES;
@@ -21,6 +20,7 @@ service AdminService {
     entity LEAVE_CALENDAR       as projection on db.LEAVE_CALENDAR;
 
     entity LEAVE_BALANCE        as projection on db.LEAVE_BALANCE;
+
     type ResourceForecast {
 
         ID                    : UUID;
@@ -47,6 +47,7 @@ service AdminService {
         LEAVE_END_DATE        : Date;
         ALLOCATION_END_DATE   : Date;
     }
+
     type NotificationType : String enum {
         LEAVE;
         PROJECT;
@@ -54,6 +55,7 @@ service AdminService {
         SKILL;
         FORECAST;
     }
+
     type Notification {
         ID         : UUID;
         TITLE      : String(100);
@@ -69,15 +71,13 @@ service AdminService {
                              minExp: Decimal(4, 1),
                              maxExp: Decimal(4, 1),
                              skip: Integer,
-                             top: Integer)               
-                            returns array of EMPLOYEES;
+                             top: Integer)               returns array of EMPLOYEES;
 
     action   ApproveLeave(leaveId: UUID, status: String) returns {
         message : String
     };
 
-    function RecommendResources(projectId: UUID)         
-        returns array of {
+    function RecommendResources(projectId: UUID)         returns array of {
         ID                 : UUID;
         EMP_ID             : String;
         NAME               : String;
@@ -89,8 +89,7 @@ service AdminService {
         AVAILABLE_PERCENT  : Decimal(5, 2);
     };
 
-    function DetectSPOF() 
-        returns array of {
+    function DetectSPOF()                                returns array of {
         skill_ID      : UUID;
         SKILL_NAME    : String;
         employee_ID   : UUID;
@@ -99,7 +98,7 @@ service AdminService {
         RISK_LEVEL    : String;
     };
 
-    function GetAvailabilityForecast() returns {
+    function GetAvailabilityForecast()                   returns {
         currentMonthAvailable : Integer;
         nextMonthAvailable    : Integer;
         currentMonthLeaves    : Integer;
@@ -107,37 +106,59 @@ service AdminService {
         pendingLeaves         : Integer;
     };
 
-    function GetResourceForecast() returns array of ResourceForecast;
+    function GetResourceForecast()                       returns array of ResourceForecast;
 
-    function GetCurrentUser() returns {
+    function GetCurrentUser()                            returns {
         id         : String;
         isAdmin    : Boolean;
         isEmployee : Boolean;
     };
 
-    function GetDashboardStats() returns {
+    function GetDashboardStats()                         returns {
 
-        totalEmployees       : Integer;
-        availableEmployees   : Integer;
-        benchEmployees       : Integer;
-        totalProjects        : Integer;
-        totalAllocations     : Integer;
-        totalLeaves          : Integer;
-        pendingLeaves        : Integer;
-        approvedLeaves       : Integer;
-        rejectedLeaves       : Integer;
+        // Employee
+        totalEmployees          : Integer;
+        availableEmployees      : Integer;
+        benchEmployees          : Integer;
+        underAllocatedEmployees : Integer;
+        fullyAllocatedEmployees : Integer;
+        overAllocatedEmployees  : Integer;
+
+        // Projects
+        totalProjects           : Integer;
+        activeProjects          : Integer;
+        upcomingProjects        : Integer;
+        completedProjects       : Integer;
+        onHoldProjects          : Integer;
+
+        // Allocations
+        totalAllocations        : Integer;
+        averageUtilization      : Decimal(5, 2);
+
+        // Leaves
+        totalLeaves             : Integer;
+        pendingLeaves           : Integer;
+        approvedLeaves          : Integer;
+        rejectedLeaves          : Integer;
+
+        // Master Data
+        totalSkills             : Integer;
+        totalDesignations       : Integer;
     };
 
-    action AllocateEmployee(
-        employeeId: UUID,
-        projectId: UUID,
-        allocation: Decimal(5, 2),
-        projectRole: String,
-        startDate: Date,
-        endDate: Date
-    ) returns {
+    action   AllocateEmployee(employeeId: UUID,
+                              projectId: UUID,
+                              allocation: Decimal(5, 2),
+                              projectRole: String,
+                              startDate: Date,
+                              endDate: Date)             returns {
         message : String;
     };
-    function GetNotifications()
-        returns array of Notification;
+
+    function currentUser() returns {
+        isAdmin    : Boolean;
+        isEmployee : Boolean;
+        email      : String;
+    };
+
 }

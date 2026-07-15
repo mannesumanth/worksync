@@ -6,9 +6,12 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Spof", {
+        onInit: function () {
+            this.onLoadSpofRisks();
+        },
 
         onLoadSpofRisks: async function () {
-            const oModel = this.getView().getModel();
+            const oModel = this.getOwnerComponent().getModel();
             try {
                 const oBinding = oModel.bindContext("/DetectSPOF(...)");
                 await oBinding.execute();

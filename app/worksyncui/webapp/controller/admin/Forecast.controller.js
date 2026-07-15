@@ -38,7 +38,7 @@ sap.ui.define([
 
         _loadForecast: async function () {
             try {
-                const oModel = this.getView().getModel();
+                const oModel = this.getOwnerComponent().getModel();
                 const oAction = oModel.bindContext("/GetResourceForecast(...)");
                 await oAction.invoke();
                 const aData = oAction.getBoundContext().getObject().value || [];

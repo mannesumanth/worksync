@@ -1,0 +1,49 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+
+    <Dialog
+        id="editDesignationDialog"
+        title="Edit Designation"
+        contentWidth="30rem"
+        draggable="true"
+        resizable="true">
+
+        <content>
+
+            <f:SimpleForm
+                editable="true"
+                layout="ResponsiveGridLayout">
+
+                <Label text="Designation ID"/>
+
+                <Input
+                    value="{edit>/DESIGNATION_ID}"
+                    editable="false"/>
+
+                <Label text="Designation Name"/>
+
+                <Input
+                    value="{edit>/NAME}"/>
+
+            </f:SimpleForm>
+
+        </content>
+
+        <beginButton>
+            <Button
+                text="Update"
+                type="Emphasized"
+                press=".onUpdateDesignation"/>
+        </beginButton>
+
+        <endButton>
+            <Button
+                text="Cancel"
+                press=".onCancelDesignation"/>
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

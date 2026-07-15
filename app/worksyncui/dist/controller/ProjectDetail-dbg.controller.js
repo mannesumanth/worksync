@@ -37,7 +37,7 @@ sap.ui.define([
                 this.getView().bindElement({
                     path: "/PROJECTS(" + sProjectId + ")",
                     parameters: {
-                        $expand: "manager,requirements($expand=requirementSkills($expand=skill)),allocations($expand=employee),risks($expand=employee,skill)"
+                        $expand: "manager,requirements($expand=requirementSkills($expand=skill)),allocations($expand=employee)"
                     },
                     events: {
                         dataReceived: async (oData) => {
@@ -66,28 +66,14 @@ sap.ui.define([
             },
 
             // EDIT Project Status
-            onEditProjectStatus: function () {
-                const oContext = this.getView().getBindingContext();
-                if (!oContext) return;
+            onProjectStatusChange: async function (oEvent) {
 
-                const sCurrentStatus = oContext.getProperty("STATUS");
-
-                MessageBox.confirm(
-                    `Current status is "${sCurrentStatus}". Change to:`,
-                    {
-                        actions: ["ACTIVE", "ON_HOLD", "COMPLETED", MessageBox.Action.CANCEL],
-                        onClose: async (sAction) => {
-                            if (sAction === MessageBox.Action.CANCEL) return;
-                            try {
-                                await oContext.setProperty("STATUS", sAction);
-                                await this.getView().getModel().submitBatch("$auto");
-                                MessageToast.show(`Project status updated to ${sAction}`);
-                            } catch (oError) {
-                                MessageBox.error(oError.message || "Status update failed");
-                            }
-                        }
-                    }
-                );
+                try {
+                    await this.getView().getModel().submitBatch("$auto");
+                    MessageToast.show("Project status updated successfully.");
+                } catch (oError) {
+                    MessageBox.error(oError.message || "Status update failed.");
+                }
             },
 
             _loadRecommendedResources: async function (sProjectId) {
@@ -220,167 +206,135 @@ sap.ui.define([
                     return;
                 }
                 // Available Allocation
-                const aRecommended =
-                    this.getView()
-                        .getModel("recommend")
-                        .getProperty("/resources") || [];
+                // const aRecommended =
+                //     this.getView()
+                //         .getModel("recommend")
+                //         .getProperty("/resources") || [];
 
-                const oRecommendedEmployee =
-                    aRecommended.find(function (oEmp) {
-                        return oEmp.ID === sEmployeeId;
-                    });
+                // const oRecommendedEmployee =
+                //     aRecommended.find(function (oEmp) {
+                //         return oEmp.ID === sEmployeeId;
+                //     });
 
-                if (!oRecommendedEmployee) {
-                    MessageBox.error("Selected employee not found.");
-                    return;
-                }
+                // // if (!oRecommendedEmployee) {
+                // //     MessageBox.error("Selected employee not found.");
+                // //     return;
+                // // }
 
-                if (iAllocation > oRecommendedEmployee.AVAILABLE_PERCENT) {
+                // if (iAllocation > oRecommendedEmployee.AVAILABLE_PERCENT) {
+
+                //     MessageBox.warning(
+                //         "Employee has only " +
+                //         oRecommendedEmployee.AVAILABLE_PERCENT +
+                //         "% allocation available."
+                //     );
+
+                //     return;
+                // }
+                const iCurrentAllocation = aContexts
+                    .filter(function (oContext) {
+
+                        const oAllocation = oContext.getObject();
+
+                        return (
+                            oAllocation.employee_ID === sEmployeeId &&
+                            oAllocation.STATUS !== "RELEASED"
+                        );
+
+                    })
+                    .reduce(function (sum, oContext) {
+
+                        return sum + oContext.getObject().ALLOCATION_PERCENTAGE;
+
+                    }, 0);
+
+                const iAvailable = 100 - iCurrentAllocation;
+
+                if (iAllocation > iAvailable) {
 
                     MessageBox.warning(
-                        "Employee has only " +
-                        oRecommendedEmployee.AVAILABLE_PERCENT +
-                        "% allocation available."
+                        "Employee has only " + iAvailable + "% allocation available."
                     );
 
                     return;
                 }
-                // Create Payload
-                // const oPayload = {
-
-                //     employee_ID: sEmployeeId,
-
-                //     project_ID: oProject.ID,
-
-                //     PROJECT_ROLE: sRole,
-
-                //     ALLOCATION_PERCENTAGE: iAllocation,
-
-                //     START_DATE: this._formatDate(dStart),
-
-                //     END_DATE: this._formatDate(dEnd)
-
-                // };
                 const oPayload = {
-
                     employee: {
                         ID: sEmployeeId
                     },
-
                     project: {
                         ID: oProject.ID
                     },
-
                     PROJECT_ROLE: sRole,
-
                     ALLOCATION_PERCENTAGE: iAllocation,
-
                     START_DATE: this._formatDate(dStart),
-
                     END_DATE: this._formatDate(dEnd)
 
                 };
                 console.log("Allocation Payload", oPayload);
-
                 try {
-
                     oView.getModel("ui").setProperty("/busy", true);
-
                     const oContext =
                         oModel.bindList("/ALLOCATIONS").create(oPayload);
-
                     await oContext.created();
-
                     MessageToast.show("Employee assigned successfully.");
-
                     this._oAssignAllocationDialog.close();
-
                     // Refresh Project Details
-
                     oView.getBindingContext().refresh();
-
                     // Refresh Recommendation Table
-
                     await this._loadRecommendedResources(oProject.ID);
-
                 } catch (oError) {
-
                     console.error(oError);
-
                     MessageBox.error(
                         oError.message || "Failed to assign employee."
                     );
-
                 } finally {
-
                     oView.getModel("ui").setProperty("/busy", false);
-
                 }
 
             },
             _formatDate: function (oDate) {
-
                 const year = oDate.getFullYear();
                 const month = String(oDate.getMonth() + 1).padStart(2, "0");
                 const day = String(oDate.getDate()).padStart(2, "0");
-
                 return `${year}-${month}-${day}`;
             },
             onEditAllocation: async function (oEvent) {
-
                 if (!this._oEditAllocationDialog) {
-
                     this._oEditAllocationDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.EditAllocation",
                         controller: this
                     });
-
                     this.getView().addDependent(this._oEditAllocationDialog);
                 }
-
                 const oAllocationContext = oEvent.getSource().getBindingContext();
-
                 const sAllocationId = oAllocationContext.getProperty("ID");
-
                 this._oEditAllocationDialog.bindElement({
                     path: "/ALLOCATIONS(" + sAllocationId + ")",
                     parameters: {
                         $expand: "employee"
                     }
                 });
-
                 this._oEditAllocationDialog.open();
             },
             onUpdateAllocation: async function () {
-
                 try {
-
                     await this.getView().getModel().submitBatch("$auto");
-
                     MessageToast.show("Allocation updated successfully.");
-
                     this._oEditAllocationDialog.close();
-
                     this.getView().getBindingContext().refresh();
-
                     await this._loadRecommendedResources(
                         this.getView().getBindingContext().getObject().ID
                     );
-
                 } catch (e) {
-
                     MessageBox.error(e.message);
-
                 }
             },
             onCancelEditAllocation: function () {
-
                 const oModel =
                     this.getView().getModel();
-
                 if (oModel.hasPendingChanges()) {
-
                     oModel.resetChanges();
 
                 }

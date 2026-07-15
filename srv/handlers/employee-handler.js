@@ -93,7 +93,13 @@ module.exports = {
                 skip = 0,
                 top = 20
             } = req.data;
-            let query = SELECT.from(EMPLOYEES);
+            let query = SELECT.from(EMPLOYEES).columns(
+                "*",
+                {
+                    ref: ["designation"],
+                    expand: [{ ref: ["NAME"] }]
+                }
+            );
             if (search) {
                 const pattern = `%${search.toLowerCase()}%`;
                 query.where`
@@ -123,7 +129,24 @@ module.exports = {
                 });
             }
             query.limit(top, skip);
-            return cds.run(query);
+
+            const employees = await cds.run(query);
+
+            for (const emp of employees) {
+                if (!emp.ID) continue;
+
+                const result = await cds.run(
+                    SELECT.from(ALLOCATIONS)
+                        .columns("SUM(ALLOCATION_PERCENTAGE) as TOTAL")
+                        .where({
+                            employee_ID: emp.ID
+                        })
+                );
+
+                emp.ALLOCATION_PERCENT = parseFloat(result[0]?.TOTAL || 0);
+            }
+
+            return employees;
 
         });
 

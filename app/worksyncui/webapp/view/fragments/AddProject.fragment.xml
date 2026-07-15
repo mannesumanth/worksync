@@ -13,7 +13,6 @@
     >
         <content>
             <VBox class="sapUiMediumMargin">
-
                 <!-- Project Name -->
                 <Label
                     text="Project Name"
@@ -133,26 +132,27 @@
                     items="{projectModel>/skills}"
                 >
                     <columns>
-
-                        <Column width="55%">
+                        <Column >
                             <Text text="Skill" />
                         </Column>
 
-                        <Column width="30%">
+                        <Column >
                             <Text text="Required Level" />
                         </Column>
 
-                        <Column width="15%">
-                            <Text text="" />
+                        <Column >
+                            <Text text="Required Resources" />
                         </Column>
 
+                        <Column>
+                            <Text text="" />
+                        </Column>
+                        
                     </columns>
 
                     <items>
                         <ColumnListItem>
-
                             <cells>
-
                                 <Select
                                     width="100%"
                                     selectedKey="{projectModel>skill_ID}"
@@ -164,12 +164,35 @@
                                     />
                                 </Select>
 
-                                <Input
+                                <Select
                                     width="100%"
-                                    type="Number"
-                                    value="{projectModel>REQUIRED_LEVEL}"
-                                    placeholder="1 - 5"
-                                />
+                                    selectedKey="{projectModel>REQUIRED_LEVEL}"
+                                >
+                                    <items>
+                                        <core:Item
+                                            key="BEGINNER"
+                                            text="Beginner"
+                                        />
+                                        <core:Item
+                                            key="INTERMEDIATE"
+                                            text="Intermediate"
+                                        />
+                                        <core:Item
+                                            key="ADVANCED"
+                                            text="Advanced"
+                                        />
+                                        <core:Item
+                                            key="EXPERT"
+                                            text="Expert"
+                                        />
+                                    </items>
+                                </Select>
+                                 <StepInput
+                    width="100%"
+                    min="1"
+                    max="10"
+                    value="{projectModel>REQUIRED_RESOURCES}"/>
+
 
                                 <Button
                                     icon="sap-icon://delete"
@@ -177,14 +200,10 @@
                                     tooltip="Remove Skill"
                                     press=".onDeleteRequiredSkill"
                                 />
-
                             </cells>
-
                         </ColumnListItem>
                     </items>
-
                 </Table>
-
             </VBox>
         </content>
 
@@ -202,6 +221,5 @@
                 press=".onCloseProjectDialog"
             />
         </endButton>
-
     </Dialog>
 </core:FragmentDefinition>

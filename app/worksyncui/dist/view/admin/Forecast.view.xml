@@ -78,25 +78,25 @@
 						</OverflowToolbar>
 					</headerToolbar>
 					<columns>
-						<Column width="8rem">
+						<Column >
 							<Text text="Employee" />
 						</Column>
-						<Column width="12rem">
+						<Column >
 							<Text text="Designation" />
 						</Column>
-						<Column width="11rem">
+						<Column >
 							<Text text="Current Allocation" />
 						</Column>
-						<Column width="11rem">
+						<Column >
 							<Text text="Available" />
 						</Column>
-						<Column hAlign="Center" width="7rem">
+						<Column >
 							<Text text="Projects" />
 						</Column>
-						<Column width="10rem">
+						<Column>
 							<Text text="Status" />
 						</Column>
-						<Column width="10rem">
+						<Column >
 							<Text text="Next Available" />
 						</Column>
 					</columns>

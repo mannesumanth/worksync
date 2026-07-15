@@ -1,4 +1,4 @@
-sap.ui.define([ 
+sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
     "sap/m/MessageToast",
@@ -15,7 +15,7 @@ sap.ui.define([
 ) {
     "use strict";
     return Controller.extend("com.amista.worksyncui.controller.admin.Designation", {
-        
+
         onOpenDesignationDialog: async function () {
             if (!this._oDesignationDialog) {
                 this._oDesignationDialog = await Fragment.load({
@@ -29,11 +29,9 @@ sap.ui.define([
         },
 
         onCloseDesignation: function () { this._oDesignationDialog.close(); },
-
         onSaveDesignation: async function () {
             const oPayload = {
                 NAME: this.byId("designationNameInput").getValue(),
-                LEVEL: parseInt(this.byId("designationLevelInput").getValue())
             };
             if (!oPayload.NAME) { MessageToast.show("Name is required"); return; }
             try {
@@ -70,7 +68,7 @@ sap.ui.define([
                                     null,
                                     [
                                         new Filter(
-                                            "DESIGNATION_ID",
+                                            "designation_ID",
                                             FilterOperator.EQ,
                                             oDesignation.ID
                                         )
@@ -97,6 +95,51 @@ sap.ui.define([
                     }
                 }
             );
+        },
+        onEditDesignation: async function (oEvent) {
+
+            if (!this._oEditDesignationDialog) {
+                this._oEditDesignationDialog = await Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.amista.worksyncui.view.fragments.EditDesignation",
+                    controller: this
+                });
+
+                this.getView().addDependent(this._oEditDesignationDialog);
+            }
+
+            this._oDesignationContext = oEvent.getSource().getBindingContext();
+
+            const oModel = new sap.ui.model.json.JSONModel(
+                JSON.parse(JSON.stringify(this._oDesignationContext.getObject()))
+            );
+
+            this._oEditDesignationDialog.setModel(oModel, "edit");
+            this._oEditDesignationDialog.open();
+        },
+        onUpdateDesignation: async function () {
+
+            const oEditData = this._oEditDesignationDialog
+                .getModel("edit")
+                .getData();
+
+            // No changes
+            if (this._oDesignationContext.getProperty("NAME") === oEditData.NAME) {
+                MessageToast.show("No changes to save.");
+                this._oEditDesignationDialog.close();
+                return;
+            }
+
+            this._oDesignationContext.setProperty("NAME", oEditData.NAME);
+
+            await this.getView().getModel().submitBatch("$auto");
+
+            MessageToast.show("Designation updated successfully.");
+
+            this._oEditDesignationDialog.close();
+        },
+        onCancelDesignation: function () {
+            this._oEditDesignationDialog.close();
         }
     });
 });

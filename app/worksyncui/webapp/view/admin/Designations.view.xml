@@ -12,22 +12,21 @@
 
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table id="designationsTable" inset="false" sticky="ColumnHeaders" noDataText="No designations available" items="{/DESIGNATIONS}">
+                            <Table id="designationsTable" inset="false" sticky="ColumnHeaders" noDataText="No designations available"  items="{ path: '/DESIGNATIONS',sorter: {path: 'DESIGNATION_ID'}}">
                                 <columns>
-                                    <Column width="10rem">
+                                    <Column >
                                         <Text text="Designation ID" />
                                     </Column>
 
-                                    <Column width="18rem">
+                                    <Column >
                                         <Text text="Designation Name" />
                                     </Column>
 
-                                    <Column width="8rem" hAlign="Center">
-                                        <Text text="Level" />
+                                    <Column >
+                                        <Text text="Edit" />
                                     </Column>
-
-                                    <Column width="6rem" hAlign="Center">
-                                        <Text text="Action" />
+                                    <Column >
+                                        <Text text="Delete" />
                                     </Column>
                                 </columns>
 
@@ -38,7 +37,7 @@
 
                                             <Text text="{NAME}" />
 
-                                            <Text text="{LEVEL}" textAlign="Center" />
+                                            <Button icon="sap-icon://edit" type="Transparent" tooltip="Edit Designation" press=".onEditDesignation"/>
 
                                             <Button icon="sap-icon://delete" type="Transparent" tooltip="Delete Designation" press=".onDeleteDesignation" />
                                         </cells>

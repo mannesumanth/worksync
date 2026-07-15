@@ -18,19 +18,19 @@
                                 </headerToolbar>
 
                                 <columns>
-                                    <Column width="18rem">
+                                    <Column >
                                         <Text text="Skill" />
                                     </Column>
 
-                                    <Column width="18rem">
+                                    <Column>
                                         <Text text="Employee" />
                                     </Column>
 
-                                    <Column width="9rem">
+                                    <Column >
                                         <Text text="Employee ID" />
                                     </Column>
 
-                                    <Column width="10rem" hAlign="Center">
+                                    <Column >
                                         <Text text="Risk Level" />
                                     </Column>
                                 </columns>

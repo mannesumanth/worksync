@@ -4,145 +4,179 @@
     xmlns="sap.m"
     xmlns:tnt="sap.tnt"
     xmlns:core="sap.ui.core"
-    displayBlock="true">
+    displayBlock="true"
+>
+    <tnt:ToolPage id="adminToolPage">
+        <tnt:header>
+            <OverflowToolbar>
+                <Button
+                    id="btnToggleNav"
+                    icon="sap-icon://menu2"
+                    type="Transparent"
+                    tooltip="Toggle Navigation"
+                    press="onToggleSideNavigation"
+                />
 
-    <tnt:ToolPage
-        id="adminToolPage">
+                <core:Icon
+                    src="sap-icon://business-suite"
+                    size="1.5rem"
+                />
+
+                <Title
+                    text="WorkSync"
+                    level="H2"
+                    class="sapUiTinyMarginBegin"
+                />
+
+                <ToolbarSpacer />
+
+                <Button
+                    icon="sap-icon://log"
+                    type="Transparent"
+                    tooltip="Logout"
+                    press="onLogout"
+                />
+            </OverflowToolbar>
+        </tnt:header>
 
         <!-- Side Navigation -->
         <tnt:sideContent>
-
             <tnt:SideNavigation
                 id="sideNavigation"
-                itemSelect="onNavSelect">
-
+                itemSelect="onNavSelect"
+            >
                 <tnt:NavigationList>
-
                     <tnt:NavigationListItem
                         key="dashboard"
                         text="Dashboard"
-                        icon="sap-icon://home"/>
+                        icon="sap-icon://home"
+                    />
 
                     <tnt:NavigationListItem
                         text="Master Data"
-                        icon="sap-icon://database">
-
+                        icon="sap-icon://database"
+                    >
                         <tnt:NavigationListItem
                             key="employees"
                             text="Employees"
-                            icon="sap-icon://employee"/>
+                            icon="sap-icon://employee"
+                        />
 
                         <tnt:NavigationListItem
                             key="designations"
                             text="Designations"
-                            icon="sap-icon://manager"/>
+                            icon="sap-icon://manager"
+                        />
 
                         <tnt:NavigationListItem
                             key="skills"
                             text="Skills"
-                            icon="sap-icon://competitor"/>
-
+                            icon="sap-icon://competitor"
+                        />
                     </tnt:NavigationListItem>
 
                     <tnt:NavigationListItem
                         text="Projects"
-                        icon="sap-icon://project-definition-triangle-2">
-
+                        icon="sap-icon://project-definition-triangle-2"
+                    >
                         <tnt:NavigationListItem
                             key="projects"
                             text="Projects"
-                            icon="sap-icon://project-definition-triangle-2"/>
+                            icon="sap-icon://project-definition-triangle-2"
+                        />
 
                         <tnt:NavigationListItem
                             key="allocations"
                             text="Allocations"
-                            icon="sap-icon://business-objects-experience"/>
-
+                            icon="sap-icon://business-objects-experience"
+                        />
                     </tnt:NavigationListItem>
 
                     <tnt:NavigationListItem
                         text="Leave Management"
-                        icon="sap-icon://calendar">
-
+                        icon="sap-icon://calendar"
+                    >
                         <tnt:NavigationListItem
                             key="leave"
                             text="Leave Calendar"
-                            icon="sap-icon://calendar"/>
-
+                            icon="sap-icon://calendar"
+                        />
                     </tnt:NavigationListItem>
 
                     <tnt:NavigationListItem
                         text="Analytics"
-                        icon="sap-icon://line-chart">
-
+                        icon="sap-icon://line-chart"
+                    >
                         <tnt:NavigationListItem
                             key="forecast"
                             text="Forecast"
-                            icon="sap-icon://line-chart"/>
+                            icon="sap-icon://line-chart"
+                        />
 
                         <tnt:NavigationListItem
                             key="spof"
                             text="SPOF Risks"
-                            icon="sap-icon://alert"/>
-
+                            icon="sap-icon://alert"
+                        />
                     </tnt:NavigationListItem>
-
                 </tnt:NavigationList>
-
             </tnt:SideNavigation>
-
         </tnt:sideContent>
 
         <!-- Main Content -->
 
         <tnt:mainContents>
-
             <NavContainer
                 id="adminNavContainer"
                 width="100%"
                 height="100%"
-                initialPage="dashboardView">
-
+                initialPage="dashboardView"
+            >
                 <mvc:XMLView
                     id="dashboardView"
-                    viewName="com.amista.worksyncui.view.admin.Dashboard"/>
+                    viewName="com.amista.worksyncui.view.admin.Dashboard"
+                />
 
                 <mvc:XMLView
                     id="employeesView"
-                    viewName="com.amista.worksyncui.view.admin.Employees"/>
+                    viewName="com.amista.worksyncui.view.admin.Employees"
+                />
 
                 <mvc:XMLView
                     id="designationsView"
-                    viewName="com.amista.worksyncui.view.admin.Designations"/>
+                    viewName="com.amista.worksyncui.view.admin.Designations"
+                />
 
                 <mvc:XMLView
                     id="skillsView"
-                    viewName="com.amista.worksyncui.view.admin.Skills"/>
+                    viewName="com.amista.worksyncui.view.admin.Skills"
+                />
 
                 <mvc:XMLView
                     id="projectsView"
-                    viewName="com.amista.worksyncui.view.admin.Projects"/>
+                    viewName="com.amista.worksyncui.view.admin.Projects"
+                />
 
                 <mvc:XMLView
                     id="allocationsView"
-                    viewName="com.amista.worksyncui.view.admin.Allocations"/>
+                    viewName="com.amista.worksyncui.view.admin.Allocations"
+                />
 
                 <mvc:XMLView
                     id="leaveView"
-                    viewName="com.amista.worksyncui.view.admin.LeaveCalender"/>
+                    viewName="com.amista.worksyncui.view.admin.LeaveCalender"
+                />
 
                 <mvc:XMLView
                     id="forecastView"
-                    viewName="com.amista.worksyncui.view.admin.Forecast"/>
+                    viewName="com.amista.worksyncui.view.admin.Forecast"
+                />
 
                 <mvc:XMLView
                     id="spofView"
-                    viewName="com.amista.worksyncui.view.admin.Spof"/>
-
+                    viewName="com.amista.worksyncui.view.admin.Spof"
+                />
             </NavContainer>
-
         </tnt:mainContents>
-
     </tnt:ToolPage>
-
 </mvc:View>

@@ -24,6 +24,7 @@
                     id="empName"
                     placeholder="Full Name"
                     required="true"
+                    liveChange="onFieldChange"
                 />
                 <Label
                     text="Email"
@@ -34,7 +35,9 @@
                     type="Email"
                     placeholder="email@company.com"
                     required="true"
+                    liveChange="onFieldChange"
                 />
+
                 <Label
                     text="Phone Number"
                     required="true"
@@ -42,8 +45,10 @@
                 <Input
                     id="empPhone"
                     type="Tel"
+                    maxLength="10"
                     placeholder="10-digit number"
                     required="true"
+                    liveChange="onFieldChange"
                 />
                 <Label
                     text="Date of Birth"
@@ -54,6 +59,34 @@
                     displayFormat="dd/MM/yyyy"
                     required="true"
                 />
+                <Label
+                    text="Gender"
+                    required="true"
+                />
+
+                <Select
+                    id="empGender"
+                    required="true"
+                    selectedKey=""
+                >
+                    <core:Item
+                        key=""
+                        text="Select Gender"
+                        enabled="false"
+                    />
+                    <core:Item
+                        key="MALE"
+                        text="Male"
+                    />
+                    <core:Item
+                        key="FEMALE"
+                        text="Female"
+                    />
+                    <core:Item
+                        key="OTHER"
+                        text="Other"
+                    />
+                </Select>
                 <Label
                     text="Joining Date"
                     required="true"
@@ -71,11 +104,16 @@
                     id="empExperience"
                     type="Number"
                     placeholder="e.g. 3.5"
+                    liveChange="onFieldChange"
                     required="true"
                 />
-                <Label text="Role" />
+                <Label text="Role"
+                required="true"
+                 />
                 <Select
                     id="empRole"
+                    required="true"
+                    liveChange="onFieldChange"
                     selectedKey="EMPLOYEE"
                 >
                     <core:Item
@@ -87,13 +125,10 @@
                         text="Admin"
                     />
                 </Select>
-                <!--
-                    FIX: Replaced invalid 'INACTIVE' with correct enum values from schema:
-                    ONBOARDING | ACTIVE | ON_LEAVE | BENCH | RESIGNED | TERMINATED
-                -->
                 <Label text="Status" />
                 <Select
                     id="empStatus"
+                    liveChange="onFieldChange"
                     selectedKey="ACTIVE"
                 >
                     <core:Item
@@ -129,6 +164,7 @@
                     id="empDesignation"
                     required="true"
                     items="{/DESIGNATIONS}"
+                    liveChange="onFieldChange"
                 >
                     <core:Item
                         key="{ID}"

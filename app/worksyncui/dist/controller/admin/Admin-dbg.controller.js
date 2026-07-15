@@ -63,6 +63,16 @@ sap.ui.define([
                 }),
                 "recommendations"
             );
+            this._bExpanded = true;
+        },
+        onToggleSideNavigation: function () {
+
+            const oSideNav = this.byId("sideNavigation");
+
+            oSideNav.setExpanded(
+                !oSideNav.getExpanded()
+            );
+
         },
 
         // SIDEBAR NAVIGATION
@@ -93,34 +103,15 @@ sap.ui.define([
                 return;
             }
 
-            this.byId("adminNavContainer")
+            this
+            .byId("adminNavContainer")
                 .to(this.byId(sViewId));
+
+            if (sKey === "spof") {
+                this._loadSpofRisks();
+            }
         },
 
-        // _onObjectMatched: function (oEvent) {
-        //     const sProjectId = oEvent.getParameter("arguments").projectId;
-        //     this.getView().bindElement({
-        //         path: "/PROJECTS('" + sProjectId + "')",
-        //         parameters: {
-        //             $expand:
-        //                 "manager," +
-        //                 "requirements($expand=requirementSkills($expand=skill))," +
-        //                 "allocations($expand=employee)," +
-        //                 "risks($expand=employee,skill)"
-        //         },
-        //         events: {
-        //             dataReceived: async () => {
-        //                 const oProject =
-        //                     this.getView()
-        //                         .getBindingContext()
-        //                         .getObject();
-        //                 await this._loadRecommendations(oProject);
-        //             }
-        //         }
-        //     });
-        // },
-
-        // Clicking a dashboard tile navigates to that section
         onTilePress: function (oEvent) {
             const sKey = oEvent.getSource().data("nav");
             const sViewId = NAV_PAGES[sKey];
@@ -130,107 +121,7 @@ sap.ui.define([
             }
             this.byId("adminNavContainer")
                 .to(this.byId(sViewId));
-        },
-
-        // DASHBOARD COUNTS
-
-
-        // LEAVE REQUESTS — status breakdown for the dashboard donut chart
-
-
-
-        // // EDIT / DELETE helpers
-        // _editSelected: function (sTableId, sField) {
-        //     const oTable = this.byId(sTableId);
-        //     const oItem = oTable?.getSelectedItem();
-        //     if (!oItem) { MessageToast.show("Please select a row to edit"); return; }
-        //     const oCtx = oItem.getBindingContext();
-        //     MessageBox.prompt("Edit value:", {
-        //         initialValue: oCtx.getProperty(sField),
-        //         onClose: async (sAction, sValue) => {
-        //             if (sAction === MessageBox.Action.OK && sValue) {
-        //                 try {
-        //                     await oCtx.setProperty(sField, sValue);
-        //                     await this.getView().getModel().submitBatch("$auto");
-        //                     MessageToast.show("Updated successfully");
-        //                 } catch (e) { MessageBox.error(e.message || "Update failed"); }
-        //             }
-        //         }
-        //     });
-        // },
-
-        // _deleteSelected: function (sTableId) {
-        //     const oTable = this.byId(sTableId);
-        //     const oItem = oTable?.getSelectedItem();
-        //     if (!oItem) { MessageToast.show("Please select a row to delete"); return; }
-        //     MessageBox.confirm("Are you sure you want to delete this record?", {
-        //         onClose: async (sAction) => {
-        //             if (sAction === MessageBox.Action.OK) {
-        //                 try {
-        //                     await oItem.getBindingContext().delete("$auto");
-        //                     MessageToast.show("Deleted successfully");
-        //                 } catch (e) { MessageBox.error(e.message || "Delete failed"); }
-        //             }
-        //         }
-        //     });
-        // },
-
-
-        // _loadRecommendations: async function (oProject) {
-        //     const oModel = this.getView().getModel();
-        //     let aRecommendations = [];
-        //     const aRequirements = oProject.requirements || [];
-        //     for (const oRequirement of aRequirements) {
-        //         const aSkills = oRequirement.requirementSkills || [];
-        //         for (const oSkill of aSkills) {
-        //             try {
-        //                 const oAction =
-        //                     oModel.bindContext(
-        //                         "/RecommendResources(...)"
-        //                     );
-        //                 console.log("Requirement Skill:", oSkill);
-        //                 oAction.setParameter(
-        //                     "skill_ID",
-        //                     oSkill.skill?.ID || oSkill.skill_ID
-        //                 );
-        //                 oAction.setParameter(
-        //                     "requiredLevel",
-        //                     oSkill.REQUIRED_LEVEL
-        //                 );
-        //                 console.log(
-        //                     "Calling RecommendResources",
-        //                     oSkill.skill?.SKILL_NAME,
-        //                     oSkill.skill?.ID || oSkill.skill_ID,
-        //                     oSkill.REQUIRED_LEVEL
-        //                 );
-        //                 await oAction.execute();
-        //                 const aResult =
-        //                     oAction
-        //                         .getBoundContext()
-        //                         .getObject()
-        //                         .value || [];
-
-        //                 aRecommendations.push(...aResult);
-        //             } catch (oError) {
-        //                 console.error(oError);
-        //             }
-        //         }
-        //     }
-        //     const aFinal =
-        //         Object.values(oUnique)
-        //             .sort(
-        //                 (a, b) =>
-        //                     b.AVAILABLE_PERCENT -
-        //                     a.AVAILABLE_PERCENT
-        //             );
-
-        //     this.getView()
-        //         .getModel("recommendations")
-        //         .setProperty(
-        //             "/recommendations",
-        //             aFinal
-        //         );
-        // },
+        }
 
 
     });

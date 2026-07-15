@@ -9,36 +9,30 @@
 
         <VBox class="sapUiMediumMargin">
 
-            <Label
-                text="Skill"
-                required="true"/>
+            <Label text="Skill" required="true"/>
 
             <ComboBox
                 id="employeeSkillCombo"
                 width="100%"
                 items="{/SKILLS}">
-
                 <core:Item
                     key="{ID}"
                     text="{SKILL_NAME}"/>
-
             </ComboBox>
 
             <Label
                 text="Proficiency Level"
-                required="true"
-                class="sapUiSmallMarginTop"/>
+                required="true"/>
 
-            <Select
-                id="proficiencyLevel"
-                width="100%"
-                selectedKey="3">
+            <Select 
+                id="addproficiencyLevel"
+                selectedKey="BEGINNER"
+                width="100%">
 
-                <core:Item key="1" text="1 - Beginner"/>
-                <core:Item key="2" text="2 - Basic"/>
-                <core:Item key="3" text="3 - Intermediate"/>
-                <core:Item key="4" text="4 - Advanced"/>
-                <core:Item key="5" text="5 - Expert"/>
+                <core:Item key="BEGINNER" text="Beginner"/>
+                <core:Item key="INTERMEDIATE" text="Intermediate"/>
+                <core:Item key="ADVANCED" text="Advanced"/>
+                <core:Item key="EXPERT" text="Expert"/>
 
             </Select>
 

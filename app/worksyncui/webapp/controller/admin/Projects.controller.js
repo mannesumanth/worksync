@@ -37,6 +37,7 @@ sap.ui.define([
         },
 
         onCloseProjectDialog: function () {
+            this._resetProjectForm();
             this._oProjectDialog.close();
         },
 
@@ -46,7 +47,8 @@ sap.ui.define([
 
             aSkills.push({
                 skill_ID: "",
-                REQUIRED_LEVEL: 1
+                REQUIRED_LEVEL: "BEGINNER",
+                REQUIRED_RESOURCES: 1
             });
 
             oModel.setProperty("/skills", aSkills);
@@ -64,7 +66,10 @@ sap.ui.define([
         },
 
         onSaveProject: async function () {
+
             const oModel = this.getView().getModel();
+            const oDialog = this._oProjectDialog;
+
             const aSkills = this.getView()
                 .getModel("projectModel")
                 .getProperty("/skills");
@@ -94,22 +99,29 @@ sap.ui.define([
                     requirementSkills: aSkills.map(function (s) {
                         return {
                             skill_ID: s.skill_ID,
-                            REQUIRED_LEVEL: parseInt(s.REQUIRED_LEVEL, 10) || 1,
-                            REQUIRED_RESOURCES: 1
+                            REQUIRED_LEVEL: s.REQUIRED_LEVEL,
+                            REQUIRED_RESOURCES: s.REQUIRED_RESOURCES
                         };
                     })
                 }]
             };
 
+            oDialog.setBusy(true);
+
             try {
                 const oContext = oModel.bindList("/PROJECTS").create(oPayload);
                 await oContext.created();
+
                 MessageToast.show("Project Created Successfully");
-                this._oProjectDialog.close();
+                this._resetProjectForm();
+
+                oDialog.close();
                 oModel.refresh();
 
             } catch (e) {
                 MessageBox.error(e.message || "Project Creation Failed");
+            } finally {
+                oDialog.setBusy(false);
             }
         },
 
@@ -152,6 +164,20 @@ sap.ui.define([
                 filters: aFilters,
                 and: false
             }));
+        },
+        _resetProjectForm: function () {
+
+            this.byId("projectName").setValue("");
+            this.byId("projectDescription").setValue("");
+
+            this.byId("projectStartDate").setValue("");
+            this.byId("projectEndDate").setValue("");
+
+            this.byId("projectStatus").setSelectedKey("ACTIVE");
+            this.byId("projectManager").setSelectedKey("");
+
+            this.getView().getModel("projectModel").setProperty("/skills", []);
+
         }
 
     });

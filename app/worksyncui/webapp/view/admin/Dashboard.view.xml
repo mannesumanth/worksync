@@ -1,263 +1,197 @@
-<mvc:View
-    controllerName="com.amista.worksyncui.controller.admin.Dashboard"
-    xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core"
-    xmlns:fc="sap.f"
-    xmlns:card="sap.f.cards"
-    xmlns:suite="sap.suite.ui.microchart"
-    xmlns:viz="sap.viz.ui5.controls"
-    xmlns:viz.data="sap.viz.ui5.data"
-    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
-<Page id="dashboardPage" title="Dashboard" showHeader="true">
-                    <content>
-                        <VBox class="sapUiResponsiveMargin">
-                            <!-- KEY METRICS -->
-                            <Title
-    text="Overview"
-    level="H2"
-    class="sapUiSmallMarginBottom"/>
+<mvc:View controllerName="com.amista.worksyncui.controller.admin.Dashboard"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:fc="sap.f"
+	xmlns:card="sap.f.cards"
+	xmlns:suite="sap.suite.ui.microchart"
+	xmlns:viz="sap.viz.ui5.controls"
+	xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+	xmlns:grid="sap.ui.layout.cssgrid">
+	<Page id="dashboardPage" title="Dashboard" showHeader="true">
+		<content>
+			<VBox class="sapUiResponsiveMargin">
+				<!-- ANALYTICS / VISUALIZATION FRAMES -->
+				<Title text="Analytics &amp; Insights" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+				<grid:CSSGrid width="100%" gridGap="1rem" gridTemplateColumns="repeat(auto-fit, minmax(32rem, 1fr))">
+					<fc:Card width="32rem" class="sapUiSmallMargin">
+						<fc:header>
+							<card:Header title="Employee Allocation" subtitle="Current workforce distribution" iconSrc="sap-icon://employee" />
+						</fc:header>
+
+						<fc:content>
+							<viz:VizFrame id="employeeChartViz" vizType="stacked_column" width="100%" height="300px" uiConfig="{applicationSet:'fiori'}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{employeeChart>/data}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="Group" value="{employeeChart>Group}" />
+										</viz.data:dimensions>
+
+										<viz.data:measures>
+											<viz.data:MeasureDefinition name="Bench" value="{employeeChart>Bench}" />
+
+											<viz.data:MeasureDefinition name="Under Allocated" value="{employeeChart>UnderAllocated}" />
+
+											<viz.data:MeasureDefinition name="Fully Allocated" value="{employeeChart>FullyAllocated}" />
+
+											<viz.data:MeasureDefinition name="Over Allocated" value="{employeeChart>OverAllocated}" />
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
+
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Bench" />
+
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Under Allocated" />
+
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Fully Allocated" />
+
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Over Allocated" />
+
+									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Group" />
+								</viz:feeds>
+							</viz:VizFrame>
+						</fc:content>
+					</fc:Card>
+					<fc:Card width="32rem" class="sapUiSmallMargin">
+						<fc:header>
+							<card:Header title="Projects" subtitle="Projects by lifecycle" iconSrc="sap-icon://project-definition-triangle-2" />
+						</fc:header>
+
+						<fc:content>
+							<viz:VizFrame id="projectChartViz" vizType="donut" width="100%" height="300px" uiConfig="{applicationSet:'fiori'}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{projectChart>/data}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="Status" value="{projectChart>Status}" />
+										</viz.data:dimensions>
+
+										<viz.data:measures>
+											<viz.data:MeasureDefinition name="Projects" value="{projectChart>Count}" />
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
+
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="size" type="Measure" values="Projects" />
+									<viz.feeds:FeedItem uid="color" type="Dimension" values="Status" />
+								</viz:feeds>
+							</viz:VizFrame>
+						</fc:content>
+					</fc:Card>
+					<!-- Workforce availability -->
+					<fc:Card width="32rem" class="sapUiSmallMargin">
+						<fc:header>
+							<card:Header title="Resource Availability" subtitle="Current vs Next Month" iconSrc="sap-icon://line-chart" />
+						</fc:header>
+
+						<fc:content>
+							<viz:VizFrame id="availabilityChartViz" vizType="column" width="100%" height="300px" uiConfig="{applicationSet:'fiori'}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{availabilityChart>/data}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="Month" value="{availabilityChart>Month}" />
+										</viz.data:dimensions>
+
+										<viz.data:measures>
+											<viz.data:MeasureDefinition name="Available Employees" value="{availabilityChart>Available}" />
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
 
-<HBox
-    wrap="Wrap"
-    justifyContent="SpaceBetween">
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Available Employees" />
 
-    <!-- Employees -->
-    <fc:Card
-        width="16rem"
-        class="sapUiSmallMargin">
+									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Month" />
+								</viz:feeds>
+							</viz:VizFrame>
+						</fc:content>
+					</fc:Card>
 
-        <fc:header>
-            <card:Header
-                title="Employees"
-                subtitle="Total Workforce"
-                iconSrc="sap-icon://employee"/>
-        </fc:header>
+					<!-- SPOF risk -->
+					<fc:Card width="32rem" height="24rem" class="sapUiSmallMargin">
+						<fc:header>
+							<card:Header title="Single Point of Failure Risk" subtitle="Skills with only one qualified employee" iconSrc="sap-icon://alert" />
+						</fc:header>
 
-        <fc:content>
+						<fc:content>
+							<viz:VizFrame id="vizSpofRisk" vizType="donut" width="100%" height="300px" uiConfig="{applicationSet:'fiori'}" vizProperties='{
+        "plotArea": {
+            "colorPalette": [
+                "#e52929",
+                "#2b7d2b"
+            ]
+        }
+    }'
+                            >
+<viz:dataset>
+<viz.data:FlattenedDataset data="{spofChart>/data}">
+								<viz.data:dimensions>
+									<viz.data:DimensionDefinition name="Category" value="{spofChart>Category}" />
+								</viz.data:dimensions>
 
-            <VBox
-                alignItems="Center"
-                class="sapUiMediumMargin">
+								<viz.data:measures>
+									<viz.data:MeasureDefinition name="Skills" value="{spofChart>Count}" />
+								</viz.data:measures>
+							</viz.data:FlattenedDataset>
+						</viz:dataset>
 
-                <ObjectNumber
-                    number="{dash>/empCount}"
-                    emphasized="true"
-                    state="Success"/>
+						<viz:feeds>
+							<viz.feeds:FeedItem uid="size" type="Measure" values="Skills" />
 
-                <Text text="Employees"/>
+							<viz.feeds:FeedItem uid="color" type="Dimension" values="Category" />
+						</viz:feeds>
+					</viz:VizFrame>
+				</fc:content>
+			</fc:Card>
 
-            </VBox>
+			<!-- Leave requests breakdown -->
+			<fc:Card width="32rem" height="24rem" class="sapUiSmallMargin">
 
-        </fc:content>
+				<fc:header>
+					<card:Header title="Leave Requests" subtitle="Breakdown by Status" iconSrc="sap-icon://calendar"/>
+				</fc:header>
 
-    </fc:Card>
+				<fc:content>
 
-    <!-- Projects -->
+					<viz:VizFrame id="leaveChartViz" vizType="donut" width="100%" height="300px" uiConfig="{applicationSet:'fiori'}">
 
-    <fc:Card
-        width="16rem"
-        class="sapUiSmallMargin">
+						<viz:dataset>
 
-        <fc:header>
-            <card:Header
-                title="Projects"
-                subtitle="Active Projects"
-                iconSrc="sap-icon://project-definition-triangle-2"/>
-        </fc:header>
+							<viz.data:FlattenedDataset data="{leaveChart>/data}">
 
-        <fc:content>
+								<viz.data:dimensions>
 
-            <VBox
-                alignItems="Center"
-                class="sapUiMediumMargin">
+									<viz.data:DimensionDefinition name="Status" value="{leaveChart>Status}"/>
 
-                <ObjectNumber
-                    number="{dash>/projCount}"
-                    state="Information"/>
+								</viz.data:dimensions>
 
-                <Text text="Projects"/>
+								<viz.data:measures>
 
-            </VBox>
+									<viz.data:MeasureDefinition name="Leaves" value="{leaveChart>Count}"/>
 
-        </fc:content>
+								</viz.data:measures>
 
-    </fc:Card>
+							</viz.data:FlattenedDataset>
 
-    <!-- Skills -->
+						</viz:dataset>
 
-    <fc:Card
-        width="16rem"
-        class="sapUiSmallMargin">
+						<viz:feeds>
 
-        <fc:header>
-            <card:Header
-                title="Skills"
-                subtitle="Registered Skills"
-                iconSrc="sap-icon://competitor"/>
-        </fc:header>
+							<viz.feeds:FeedItem uid="size" type="Measure" values="Leaves"/>
 
-        <fc:content>
+							<viz.feeds:FeedItem uid="color" type="Dimension" values="Status"/>
 
-            <VBox
-                alignItems="Center"
-                class="sapUiMediumMargin">
+						</viz:feeds>
 
-                <ObjectNumber
-                    number="{dash>/skillCount}"
-                    state="Success"/>
+					</viz:VizFrame>
 
-                <Text text="Skills"/>
+				</fc:content>
 
-            </VBox>
-
-        </fc:content>
-
-    </fc:Card>
-
-    <!-- SPOF -->
-
-    <fc:Card
-        width="16rem"
-        class="sapUiSmallMargin">
-
-        <fc:header>
-            <card:Header
-                title="SPOF"
-                subtitle="Risk Skills"
-                iconSrc="sap-icon://alert"/>
-        </fc:header>
-
-        <fc:content>
-
-            <VBox
-                alignItems="Center"
-                class="sapUiMediumMargin">
-
-                <ObjectNumber
-                    number="{dash>/spofCount}"
-                    state="Error"/>
-
-                <Text text="{dash>/spofPercent}% Risk"/>
-
-            </VBox>
-
-        </fc:content>
-
-    </fc:Card>
-
-</HBox>
-
-                            <!-- ANALYTICS / VISUALIZATION FRAMES -->
-                            <Title text="Analytics &amp; Insights" level="H3" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
-                            <HBox wrap="Wrap">
-                                <!-- Workforce availability -->
-                                <fc:Card
-    width="32rem"
-    class="sapUiSmallMargin">
-
-    <fc:header>
-
-        <card:Header
-            title="Resource Availability"
-            subtitle="Current vs Next Month"
-            iconSrc="sap-icon://line-chart"/>
-
-    </fc:header>
-
-    <fc:content>
-
-        <viz:VizFrame
-            id="availabilityChart"
-            vizType="column"
-            width="100%"
-            height="300px"
-            uiConfig="{applicationSet:'fiori'}">
-
-            <viz:dataset>
-
-                <viz.data:FlattenedDataset
-                    data="{availabilityChart>/data}">
-
-                    <viz.data:dimensions>
-
-                        <viz.data:DimensionDefinition
-                            name="Month"
-                            value="{availabilityChart>Month}"/>
-
-                    </viz.data:dimensions>
-
-                    <viz.data:measures>
-
-                        <viz.data:MeasureDefinition
-                            name="Available Employees"
-                            value="{availabilityChart>Available}"/>
-
-                    </viz.data:measures>
-
-                </viz.data:FlattenedDataset>
-
-            </viz:dataset>
-
-            <viz:feeds>
-
-                <viz.feeds:FeedItem
-                    uid="valueAxis"
-                    type="Measure"
-                    values="Available Employees"/>
-
-                <viz.feeds:FeedItem
-                    uid="categoryAxis"
-                    type="Dimension"
-                    values="Month"/>
-
-            </viz:feeds>
-
-        </viz:VizFrame>
-
-    </fc:content>
-
-</fc:Card>
-
-                                <!-- SPOF risk -->
-                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                                    <fc:header>
-                                        <card:Header title="Single Point of Failure Risk" subtitle="% of skills held by only one person" iconSrc="sap-icon://alert" press="onTilePress">
-                                            <card:customData>
-                                                <core:CustomData key="nav" value="spof" />
-                                            </card:customData>
-                                        </card:Header>
-                                    </fc:header>
-                                    <fc:content>
-                                        <VBox class="sapUiSmallMargin" alignItems="Center">
-                                            <suite:RadialMicroChart id="spofRadialChart" size="L" percentage="{dash>/spofPercent}" valueColor="Error" />
-                                            <Text text="{dash>/spofCount} of {dash>/skillCount} skills at risk" class="sapUiTinyMarginTop" />
-                                        </VBox>
-                                    </fc:content>
-                                </fc:Card>
-
-                                <!-- Leave requests breakdown -->
-                                <fc:Card width="22rem" height="18rem" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
-                                    <fc:header>
-                                        <card:Header title="Leave Requests" subtitle="Breakdown by status" iconSrc="sap-icon://calendar" press="onTilePress">
-                                            <card:customData>
-                                                <core:CustomData key="nav" value="leave" />
-                                            </card:customData>
-                                        </card:Header>
-                                    </fc:header>
-                                    <fc:content>
-                                        <suite:InteractiveDonutChart id="leaveDonutChart" class="sapUiSmallMargin">
-                                            <suite:segments>
-                                                <suite:InteractiveDonutChartSegment label="Pending" value="{dash>/leavePending}" displayedValue="{dash>/leavePending}" color="Critical" />
-                                                <suite:InteractiveDonutChartSegment label="Approved" value="{dash>/leaveApproved}" displayedValue="{dash>/leaveApproved}" color="Good" />
-                                                <suite:InteractiveDonutChartSegment label="Rejected" value="{dash>/leaveRejected}" displayedValue="{dash>/leaveRejected}" color="Error" />
-                                            </suite:segments>
-                                        </suite:InteractiveDonutChart>
-                                    </fc:content>
-                                </fc:Card>
-                            </HBox>
-                        </VBox>
-                    </content>
-                </Page>
-
+			</fc:Card>
+		</grid:CSSGrid>
+	</VBox>
+</content>
+</Page>
 </mvc:View>

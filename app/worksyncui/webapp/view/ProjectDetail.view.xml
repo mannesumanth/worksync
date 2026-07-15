@@ -1,279 +1,205 @@
-<mvc:View
-    controllerName="com.amista.worksyncui.controller.ProjectDetail"
-    xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m"
-    xmlns:f="sap.ui.layout.form"
->
-    <Page
-        title="Project Details"
-        showNavButton="true"
-        navButtonPress=".onNavBack"
-    >
-        <headerContent>
-            <Button
-                text="Edit Status"
-                icon="sap-icon://edit"
-                press="onEditProjectStatus"
-            />
-        </headerContent>
-        <content>
-            <!--  Project Header  -->
-            <ObjectHeader
-                title="{PROJECT_NAME}"
-                number="{PROJECT_ID}"
-            >
-                <statuses>
-                    <ObjectStatus
-                        text="{STATUS}"
-                        state="{= ${STATUS} === 'ACTIVE'    ? 'Success' :
-                            ${STATUS} === 'ON_HOLD'   ? 'Warning' : 'None'}"
-                    />
-                </statuses>
-                <attributes>
-                    <ObjectAttribute text="Manager: {manager/NAME}" />
-                    <ObjectAttribute text="Start: {START_DATE}" />
-                    <ObjectAttribute text="End: {END_DATE}" />
-                </attributes>
-            </ObjectHeader>
-            <!--  Project Information  -->
-            <Panel
-                headerText="Project Information"
-                expandable="true"
-                expanded="true"
-            >
-                <f:SimpleForm
-                    editable="false"
-                    layout="ResponsiveGridLayout"
-                >
-                    <Label text="Description" />
-                    <Text text="{DESCRIPTION}" />
-                    <Label text="Start Date" />
-                    <Text text="{START_DATE}" />
-                    <Label text="End Date" />
-                    <Text text="{END_DATE}" />
-                    <Label text="Status" />
-                    <Text text="{STATUS}" />
-                    <Label text="Project Manager" />
-                    <Text text="{manager/NAME}" />
-                </f:SimpleForm>
-            </Panel>
-            <!--  Required Skills  -->
-            <Panel
-                headerText="Requirements &amp; Skills"
-                expandable="true"
-                expanded="true"
-            >
-                <Table
-                    noDataText="No requirements defined"
-                    items="{requirements}"
-                >
-                    <columns>
-                        <Column>
-                        </Column>
-                    </columns>
-                    <items>
-                        <ColumnListItem>
-                            <cells>
-                                <VBox>
-                                    <!-- Nested table for required skills within each requirement -->
-                                    <Table
-                                        noDataText="No skills"
-                                        items="{requirementSkills}"
-                                    >
-                                        <columns>
-                                            <Column>
-                                                <Text text="Skill" />
-                                            </Column>
-                                            <Column>
-                                                <Text text="Required Level" />
-                                            </Column>
-                                            <Column>
-                                                <Text text="Required Resources" />
-                                            </Column>
-                                        </columns>
-                                        <items>
-                                            <ColumnListItem>
-                                                <cells>
-                                                    <Text text="{skill/SKILL_NAME}" />
-                                                    <Text text="{REQUIRED_LEVEL}" />
-                                                    <Text text="{REQUIRED_RESOURCES}" />
-                                                </cells>
-                                            </ColumnListItem>
-                                        </items>
-                                    </Table>
-                                </VBox>
-                            </cells>
-                        </ColumnListItem>
-                    </items>
-                </Table>
-            </Panel>
-            <!-- Recommended Resources -->
-            <Panel
-                headerText="Recommended Resources"
-                expandable="true"
-                expanded="true"
-            >
-                <Table
-                    items="{recommend>/resources}"
-                    noDataText="No matching resources found"
-                >
-                    <columns>
-                        <Column>
-                            <Text text="Employee" />
-                        </Column>
-                        <Column>
-                            <Text text="Employee ID" />
-                        </Column>
-                        <Column>
-                            <Text text="Match Percent" />
-                        </Column>
-                        <Column>
-                            <Text text="Allocated" />
-                        </Column>
-                        <Column>
-                            <Text text="Available" />
-                        </Column>
-                    </columns>
-                    <items>
-                        <ColumnListItem>
-                            <cells>
-                                <Text text="{recommend>NAME}" />
-                                <Text text="{recommend>EMP_ID}" />
-                                <ObjectNumber number="{recommend>MATCH_PERCENT}" />
-                                <ProgressIndicator
-                                    percentValue="{recommend>ALLOCATION_PERCENT}"
-                                    displayValue="{recommend>ALLOCATION_PERCENT}%"
-                                />
-                                <ProgressIndicator
-                                    percentValue="{recommend>AVAILABLE_PERCENT}"
-                                    displayValue="{recommend>AVAILABLE_PERCENT}%"
-                                />
-                            </cells>
-                        </ColumnListItem>
-                    </items>
-                </Table>
-            </Panel>
-            <!-- Allocations-->
-            <Panel
-            expandable="true"
-            expanded="true"
-            class="sapUiMarginTopBottom">
+<mvc:View controllerName="com.amista.worksyncui.controller.ProjectDetail"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core">
+	<Page title="Project Details" showNavButton="true" navButtonPress=".onNavBack">
+		<headerContent>
+    <Label text="Status"/>
 
-    <headerToolbar>
+    <Select
+    id="projectStatusSelect"
+    selectedKey="{STATUS}"
+    change="onProjectStatusChange">
 
-        <Toolbar>
+    <core:Item key="ACTIVE" text="Active"/>
+    <core:Item key="ON_HOLD" text="On Hold"/>
+    <core:Item key="COMPLETED" text="Completed"/>
 
-            <Title text="Resource Allocations"/>
+</Select>
+</headerContent>
+		<content>
+			<!--  Project Header  -->
+			<ObjectHeader title="{PROJECT_NAME}" number="{PROJECT_ID}">
+				<statuses>
+					<ObjectStatus text="{STATUS}" state="{= ${STATUS} === 'ACTIVE'    ? 'Success' :
+                            ${STATUS} === 'ON_HOLD'   ? 'Warning' : 'None'}" />
+				</statuses>
+				<attributes>
+					<ObjectAttribute text="Manager: {manager/NAME}" />
+					<ObjectAttribute text="Start: {START_DATE}" />
+					<ObjectAttribute text="End: {END_DATE}" />
+				</attributes>
+			</ObjectHeader>
+			<!--  Project Information  -->
+			<Panel headerText="Project Information" expandable="true" expanded="true">
+				<f:SimpleForm editable="false" layout="ResponsiveGridLayout">
+					<Label text="Description" />
+					<Text text="{DESCRIPTION}" />
+					<Label text="Start Date" />
+					<Text text="{START_DATE}" />
+					<Label text="End Date" />
+					<Text text="{END_DATE}" />
+					<Label text="Status" />
+					<Text text="{STATUS}" />
+					<Label text="Project Manager" />
+					<Text text="{manager/NAME}" />
+				</f:SimpleForm>
+			</Panel>
+			<!--  Required Skills  -->
+			<Panel headerText="Requirements &amp; Skills" expandable="true" expanded="true">
+				<Table noDataText="No requirements defined" items="{requirements}">
+					<columns>
+						<Column>
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<VBox>
+									<!-- Nested table for required skills within each requirement -->
+									<Table noDataText="No skills" items="{requirementSkills}">
+										<columns>
+											<Column>
+												<Text text="Skill" />
+											</Column>
+											<Column>
+												<Text text="Required Level" />
+											</Column>
+											<Column>
+												<Text text="Required Resources" />
+											</Column>
+										</columns>
+										<items>
+											<ColumnListItem>
+												<cells>
+													<Text text="{skill/SKILL_NAME}" />
+													<Text text="{REQUIRED_LEVEL}" />
+													<Text text="{REQUIRED_RESOURCES}" />
+												</cells>
+											</ColumnListItem>
+										</items>
+									</Table>
+								</VBox>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</Panel>
+			<!-- Recommended Resources -->
+			<Panel headerText="Recommended Resources" expandable="true" expanded="true">
+				<Table items="{recommend>/resources}" noDataText="No matching resources found">
+					<columns>
+						<Column>
+							<Text text="Employee" />
+						</Column>
+						<Column>
+							<Text text="Employee ID" />
+						</Column>
+						<Column>
+							<Text text="Match Percent" />
+						</Column>
+						<Column>
+							<Text text="Allocated" />
+						</Column>
+						<Column>
+							<Text text="Available" />
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<Text text="{recommend>NAME}" />
+								<Text text="{recommend>EMP_ID}" />
+								<ObjectNumber number="{recommend>MATCH_PERCENT}" />
+								<ProgressIndicator percentValue="{recommend>ALLOCATION_PERCENT}" displayValue="{recommend>ALLOCATION_PERCENT}%" />
+								<ProgressIndicator percentValue="{recommend>AVAILABLE_PERCENT}" displayValue="{recommend>AVAILABLE_PERCENT}%" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</Panel>
+			<!-- Allocations-->
+			<Panel expandable="true" expanded="true" class="sapUiMarginTopBottom">
 
-            <ToolbarSpacer/>
+				<headerToolbar>
 
-            <Button
-                text="Assign Employee"
-                icon="sap-icon://add"
-                type="Emphasized"
-                press="onAssignEmployee"/>
+					<Toolbar>
 
-        </Toolbar>
+						<Title text="Resource Allocations"/>
 
-    </headerToolbar>
+						<ToolbarSpacer/>
 
-    <Table
-        id="allocationTable"
-        width="100%"
-        growing="true"
-        growingThreshold="5"
-        noDataText="No allocations yet"
-        items="{allocations}">
+						<Button text="Assign Employee" icon="sap-icon://add" type="Emphasized" press="onAssignEmployee"/>
 
-        <columns>
+					</Toolbar>
 
-            <Column width="15rem">
-                <Text text="Employee"/>
-            </Column>
+				</headerToolbar>
 
-            <Column width="12rem">
-                <Text text="Project Role"/>
-            </Column>
+				<Table id="allocationTable" width="100%" growing="true" growingThreshold="5" noDataText="No allocations yet" items="{allocations}">
 
-            <Column width="12rem">
-                <Text text="Allocation"/>
-            </Column>
+					<columns>
 
-            <Column width="10rem">
-                <Text text="Start Date"/>
-            </Column>
+						<Column>
+							<Text text="Employee"/>
+						</Column>
 
-            <Column width="10rem">
-                <Text text="End Date"/>
-            </Column>
+						<Column >
+							<Text text="Project Role"/>
+						</Column>
 
-            <Column width="10rem">
-                <Text text="Status"/>
-            </Column>
+						<Column >
+							<Text text="Allocation"/>
+						</Column>
 
-            <Column
-                hAlign="Center"
-                width="8rem">
+						<Column>
+							<Text text="Start Date"/>
+						</Column>
 
-                <Text text="Actions"/>
+						<Column >
+							<Text text="End Date"/>
+						</Column>
 
-            </Column>
+						<Column >
 
-        </columns>
+							<Text text="Actions"/>
 
-        <items>
+						</Column>
 
-            <ColumnListItem>
+					</columns>
 
-                <cells>
+					<items>
 
-                    <ObjectIdentifier
-                        title="{employee/NAME}"
-                        text="{employee/EMP_ID}"/>
+						<ColumnListItem>
 
-                    <Text
-                        text="{PROJECT_ROLE}"/>
+							<cells>
 
-                    <ProgressIndicator
-                        percentValue="{ALLOCATION_PERCENTAGE}"
-                        displayValue="{ALLOCATION_PERCENTAGE}%"/>
+								<ObjectIdentifier title="{employee/NAME}" text="{employee/EMP_ID}"/>
 
-                    <Text
-    text="{
-        path:'START_DATE',
-        type:'sap.ui.model.odata.type.Date'
-    }"/>
+								<Text text="{PROJECT_ROLE}"/>
 
-<Text
-    text="{
-        path:'END_DATE',
-        type:'sap.ui.model.odata.type.Date'
-    }"/>
+								<ProgressIndicator percentValue="{ALLOCATION_PERCENTAGE}" displayValue="{ALLOCATION_PERCENTAGE}%"/>
 
-                    <ObjectStatus
-                        text="{STATUS}"
-                        state="{= ${STATUS} === 'ACTIVE' ? 'Success' : ${STATUS} === 'PLANNED' ? 'Information' : ${STATUS} === 'COMPLETED' ? 'Success' : ${STATUS} === 'RELEASED' ? 'Warning' : 'None'}"/>
-                    <HBox
-                        justifyContent="Start">
+								<Text text="{
+                                    path:'START_DATE',
+                                    type:'sap.ui.model.odata.type.Date'
+                                    }"/>
 
-                        <Button
-                            icon="sap-icon://edit"
-                            type="Transparent"
-                            tooltip="Edit Allocation"
-                            press="onEditAllocation"/>
+								<Text text="{
+                                    path:'END_DATE',
+                                    type:'sap.ui.model.odata.type.Date'
+                                }"/>
 
-                        <Button
-                            icon="sap-icon://delete"
-                            type="Transparent"
-                            tooltip="Remove Allocation"
-                            press="onDeleteAllocation"/>
+								<HBox justifyContent="Start">
+									<Button icon="sap-icon://edit" type="Transparent" tooltip="Edit Allocation" press="onEditAllocation"/>
+									<Button icon="sap-icon://delete" type="Transparent" tooltip="Remove Allocation" press="onDeleteAllocation"/>
 
-                    </HBox>
-                </cells>
-            </ColumnListItem>
-        </items>
-    </Table>
-</Panel>
-        </content>
-    </Page>
+								</HBox>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</Panel>
+		</content>
+	</Page>
 </mvc:View>

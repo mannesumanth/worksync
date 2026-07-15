@@ -14,7 +14,7 @@
             <ObjectHeader
                 title="{NAME}"
                 number="{EMP_ID}"
-                intro="{DESIGNATION/NAME}"
+                intro="{designation/NAME}"
                 responsive="true"
             >
                 <statuses>
@@ -63,6 +63,9 @@
                     <Label text="Email" />
                     <Text text="{EMAIL}" />
 
+                    <Label text="Gender" />
+                    <Text text="{GENDER}" />
+
                     <Label text="Phone" />
                     <Text text="{PHONE_NUMBER}" />
 
@@ -73,7 +76,7 @@
                     <Text text="{JOINING_DATE}" />
 
                     <Label text="Designation" />
-                    <Text text="{DESIGNATION/NAME}" />
+                    <Text text="{designation/NAME}" />
 
                     <Label text="Experience" />
                     <Text text="{EXPERIENCE} Years" />
@@ -120,23 +123,34 @@
                             <Text text="Skill" />
                         </Column>
 
-                        <Column width="12rem">
+                        <Column >
                             <Text text="Proficiency" />
                         </Column>
+                        <Column >
+                            <Text text="Edit" />
+                        </Column>
+                        <Column >
+                            <Text text="Delete" />
+                        </Column>
+
                     </columns>
 
                     <items>
                         <ColumnListItem>
                             <cells>
                                 <Text text="{skill/SKILL_NAME}" />
+                                <Text text="{PROFICIENCY_LEVEL}" />
+                                <Button
+                    icon="sap-icon://edit"
+                    type="Transparent"
+                    tooltip="Edit Skill"
+                    press=".onEditEmployeeSkill"/>
 
-                                <RatingIndicator
-                                    value="{PROFICIENCY_LEVEL}"
-                                    maxValue="5"
-                                    editable="false"
-                                    visualMode="Half"
-                                    iconSize="1.3rem"
-                                />
+                <Button
+                    icon="sap-icon://delete"
+                    type="Transparent"
+                    tooltip="Delete Skill"
+                    press=".onDeleteEmployeeSkill"/>
                             </cells>
                         </ColumnListItem>
                     </items>
@@ -181,9 +195,9 @@
                             <Text text="End Date" />
                         </Column>
 
-                        <Column width="10rem">
+                        <!-- <Column width="10rem">
                             <Text text="Status" />
-                        </Column>
+                        </Column> -->
                     </columns>
 
                     <items>
@@ -218,13 +232,13 @@
                                     }"
                                 --> 
 
-                                <ObjectStatus
+                                <!-- <ObjectStatus
                                     text="{STATUS}"
                                     state="{= ${STATUS} === 'ACTIVE' ? 'Success'
                                         : ${STATUS} === 'PLANNED' ? 'Information'
                                         : ${STATUS} === 'COMPLETED' ? 'Success'
                                         : 'Warning'}"
-                                />
+                                /> -->
                             </cells>
                         </ColumnListItem>
                     </items>

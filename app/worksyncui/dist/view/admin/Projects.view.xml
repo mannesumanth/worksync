@@ -51,34 +51,34 @@
                             <Text text="Project ID" />
                         </Column>
 
-                        <Column width="16rem">
+                        <Column >
                             <Text text="Project Name" />
                         </Column>
 
-                        <Column width="20rem">
+                        <Column>
                             <Text text="Description" />
                         </Column>
 
                         <Column
-                            width="9rem"
+                           
                             hAlign="Center">
                             <Text text="Start Date" />
                         </Column>
 
                         <Column
-                            width="9rem"
+                            
                             hAlign="Center">
                             <Text text="End Date" />
                         </Column>
 
                         <Column
-                            width="9rem"
+                           
                             hAlign="Center">
                             <Text text="Status" />
                         </Column>
 
                         <Column
-                            width="5rem"
+                           
                             hAlign="Center">
                             <Text text="View" />
                         </Column>

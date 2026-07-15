@@ -12,12 +12,6 @@
                 id="designationNameInput"
                 placeholder="Software Engineer"
             />
-            <Label text="Level" />
-            <Input
-                id="designationLevelInput"
-                type="Number"
-                placeholder="1"
-            />
         </VBox>
         <beginButton>
             <Button

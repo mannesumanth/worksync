@@ -327,17 +327,10 @@
                                                 level="H5"
                                             />
                                             <ObjectStatus
-                                                text="{skills>PROFICIENCY_LEVEL}/5"
+                                                text="{skills>PROFICIENCY_LEVEL}"
                                                 state="Success"
                                             />
                                         </HBox>
-                                        <RatingIndicator
-                                            value="{skills>PROFICIENCY_LEVEL}"
-                                            maxValue="5"
-                                            enabled="false"
-                                            visualMode="Full"
-                                            class="sapUiTinyMarginTop"
-                                        />
                                     </VBox>
                                 </f:GridListItem>
                             </f:items>

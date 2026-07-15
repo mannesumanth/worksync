@@ -14,6 +14,7 @@
             />
             <Input
                 id="skillNameInput"
+                width = "20rem"
                 placeholder="Java"
             />
             <Label
@@ -22,6 +23,7 @@
             />
             <ComboBox
                 id="skillCategoryCombo"
+                width = "20rem"
                 items="{/SKILL_CATEGORIES}"
             >
                 <core:Item

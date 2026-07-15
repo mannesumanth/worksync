@@ -20,27 +20,27 @@
                                     </OverflowToolbar>
                                 </headerToolbar>
                                 <columns>
-                                    <Column width="9rem">
+                                    <Column >
                                         <Text text="Allocation ID" />
                                     </Column>
 
-                                    <Column width="16rem">
+                                    <Column >
                                         <Text text="Employee" />
                                     </Column>
 
-                                    <Column width="16rem">
+                                    <Column >
                                         <Text text="Project" />
                                     </Column>
 
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column >
                                         <Text text="Allocation" />
                                     </Column>
 
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column >
                                         <Text text="Start Date" />
                                     </Column>
 
-                                    <Column width="9rem" hAlign="Center">
+                                    <Column >
                                         <Text text="End Date" />
                                     </Column>
                                 </columns>
