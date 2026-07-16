@@ -165,7 +165,8 @@
           "pattern": "project/{projectId}",
           "target": [
             "Admin",
-            "ProjectDetail"
+            "ProjectDetail",
+            "EditProject"
           ]
         }
       ],
@@ -198,6 +199,12 @@
           "id": "ProjectDetail",
           "name": "ProjectDetail",
           "viewName": "ProjectDetail",
+          "controlAggregation": "midColumnPages"
+        },
+        "EditProject": {
+          "id": "EditProject",
+          "name": "admin.EditProject",
+          "viewName": "admin.EditProject",
           "controlAggregation": "midColumnPages"
         },
         "Forecast": {

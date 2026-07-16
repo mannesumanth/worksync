@@ -6,11 +6,18 @@
 <Page id="allocationsPage" title="Allocations">
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table id="allocationsTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No allocations available" items="{
+                            <Table id="allocationsTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No allocations available"
+                             items="{
                     path: '/ALLOCATIONS',
                     parameters: {
                         $expand: 'employee,project'
-                    }
+                    },
+                    sorter: [
+                        {
+                            path: 'employee/NAME',
+                            group: true
+                        }
+                    ]
                 }">
                                 <headerToolbar>
                                     <OverflowToolbar>
@@ -22,10 +29,6 @@
                                 <columns>
                                     <Column >
                                         <Text text="Allocation ID" />
-                                    </Column>
-
-                                    <Column >
-                                        <Text text="Employee" />
                                     </Column>
 
                                     <Column >
@@ -49,8 +52,6 @@
                                     <ColumnListItem>
                                         <cells>
                                             <Text text="{ALLOCATION_ID}" />
-
-                                            <Text text="{employee/NAME}" />
 
                                             <Text text="{project/PROJECT_NAME}" />
 

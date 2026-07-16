@@ -1,0 +1,11 @@
+<mvc:View controllerName="worksyncui.controller.admin.EditProject"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Page>
+        <headerContent>
+            <Text text="Edit Project" />
+        </headerContent>
+    </Page>
+</mvc:View>
+    

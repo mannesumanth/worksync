@@ -17,6 +17,7 @@
     <core:Item key="COMPLETED" text="Completed"/>
 
 </Select>
+	<Button text="Edit Project" press="onEditProjectPress"/>
 </headerContent>
 		<content>
 			<!--  Project Header  -->
