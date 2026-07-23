@@ -30,7 +30,16 @@ sap.ui.define([
                 );
                 this._loadDesignations();
                 this._loadEmployees();
+                sap.ui.getCore().getEventBus().subscribe(
+                    "Employees",
+                    "Refresh",
+                    this._loadEmployees,
+                    this
+                );
 
+            },
+            refreshEmployees: async function () {
+                await this._loadEmployees();
             },
             _loadEmployees: async function () {
 
@@ -118,18 +127,6 @@ sap.ui.define([
 
                     const sEmpId = oEmpCtx.getProperty("ID");
 
-                    const aSkills = this.byId("empSkills").getSelectedKeys();
-
-                    for (const sSkillId of aSkills) {
-                        const oSkCtx = oModel.bindList("/EMPLOYEE_SKILLS").create({
-                            employee_ID: sEmpId,
-                            skill_ID: sSkillId,
-                            PROFICIENCY_LEVEL: 1
-                        });
-
-                        await oSkCtx.created();
-                    }
-
                     await this._loadEmployees();
 
                     MessageToast.show("Employee Created Successfully");
@@ -191,8 +188,7 @@ sap.ui.define([
                     "empExperience",
                     "empRole",
                     "empStatus",
-                    "empDesignation",
-                    "empSkills"
+                    "empDesignation"
                 ].forEach(sId => {
                     const oControl = this.byId(sId);
 
@@ -202,16 +198,14 @@ sap.ui.define([
                     }
                 });
             },
+            //View Employee Details
             onViewEmployee: function (oEvent) {
                 const oContext = oEvent.getSource().getBindingContext("table");
-
                 if (!oContext) {
                     sap.m.MessageToast.show("Unable to retrieve employee details.");
                     return;
                 }
-
                 const sEmployeeId = oContext.getProperty("ID");
-
                 this.getOwnerComponent().getRouter().navTo("AdminEmployeeDetail", {
                     employeeId: sEmployeeId
                 });

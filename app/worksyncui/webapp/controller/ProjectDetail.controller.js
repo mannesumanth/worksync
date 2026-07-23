@@ -417,26 +417,26 @@ sap.ui.define([
                     .getRouter()
                     .navTo("EditProject", {
                         projectId: pId
-                    }); 
-            }
+                    });
+            },
 
-            //        onViewProject: function (oEvent) {
-        //     const sId = oEvent.getSource()
-        //         .getBindingContext()
-        //         .getProperty("ID");
+            onViewProject: function (oEvent) {
+                const sId = oEvent.getSource()
+                    .getBindingContext()
+                    .getProperty("ID");
 
-        //     const oFCL = this.getOwnerComponent()
-        //         .getRootControl()
-        //         .byId("fcl");
+                const oFCL = this.getOwnerComponent()
+                    .getRootControl()
+                    .byId("fcl");
 
-        //     oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
+                oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
 
-        //     this.getOwnerComponent()
-        //         .getRouter()
-        //         .navTo("ProjectDetail", {
-        //             projectId: sId
-        //         });
-        // },
+                this.getOwnerComponent()
+                    .getRouter()
+                    .navTo("ProjectDetail", {
+                        projectId: sId
+                    });
+            },
         }
     );
 });

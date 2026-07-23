@@ -36,6 +36,7 @@ sap.ui.define([
                     .byId("fcl");
             },
 
+            //Match object to the employee detail view
             _onObjectMatched: function (oEvent) {
                 const sEmployeeId = oEvent.getParameter("arguments").employeeId;
 
@@ -43,31 +44,22 @@ sap.ui.define([
                 if (oFCL) {
                     oFCL.setLayout(LayoutType.TwoColumnsMidExpanded);
                 }
-
                 this.getView().bindElement({
                     path: "/EMPLOYEES('" + sEmployeeId + "')",
                     parameters: {
                         $expand: "designation,skills($expand=skill),allocations($expand=project)"
-                    },
-                    events: {
-                        dataRequested: function () {
-                            console.log("Loading employee...");
-                        },
-                        dataReceived: function (oEvent) {
-                            console.log("Employee loaded", oEvent);
-                        }
                     }
                 });
             },
-
+            //Back Navigation to Admin view
             onNavBack: function () {
                 const oFCL = this._getFCL();
                 if (oFCL) oFCL.setLayout(LayoutType.OneColumn);
                 this.getOwnerComponent().getRouter().navTo("Admin");
             },
 
+            //Add Employee Skill
             onAddEmployeeSkill: async function () {
-
                 if (!this._oEmployeeSkillDialog) {
                     this._oEmployeeSkillDialog = await Fragment.load({
                         id: this.getView().getId(),
@@ -78,10 +70,14 @@ sap.ui.define([
                 }
                 this._oEmployeeSkillDialog.open();
             },
+
+            //Close Employee Skill Dialog
             onCloseEmployeeSkill: function () {
                 this._oEmployeeSkillDialog.close();
 
             },
+
+            //Save Employee Skill
             onSaveEmployeeSkill: async function () {
                 const oModel = this.getView().getModel();
                 const oEmployee = this.getView().getBindingContext().getObject();
@@ -124,54 +120,43 @@ sap.ui.define([
                 }
             },
 
+            //Edit Employee
             onEditEmployee: async function () {
-
                 if (!this._oEditDialog) {
-
                     this._oEditDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.EditEmployee",
                         controller: this
                     });
-
                     this.getView().addDependent(this._oEditDialog);
                 }
-
                 const oEmployee = structuredClone(
                     this.getView()
                         .getBindingContext()
                         .getObject()
                 );
-
                 // Keep designation_ID for Select
                 if (!oEmployee.designation_ID && oEmployee.designation) {
                     oEmployee.designation_ID = oEmployee.designation.ID;
                 }
-
                 this._oOriginalEmployee = structuredClone(oEmployee);
-
                 this._oEditDialog.setModel(
                     new sap.ui.model.json.JSONModel(oEmployee),
                     "edit"
                 );
-
                 this._oEditDialog.open();
             },
-            onUpdateEmployee: async function () {
 
+            //Update Employee
+            onUpdateEmployee: async function () {
                 const oContext = this.getView().getBindingContext();
                 const oModel = this.getView().getModel();
-
                 const oEditData = this._oEditDialog
                     .getModel("edit")
                     .getData();
-
                 const oOriginal = this._oOriginalEmployee;
-
                 try {
-
                     let bChanged = false;
-
                     const aFields = [
                         "NAME",
                         "EMAIL",
@@ -183,138 +168,110 @@ sap.ui.define([
                         "ROLE",
                         "STATUS"
                     ];
-
                     aFields.forEach((sField) => {
-
                         const vOld = String(oOriginal[sField] ?? "");
                         const vNew = String(oEditData[sField] ?? "");
-
                         if (vOld !== vNew) {
-
                             oContext.setProperty(
                                 sField,
                                 oEditData[sField]
                             );
-
                             bChanged = true;
                         }
-
                     });
 
-                    // Handle Designation separately
+                    // Handle Designation 
                     if (oOriginal.designation_ID !== oEditData.designation_ID) {
-
                         oContext.setProperty(
                             "designation_ID",
                             oEditData.designation_ID
                         );
-
                         bChanged = true;
+
                     }
-
                     if (!bChanged) {
-
                         MessageToast.show("No changes to save.");
-
                         this._oEditDialog.close();
-
                         return;
                     }
-
                     await oModel.submitBatch("$auto");
-
                     MessageToast.show("Employee updated successfully.");
-
+                    sap.ui.getCore().getEventBus().publish(
+                        "Employees",
+                        "Refresh"
+                    );
                     this.getView()
                         .getBindingContext()
                         .refresh();
 
                     this._oEditDialog.close();
-
                 } catch (e) {
-
                     console.error(e);
-
                     MessageBox.error(
                         e.message || "Unable to update employee."
                     );
-
                 }
-
             },
+
+            //Cancel Employee Edit
             onCancelEmployee: function () {
-
                 this._oOriginalEmployee = null;
-
                 this._oEditDialog.close();
-
             },
+
+            //Edit Employee Skill
             onEditEmployeeSkill: async function (oEvent) {
-
                 if (!this._oEditSkillDialog) {
-
                     this._oEditSkillDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.EditEmployeeSkill",
                         controller: this
                     });
-
                     this.getView().addDependent(this._oEditSkillDialog);
                 }
-
                 const oSkill = structuredClone(
                     oEvent.getSource()
                         .getBindingContext()
                         .getObject()
                 );
-
                 this._oSkillContext = oEvent.getSource().getBindingContext();
-
                 this._oEditSkillDialog.setModel(
                     new sap.ui.model.json.JSONModel(oSkill),
                     "editSkill"
                 );
-
                 this._oEditSkillDialog.open();
-            }, 
-            onUpdateEmployeeSkill: async function () {
+            },
 
+            //Update Employee Skill
+            onUpdateEmployeeSkill: async function () {
                 const oEditData = this._oEditSkillDialog
                     .getModel("editSkill")
                     .getData();
-
                 try {
-
                     this._oSkillContext.setProperty(
                         "PROFICIENCY_LEVEL",
                         oEditData.PROFICIENCY_LEVEL
                     );
-
                     await this.getView()
                         .getModel()
                         .submitBatch("$auto");
-
                     MessageToast.show("Skill updated successfully.");
-
                     this._oEditSkillDialog.close();
-
                 } catch (e) {
-
                     MessageBox.error(
                         e.message || "Unable to update skill."
                     );
-
                 }
-
             },
+
+            //Cancel Employee Skill Edit
             onCancelEmployeeSkill: function () {
-
                 this._oEditSkillDialog.close();
-
             },
+
+            //Delete Employee Skill
             onDeleteEmployeeSkill: async function (oEvent) {
                 const oContext = oEvent.getSource().getBindingContext();
-
                 if (!oContext) {
                     return;
                 }

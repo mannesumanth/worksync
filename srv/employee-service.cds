@@ -1,6 +1,6 @@
 using worksync.db as db from '../db/schema';
 
-@requires: 'authenticated-user'
+//@requires: 'authenticated-user'
 //@(requires: 'Employee')
 service EmployeeService {
     entity MyProfile  as projection on db.EMPLOYEES;
@@ -12,6 +12,9 @@ service EmployeeService {
                       leaveTo: Date,
                       reason: String);
     action CancelLeave(
+        leaveId : UUID
+    );
+    action WithdrawLeave(
         leaveId : UUID
     );
 }

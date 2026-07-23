@@ -70,28 +70,28 @@
 						</Toolbar>
 					</headerToolbar>
 					<columns>
-						<Column width="6rem" importance="High">
+						<Column >
 							<Text text="EMP ID" />
 						</Column>
-						<Column importance="High" minScreenWidth="Tablet" demandPopin="false">
+						<Column >
 							<Text text="Employee Name" />
 						</Column>
-						<Column importance="Medium" minScreenWidth="Tablet" demandPopin="true">
+						<Column >
 							<Text text="Email" />
 						</Column>
-						<Column importance="Medium" minScreenWidth="Phone" demandPopin="true">
+						<Column >
 							<Text text="Designation" />
 						</Column>
-						<Column hAlign="Center" importance="Low" minScreenWidth="Tablet" demandPopin="true">
+						<Column >
 							<Text text="Experience" />
 						</Column>
-						<Column importance="High" hAlign="Center">
+						<Column >
 							<Text text="Status" />
 						</Column>
-						<Column importance="Medium" minScreenWidth="Tablet" demandPopin="true" width="12rem">
+						<Column>
 							<Text text="Allocation" />
 						</Column>
-						<Column hAlign="Center" importance="High" width="4rem">
+						<Column >
 							<Text text="View" />
 						</Column>
 					</columns>
@@ -114,7 +114,7 @@
                                         ${table>ALLOCATION_PERCENT} >= 80 ? 'Warning' :
                                         'Success'
                                     }" />
-								<Button icon="sap-icon://display" tooltip="View Employee" type="Transparent" press="onViewEmployee" />
+								<Button icon="sap-icon://display" tooltip="View Employee" type="Transparent" press=".onViewEmployee" />
 							</cells>
 						</ColumnListItem>
 					</items>

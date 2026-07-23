@@ -171,17 +171,6 @@
                         text="{NAME}"
                     />
                 </Select>
-                <Label text="Skills" />
-                <MultiComboBox
-                    id="empSkills"
-                    items="{/SKILLS}"
-                    placeholder="Select skills..."
-                >
-                    <core:Item
-                        key="{ID}"
-                        text="{SKILL_NAME}"
-                    />
-                </MultiComboBox>
             </f:SimpleForm>
         </content>
         <beginButton>

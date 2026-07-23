@@ -55,9 +55,9 @@
                             <Text text="Project Name" />
                         </Column>
 
-                        <Column>
+                        <!-- <Column>
                             <Text text="Description" />
-                        </Column>
+                        </Column> -->
 
                         <Column
                            
@@ -96,8 +96,8 @@
                                 <Text
                                     text="{PROJECT_NAME}" />
 
-                                <Text
-                                    text="{DESCRIPTION}" />
+                                <!-- <Text
+                                    text="{DESCRIPTION}" /> -->
 
                                 <Text
                                     text="{START_DATE}"

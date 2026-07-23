@@ -15,6 +15,17 @@
     xmlns:card="sap.f.cards"
 >
     <tnt:ToolPage id="employeeToolPage">
+        <tnt:header>
+            <OverflowToolbar>
+                <Title
+                    text="WorkSync"
+                    level="H2"
+                    class="sapUiTinyMarginBegin"
+                />
+
+                <ToolbarSpacer />
+            </OverflowToolbar>
+        </tnt:header>
         <!-- Side Navigation -->
         <tnt:sideContent>
             <tnt:SideNavigation>
@@ -549,6 +560,7 @@
                                 noDataText="No Leave Requests"
                                 items="{leaves>/value}"
                             >
+                            
                                 <columns>
                                     <Column>
                                         <Text text="Leave ID" />
@@ -571,7 +583,7 @@
                                     <Column>
                                         <Text text="Status" />
                                     </Column>
-                                    <Column hAlign="Center">
+                                    <Column>
                                         <Text text="Action" />
                                     </Column>
                                 </columns>
@@ -602,12 +614,20 @@
                                                     formatter: '.leaveStatusFormatter'
                                                 }"
                                             />
-                                            <Button
-                                                text="Cancel"
-                                                type="Reject"
-                                                visible="{= ${leaves>STATUS} === 'PENDING' }"
-                                                press="onCancelLeave"
-                                            />
+                                            <HBox>
+                                                <Button
+                                                    text="Cancel"
+                                                    type="Reject"
+                                                    visible="{= ${leaves>STATUS} === 'PENDING' }"
+                                                    press=".onCancelLeave"
+                                                />
+                                                <Button
+                                                    text="Withdraw"
+                                                    type="Reject"
+                                                    visible="{= ${leaves>STATUS} === 'APPROVED' }"
+                                                    press=".onWithdrawLeave"
+                                                />
+                                            </HBox>
                                         </cells>
                                     </ColumnListItem>
                                 </items>

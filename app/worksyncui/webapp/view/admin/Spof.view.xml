@@ -6,7 +6,16 @@
 <Page id="spofPage" title="SPOF Risks">
                     <content>
                         <VBox class="sapUiMediumMargin">
-                            <Table id="spofTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No SPOF risks identified" items="{spof>/risks}">
+                            <Table id="spofTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No SPOF risks identified" 
+                                items="{
+                    path: 'spof>/risks'}">
+                    <!-- sorter: [
+                        {
+                            path: 'spof>SKILL_NAME',
+                            group: true
+                        }
+                    ]
+                }"> -->
                                 <headerToolbar>
                                     <OverflowToolbar>
                                         <Title text="Single Point of Failure Risks" level="H3" />

@@ -27,15 +27,7 @@
                     level="H2"
                     class="sapUiTinyMarginBegin"
                 />
-
                 <ToolbarSpacer />
-
-                <Button
-                    icon="sap-icon://log"
-                    type="Transparent"
-                    tooltip="Logout"
-                    press="onLogout"
-                />
             </OverflowToolbar>
         </tnt:header>
 

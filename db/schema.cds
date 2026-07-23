@@ -31,6 +31,7 @@ type LeaveStatus : String enum {
     APPROVED;
     REJECTED;
     CANCELLED;
+    WITHDRAWN;
 }
 type LeaveType : String enum {
     CASUAL;

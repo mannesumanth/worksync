@@ -26,7 +26,7 @@ module.exports = cds.service.impl(async function () {
         const employee = await db.run(
             SELECT.one.from(EMPLOYEES)
                 .where({
-                    EMAIL: req.user.id 
+                    EMAIL: 'manne.sumanth@amista.com' // req.user.id
                 })
         );
         console.log("Logged User:", req.user.id);
@@ -36,7 +36,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'MyProfile', async req => {
         console.log("User =", req.user);
-        const email = req.user.id; //'manne.sumanth@amista.com';//req.user.id; 
+        const email = 'manne.sumanth@amista.com';// req.user.id; //'manne.sumanth@amista.com';//req.user.id; 
         console.log("Email =", email);
         return await db.run(
             SELECT.one
@@ -48,7 +48,7 @@ module.exports = cds.service.impl(async function () {
     this.on('READ', 'MySkills', async req => {
         const employee = await getCurrentEmployee(req);
 
-        if (!employee) { return [];}
+        if (!employee) { return []; }
         const skills = await db.run(
             SELECT.from(EMPLOYEE_SKILLS)
                 .where({
@@ -105,25 +105,28 @@ module.exports = cds.service.impl(async function () {
         return allocations;
     });
 
-    this.on('READ', 'MyLeaves', async req => {
+    this.on("READ", "MyLeaves", async (req) => {
+
         const employee = await getCurrentEmployee(req);
         if (!employee) {
             return [];
         }
-        const leaves = await db.run(
-            SELECT.from(LEAVE_CALENDAR)
-                .where({
-                    employee_ID: employee.ID
-                })
-        );
+        // Add employee restriction while preserving OData query options
+        req.query.where({ employee_ID: employee.ID });
+        const leaves = await db.run(req.query);
         leaves.forEach(leave => {
             const from = new Date(leave.LEAVE_FROM);
             const to = new Date(leave.LEAVE_TO);
-            leave.DAYS =
-                Math.round(
-                    (to.getTime() - from.getTime()) /
-                    (1000 * 60 * 60 * 24)
-                ) + 1;
+            let workingDays = 0;
+            const current = new Date(from);
+            while (current <= to) {
+                const day = current.getDay();
+                if (day !== 0 && day !== 6) {
+                    workingDays++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            leave.DAYS = workingDays;
         });
         return leaves;
     });
@@ -131,27 +134,44 @@ module.exports = cds.service.impl(async function () {
     this.on('ApplyLeave', async req => {
         const db = await cds.connect.to('db');
         const employee = await getCurrentEmployee(req);
+        if (req.data.leaveFrom > req.data.leaveTo) {
+            req.error(400, "Leave From date cannot be greater than Leave To date");
+        }
+        // Check for overlapping leaves
+        const existingLeave = await db.run(
+            SELECT.one
+                .from(LEAVE_CALENDAR)
+                .where({ employee_ID: employee.ID })
+                .where`
+            LEAVE_FROM <= ${req.data.leaveTo}
+            AND LEAVE_TO >= ${req.data.leaveFrom}
+            AND STATUS != 'CANCELLED'
+        `
+        );
+        if (existingLeave) {
+            req.error(
+                400,
+                `A leave already exists from ${existingLeave.LEAVE_FROM} to ${existingLeave.LEAVE_TO}.`
+            );
+        }
         const leaveId = await generateBusinessId(
             req,
-            'LEAVE_SEQ',
-            'LEV'
+            "LEAVE_SEQ",
+            "LEV"
         );
-        if (req.data.leaveFrom > req.data.leaveTo) {
-            req.error(400,
-                'Leave From date cannot be greater than Leave To date');
-        }
-        await db.run(INSERT.into(LEAVE_CALENDAR).entries({
-            LEAVE_ID: leaveId,
-            employee_ID: employee.ID,
-            LEAVE_TYPE: req.data.leaveType,
-            LEAVE_FROM: req.data.leaveFrom,
-            LEAVE_TO: req.data.leaveTo,
-            REASON: req.data.reason,
-            STATUS: 'PENDING'
-        })
+        await db.run(
+            INSERT.into(LEAVE_CALENDAR).entries({
+                LEAVE_ID: leaveId,
+                employee_ID: employee.ID,
+                LEAVE_TYPE: req.data.leaveType,
+                LEAVE_FROM: req.data.leaveFrom,
+                LEAVE_TO: req.data.leaveTo,
+                REASON: req.data.reason,
+                STATUS: "PENDING"
+            })
         );
         return {
-            message: 'Leave request submitted successfully'
+            message: "Leave request submitted successfully"
         };
     });
 
@@ -177,10 +197,6 @@ module.exports = cds.service.impl(async function () {
                         ),
                     0
                 );
-            // console.log(
-            //     employee.NAME,
-            //     employee.ALLOCATION_PERCENT
-            // );
         }
     });
 
@@ -201,5 +217,21 @@ module.exports = cds.service.impl(async function () {
             message: 'Leave cancelled successfully'
         };
 
+    });
+    this.on('WithdrawLeave', async (req) => {
+        const db = await cds.connect.to('db');
+
+        await db.run( UPDATE(LEAVE_CALENDAR)
+            .set({
+                STATUS: "WITHDRAWN"
+            })
+            .where({
+                ID: req.data.leaveId
+            })
+        );
+
+        return {
+            message: "Leave withdrawn successfully"
+        };
     });
 });

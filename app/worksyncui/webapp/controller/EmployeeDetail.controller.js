@@ -25,7 +25,7 @@ sap.ui.define([
                         const oFCL = oRootView.byId("fcl");
                         if (oFCL) return oFCL;
                     }
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
 
                 // Fallback: find FCL by ID in Core
                 try {

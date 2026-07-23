@@ -1,2 +1,0 @@
-sap.ui.define(["sap/ui/core/mvc/Controller","sap/ui/core/Fragment"],function(e,n){"use strict";return e.extend("com.amista.worksyncui.controller.admin.Allocations",{})});
-//# sourceMappingURL=Allocations.controller.js.map
