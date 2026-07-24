@@ -59,27 +59,19 @@
                             <Text text="Description" />
                         </Column> -->
 
-                        <Column
-                           
-                            hAlign="Center">
+                        <Column>
                             <Text text="Start Date" />
                         </Column>
 
-                        <Column
-                            
-                            hAlign="Center">
+                        <Column>
                             <Text text="End Date" />
                         </Column>
 
-                        <Column
-                           
-                            hAlign="Center">
+                        <Column>
                             <Text text="Status" />
                         </Column>
 
-                        <Column
-                           
-                            hAlign="Center">
+                        <Column>
                             <Text text="View" />
                         </Column>
                     </columns>
@@ -87,7 +79,7 @@
                     <items>
                         <ColumnListItem
                             type="Active"
-                            press="onViewProject">
+                            press=".onViewProject">
 
                             <cells>
                                 <ObjectIdentifier
@@ -95,9 +87,6 @@
 
                                 <Text
                                     text="{PROJECT_NAME}" />
-
-                                <!-- <Text
-                                    text="{DESCRIPTION}" /> -->
 
                                 <Text
                                     text="{START_DATE}"
@@ -121,7 +110,7 @@
                                     icon="sap-icon://display"
                                     type="Transparent"
                                     tooltip="View Project Details"
-                                    press="onViewProject" />
+                                    press=".onViewProject" />
                             </cells>
 
                         </ColumnListItem>

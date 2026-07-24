@@ -24,6 +24,11 @@
                 />
 
                 <ToolbarSpacer />
+                <ToggleButton
+    id="themeToggle1"
+    text="Dark Mode"
+    icon="sap-icon://dark-mode"
+    press=".onThemeToggle1"/>
             </OverflowToolbar>
         </tnt:header>
         <!-- Side Navigation -->

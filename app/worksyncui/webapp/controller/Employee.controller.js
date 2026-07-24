@@ -4,8 +4,9 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], function (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/ui/core/Core"
+], function (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator, Core) {
     "use strict";
 
     return Controller.extend(
@@ -347,6 +348,20 @@ sap.ui.define([
                     this.byId("leaveDays").setValue(iDays);
                 }
             },
+            onThemeToggle1: function (oEvent) {
+
+            const bPressed = oEvent.getSource().getPressed();
+
+            if (bPressed) {
+                Core.applyTheme("sap_horizon_dark");
+                oEvent.getSource().setText("Light Mode");
+                oEvent.getSource().setIcon("sap-icon://light-mode");
+            } else {
+                Core.applyTheme("sap_horizon");
+                oEvent.getSource().setText("Dark Mode");
+                oEvent.getSource().setIcon("sap-icon://dark-mode");
+            }
+        }
         }
     );
 

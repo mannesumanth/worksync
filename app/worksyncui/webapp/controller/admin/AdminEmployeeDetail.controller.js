@@ -200,6 +200,10 @@ sap.ui.define([
                         "Employees",
                         "Refresh"
                     );
+                    sap.ui.getCore().getEventBus().publish(
+                        "Spof",
+                        "Refresh"
+                    );
                     this.getView()
                         .getBindingContext()
                         .refresh();

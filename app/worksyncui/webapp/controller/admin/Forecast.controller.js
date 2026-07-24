@@ -114,37 +114,6 @@ sap.ui.define([
                     )
                 );
             }
-            if (this._allocationValue) {
-                switch (this._allocationValue) {
-                    case "0":
-                        aFilters.push(
-                            new Filter(
-                                "CURRENT_ALLOCATION",
-                                FilterOperator.EQ,
-                                0
-                            )
-                        );
-                        break;
-                    case "50":
-                        aFilters.push(
-                            new Filter(
-                                "CURRENT_ALLOCATION",
-                                FilterOperator.LT,
-                                50
-                            )
-                        );
-                        break;
-                    case "100":
-                        aFilters.push(
-                            new Filter(
-                                "CURRENT_ALLOCATION",
-                                FilterOperator.EQ,
-                                100
-                            )
-                        );
-                        break;
-                }
-            }
             this.byId("forecastTable")
                 .getBinding("items")
                 .filter(aFilters);
@@ -158,23 +127,6 @@ sap.ui.define([
         onStatusFilter: function (oEvent) {
             this._statusValue = oEvent.getSource().getSelectedKey();
             this._applyFilters();
-        },
-
-        onAllocationFilter: function (oEvent) {
-            this._allocationValue = oEvent.getSource().getSelectedKey();
-            this._applyFilters();
-        },
-
-        onRefreshForecast: async function () {
-            await this._loadForecast();
-            this._searchValue = "";
-            this._statusValue = "";
-            this._allocationValue = "";
-            this.byId("forecastSearch").setValue("");
-            this.byId("statusFilter").setSelectedKey("");
-            this.byId("allocationFilter").setSelectedKey("");
-            this._applyFilters();
-            MessageToast.show("Forecast refreshed.");
         },
 
         onForecastPress: function (oEvent) {

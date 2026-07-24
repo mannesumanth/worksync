@@ -17,18 +17,18 @@
                 <Label text="Employee"/>
 
                 <Input
-                    value="{employee/NAME}"
+                    value="{editAllocation>/employee/NAME}"
                     editable="false"/>
 
                 <Label text="Project Role"/>
 
                 <Input
-                    value="{PROJECT_ROLE}"/>
+                    value="{editAllocation>/PROJECT_ROLE}"/>
 
                 <Label text="Allocation Percentage"/>
 
                 <StepInput
-                    value="{ALLOCATION_PERCENTAGE}"
+                    value="{editAllocation>/ALLOCATION_PERCENTAGE}"
                     min="1"
                     max="100"
                     step="5"/>
@@ -37,7 +37,7 @@
 
                 <DatePicker
                     value="{
-                        path:'START_DATE',
+                        path:'editAllocation>/START_DATE',
                         type:'sap.ui.model.odata.type.Date'
                     }"
                     valueFormat="yyyy-MM-dd"
@@ -47,7 +47,7 @@
 
                 <DatePicker
                     value="{
-                        path:'END_DATE',
+                        path:'editAllocation>/END_DATE',
                         type:'sap.ui.model.odata.type.Date'
                     }"
                     valueFormat="yyyy-MM-dd"

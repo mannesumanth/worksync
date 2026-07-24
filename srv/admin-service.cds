@@ -1,10 +1,11 @@
 using worksync.db as db from '../db/schema';
+
 //@requires: 'authenticated-user'
 //@(requires: 'Admin')
 service AdminService {
 
     // Core Entities
-    entity EMPLOYEES as projection on db.EMPLOYEES ;
+    entity EMPLOYEES            as projection on db.EMPLOYEES;
     entity DESIGNATIONS         as projection on db.DESIGNATIONS;
 
     entity SKILL_CATEGORIES     as projection on db.SKILL_CATEGORIES;
@@ -64,7 +65,6 @@ service AdminService {
         CREATED_AT : Timestamp;
     }
 
-
     function SearchEmployees(search: String,
                              status: String,
                              designation: String,
@@ -72,6 +72,22 @@ service AdminService {
                              maxExp: Decimal(4, 1),
                              skip: Integer,
                              top: Integer)               returns array of EMPLOYEES;
+                             type ProjectSkillInput {
+    ID                 : UUID;
+    skill_ID           : UUID;
+    REQUIRED_LEVEL     : String;
+    REQUIRED_RESOURCES : Integer;
+}
+
+type ProjectUpdateInput {
+    PROJECT_NAME : String(100);
+    DESCRIPTION  : LargeString;
+    START_DATE   : Date;
+    END_DATE     : Date;
+    STATUS       : String;
+    manager_ID   : UUID;
+    skills       : many ProjectSkillInput;
+}
 
     action   ApproveLeave(leaveId: UUID, status: String) returns {
         message : String
@@ -155,10 +171,16 @@ service AdminService {
         message : String;
     };
 
-    function currentUser() returns {
+    function currentUser()                               returns {
         isAdmin    : Boolean;
         isEmployee : Boolean;
         email      : String;
     };
+    action UpdateProject(
+    projectId : UUID,
+    project   : ProjectUpdateInput
+) returns {
+    message : String;
+};
 
 }

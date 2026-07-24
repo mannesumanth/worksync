@@ -145,7 +145,7 @@ module.exports = cds.service.impl(async function () {
                 .where`
             LEAVE_FROM <= ${req.data.leaveTo}
             AND LEAVE_TO >= ${req.data.leaveFrom}
-            AND STATUS != 'CANCELLED'
+             AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
         `
         );
         if (existingLeave) {

@@ -14,6 +14,9 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Skill", {
+        onInit: function () {
+            
+        },
 
         onEditSkill: async function (oEvent) {
 

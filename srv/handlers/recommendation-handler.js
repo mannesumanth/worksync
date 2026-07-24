@@ -102,9 +102,12 @@ module.exports = {
 
                         MATCHED_SKILLS: matchedSkills,
                         TOTAL_SKILLS: requirementSkills.length,
-                        MATCH_PERCENT:
-                            (matchedSkills * 100) /
-                            requirementSkills.length,
+                        MATCH_PERCENT: Number(
+                            (
+                                (matchedSkills * 100) /
+                                requirementSkills.length
+                            ).toFixed(2)
+                        ),
                         ALLOCATION_PERCENT: allocationPercent,
                         AVAILABLE_PERCENT:
                             Math.max(0, 100 - allocationPercent)

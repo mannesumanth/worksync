@@ -2,86 +2,141 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     controllerName="com.amista.worksyncui.controller.admin.LeaveCalender"
-    xmlns:core="sap.ui.core">
- <Page id="leavePage" title="Leave Calendar">
-                    <content>
-                        <VBox class="sapUiMediumMargin">
-                            <Table id="leaveTable" inset="false" sticky="ColumnHeaders" growing="true" growingThreshold="20" growingScrollToLoad="true" noDataText="No leave requests available" items="{
+    xmlns:core="sap.ui.core"
+>
+    <Page
+        id="leavePage"
+        title="Leave Calendar"
+    >
+        <content>
+            <VBox class="sapUiMediumMargin">
+                <Table
+                    id="leaveTable"
+                    inset="false"
+                    sticky="ColumnHeaders"
+                    growing="true"
+                    growingThreshold="20"
+                    growingScrollToLoad="true"
+                    noDataText="No leave requests available"
+                    items="{
                     path: '/LEAVE_CALENDAR',
                     parameters: {
                         $expand: 'employee',
                         $orderby: 'createdAt desc'
                     }
-                }">
-                                <headerToolbar>
-                                    <OverflowToolbar>
-                                        <Title text="Leave Requests" level="H3" />
-                                        <ToolbarSpacer />
-                                    </OverflowToolbar>
-                                </headerToolbar>
-                                <columns>
-                                    <Column>
-                                        <Text text="Leave ID" />
-                                    </Column>
+                }"
+                >
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title
+                                text="Leave Requests"
+                                level="H3"
+                            />
+                            <ToolbarSpacer />
+                            <SearchField
+                            id="leaveSearch"
+            width="18rem"
+            placeholder="Search Employee or Leave ID"
+            liveChange=".onSearch"
+            search=".onSearch"
+        />
+        <Select
+            id="lStatusFilter"
+            width="10rem"
+            change=".onStatusFilter">
+            <core:Item key="" text="All Status"/>
+            <core:Item key="PENDING" text="Pending"/>
+            <core:Item key="APPROVED" text="Approved"/>
+            <core:Item key="REJECTED" text="Rejected"/>
+            <core:Item key="CANCELLED" text="Cancelled"/>
+            <core:Item key="WITHDRAWN" text="Withdrawn"/>   
+        </Select>
+                        </OverflowToolbar>
+                    </headerToolbar>
+                    <columns>
+                        <Column>
+                            <Text text="Leave ID" />
+                        </Column>
 
-                                    <Column >
-                                        <Text text="Employee" />
-                                    </Column>
+                        <Column>
+                            <Text text="Employee" />
+                        </Column>
 
-                                    <Column >
-                                        <Text text="Leave Type" />
-                                    </Column>
+                        <Column>
+                            <Text text="Leave Type" />
+                        </Column>
 
-                                    <Column>
-                                        <Text text="From" />
-                                    </Column>
-                                    <Column >
-                                        <Text text="To" />
-                                    </Column>
+                        <Column>
+                            <Text text="From" />
+                        </Column>
+                        <Column>
+                            <Text text="To" />
+                        </Column>
 
-                                    <Column >
-                                        <Text text="Status" />
-                                    </Column>
+                        <Column>
+                            <Text text="Status" />
+                        </Column>
 
-                                    <Column >
-                                        <Text text="Update Status" />
-                                    </Column>
-                                </columns>
+                        <Column>
+                            <Text text="Update Status" />
+                        </Column>
+                    </columns>
 
-                                <items>
-                                    <ColumnListItem>
-                                        <cells>
-                                            <Text text="{LEAVE_ID}" />
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{LEAVE_ID}" />
 
-                                            <Text text="{employee/NAME}" />
+                                <Text text="{employee/NAME}" />
 
-                                            <Text text="{LEAVE_TYPE}" />
+                                <Text text="{LEAVE_TYPE}" />
 
-                                            <Text text="{LEAVE_FROM}" textAlign="Center" />
+                                <Text
+                                    text="{LEAVE_FROM}"
+                                    textAlign="Center"
+                                />
 
-                                            <Text text="{LEAVE_TO}" textAlign="Center" />
+                                <Text
+                                    text="{LEAVE_TO}"
+                                    textAlign="Center"
+                                />
 
-                                            <ObjectStatus text="{STATUS}" state="{=
+                                <ObjectStatus
+                                    text="{STATUS}"
+                                    state="{=
                                     ${STATUS} === 'APPROVED' ? 'Success' :
                                     ${STATUS} === 'REJECTED' ? 'Error' :
                                     ${STATUS} === 'PENDING' ? 'Warning' :
                                     'None'
-                                }" />
+                                }"
+                                />
 
-                                            <Select width="100%" selectedKey="{STATUS}" change="onLeaveStatusChange">
-                                                <items>
-                                                    <core:Item key="APPROVED" text="Approve" />
+                                <HBox
+                                    justifyContent="Center"
+                                    visible="{= %{STATUS} === 'PENDING'}"
+                                    renderType="Bare"
+                                >
+                                    <Button
+                                        text="Approve"
+                                        type="Accept"
+                                        icon="sap-icon://accept"
+                                        
+                                        press=".onApproveLeave"
+                                    />
 
-                                                    <core:Item key="REJECTED" text="Reject" />
-
-                                                    <core:Item key="PENDING" text="Pending" />
-                                                </items>
-                                            </Select>
-                                        </cells>
-                                    </ColumnListItem>
-                                </items>
-                            </Table>
-                        </VBox>
-                    </content>
-                </Page>
+                                    <Button
+                                        text="Reject"
+                                        type="Reject"
+                                        icon="sap-icon://decline"
+                                        class="sapUiTinyMarginBegin" 
+                                        press=".onRejectLeave"
+                                    />
+                                </HBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </content>
+    </Page>
 </mvc:View>

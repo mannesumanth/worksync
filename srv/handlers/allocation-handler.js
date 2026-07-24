@@ -3,7 +3,9 @@ const { generateBusinessId } = require("../utils/id-generator");
 
 module.exports = {
     register(service) {
-        const { ALLOCATIONS } = service.entities;
+        const { ALLOCATIONS, PROJECTS, EMPLOYEES
+
+        } = service.entities;
 
         // Generate Allocation ID    
         service.before('CREATE', ALLOCATIONS, async (req) => {
@@ -14,22 +16,69 @@ module.exports = {
 
             if (!employee_ID || !ALLOCATION_PERCENTAGE) return;
 
-            // Sum existing active allocations for tservice employee
-            const result = await cds.run(
-                SELECT.from(ALLOCATIONS)
-                    .columns('SUM(ALLOCATION_PERCENTAGE) as TOTAL')
-                    .where({ employee_ID })
+            const aAllocations = await cds.run(SELECT.from(ALLOCATIONS)
+                .columns('ALLOCATION_PERCENTAGE')
+                .where({ employee_ID })
             );
 
-            const currentTotal = result[0]?.TOTAL || 0;
-            const newTotal = parseFloat(currentTotal) + parseFloat(ALLOCATION_PERCENTAGE);
+            const currentTotal = aAllocations.reduce(
+                (sum, item) => sum + Number(item.ALLOCATION_PERCENTAGE || 0),
+                0
+            );
+
+            const newTotal = currentTotal + Number(ALLOCATION_PERCENTAGE);
 
             if (newTotal > 100) {
-                req.error(400,
-                    `Allocation exceeds 100%. Employee is already allocated ${currentTotal}%. ` +
-                    `You are trying to add ${ALLOCATION_PERCENTAGE}% (Total would be ${newTotal}%).`
+                req.reject(
+                    400,
+                    `Allocation exceeds 100%. Current allocation is ${currentTotal}%. New total would be ${newTotal}%.`
                 );
             }
+
+        });
+
+        service.before("UPDATE", ALLOCATIONS, async (req) => {
+
+            const allocationId = req.params[0].ID;
+
+            const existing = await cds.run(SELECT.one
+                .from(ALLOCATIONS)
+                .columns(
+                    "ID",
+                    "employee_ID",
+                    "ALLOCATION_PERCENTAGE"
+                )
+                .where({ ID: allocationId }));
+            if (!existing) {
+                return;
+            }
+
+            const employeeId = existing.employee_ID;
+            const newAllocation = Number(
+                req.data.ALLOCATION_PERCENTAGE ?? existing.ALLOCATION_PERCENTAGE
+            );
+            const allocations = await cds.run(SELECT
+                .from(ALLOCATIONS)
+                .columns(
+                    "ID",
+                    "ALLOCATION_PERCENTAGE"
+                )
+                .where({ employee_ID: employeeId }));
+            let total = 0;
+            for (const allocation of allocations) {
+                if (allocation.ID === allocationId) {
+                    total += newAllocation;
+                } else {
+                    total += Number(allocation.ALLOCATION_PERCENTAGE);
+                }
+            }
+            if (total > 100) {
+                req.reject(
+                    400,
+                    `Allocation exceeds 100%. Total would become ${total}%.`
+                );
+            }
+
         });
     }
 }

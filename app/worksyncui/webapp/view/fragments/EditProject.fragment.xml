@@ -1,0 +1,257 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="editProjectDialog"
+        title="Edit Project"
+        contentWidth="850px"
+        contentHeight="650px"
+        draggable="true"
+        resizable="true">
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <!-- Project Name -->
+                <Label
+                    text="Project Name"
+                    required="true"/>
+
+                <Input
+                    id="editProjectName"
+                    value="{editProject>/PROJECT_NAME}"
+                    width="100%"
+                    placeholder="Enter project name"/>
+
+                <!-- Description -->
+                <Label
+                    text="Description"
+                    class="sapUiSmallMarginTop"/>
+
+                <TextArea
+                    id="editProjectDescription"
+                    value="{editProject>/DESCRIPTION}"
+                    rows="4"
+                    width="100%"
+                    placeholder="Enter project description"/>
+
+                <!-- Dates -->
+                <HBox
+                    class="sapUiMediumMarginTop"
+                    justifyContent="SpaceBetween">
+
+                    <VBox width="48%">
+
+                        <Label
+                            text="Start Date"
+                            required="true"/>
+
+                        <DatePicker
+                            id="editProjectStartDate"
+                            width="100%"
+                            value="{editProject>/START_DATE}"/>
+
+                    </VBox>
+
+                    <VBox width="48%">
+
+                        <Label
+                            text="End Date"
+                            required="true"/>
+
+                        <DatePicker
+                            id="editProjectEndDate"
+                            width="100%"
+                            value="{editProject>/END_DATE}"/>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- Status & Manager -->
+                <HBox
+                    class="sapUiMediumMarginTop"
+                    justifyContent="SpaceBetween">
+
+                    <VBox width="48%">
+
+                        <Label
+                            text="Project Status"
+                            required="true"/>
+
+                        <Select
+                            id="editProjectStatus"
+                            width="100%"
+                            selectedKey="{editProject>/STATUS}">
+
+                            <items>
+
+                                <core:Item
+                                    key="ACTIVE"
+                                    text="ACTIVE"/>
+
+                                <core:Item
+                                    key="COMPLETED"
+                                    text="COMPLETED"/>
+
+                                <core:Item
+                                    key="ON_HOLD"
+                                    text="ON HOLD"/>
+
+                            </items>
+
+                        </Select>
+
+                    </VBox>
+
+                    <VBox width="48%">
+
+                        <Label
+                            text="Project Manager"
+                            required="true"/>
+
+                        <Select
+                            id="editProjectManager"
+                            width="100%"
+                            selectedKey="{editProject>/manager_ID}"
+                            items="{/EMPLOYEES}">
+
+                            <core:Item
+                                key="{ID}"
+                                text="{NAME}"/>
+
+                        </Select>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- Required Skills -->
+
+                <Toolbar class="sapUiLargeMarginTop">
+
+                    <Title text="Required Skills"/>
+
+                    <ToolbarSpacer/>
+
+                    <Button
+                        text="Add Skill"
+                        icon="sap-icon://add"
+                        type="Emphasized"
+                        press=".onAddEditRequiredSkill"/>
+
+                </Toolbar>
+
+                <Table
+                    id="editRequiredSkillsTable"
+                    items="{editProject>/skills}"
+                    inset="false"
+                    class="sapUiSmallMarginTop">
+
+                    <columns>
+
+                        <Column>
+                            <Text text="Skill"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Required Level"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Required Resources"/>
+                        </Column>
+
+                        <Column/>
+
+                    </columns>
+
+                    <items>
+
+                        <ColumnListItem>
+
+                            <cells>
+
+                                <Select
+                                    width="100%"
+                                    selectedKey="{editProject>skill_ID}"
+                                    items="{/SKILLS}">
+
+                                    <core:Item
+                                        key="{ID}"
+                                        text="{SKILL_NAME}"/>
+
+                                </Select>
+
+                                <Select
+                                    width="100%"
+                                    selectedKey="{editProject>REQUIRED_LEVEL}">
+
+                                    <items>
+
+                                        <core:Item
+                                            key="BEGINNER"
+                                            text="Beginner"/>
+
+                                        <core:Item
+                                            key="INTERMEDIATE"
+                                            text="Intermediate"/>
+
+                                        <core:Item
+                                            key="ADVANCED"
+                                            text="Advanced"/>
+
+                                        <core:Item
+                                            key="EXPERT"
+                                            text="Expert"/>
+
+                                    </items>
+
+                                </Select>
+
+                                <StepInput
+                                    width="100%"
+                                    min="1"
+                                    max="10"
+                                    value="{editProject>REQUIRED_RESOURCES}"/>
+
+                                <Button
+                                    icon="sap-icon://delete"
+                                    type="Transparent"
+                                    tooltip="Remove Skill"
+                                    press=".onDeleteEditRequiredSkill"/>
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+
+                </Table>
+
+            </VBox>
+
+        </content>
+
+        <beginButton>
+
+            <Button
+                text="Update Project"
+                type="Emphasized"
+                press=".onUpdateProject"/>
+
+        </beginButton>
+
+        <endButton>
+
+            <Button
+                text="Cancel"
+                press=".onCloseEditProjectDialog"/>
+
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

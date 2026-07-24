@@ -8,7 +8,8 @@ module.exports = {
             PROJECT_REQUIREMENTS,
             DESIGNATIONS,
             SKILL_CATEGORIES,
-            SKILLS
+            SKILLS,
+            REQUIREMENT_SKILLS
         } = service.entities;
 
         service.before('CREATE', PROJECTS, async (req) => {
@@ -30,5 +31,101 @@ module.exports = {
             req.data.SKILL_ID = await generateBusinessId(req, 'SKILL_SEQ', 'SKL');
         });
 
+        service.on("UpdateProject", async (req) => {
+            const db = await cds.connect.to("db");
+            const tx = db.tx(req);
+            const { projectId, project } = req.data;
+            // Validate Project
+            const oProject = await tx.run(
+                SELECT.one
+                    .from(PROJECTS)
+                    .where({ ID: projectId })
+            );
+
+            if (!oProject) {
+                req.error(404, "Project not found");
+            }
+            // Update Project
+            await tx.run(
+                UPDATE(PROJECTS)
+                    .set({
+                        PROJECT_NAME: project.PROJECT_NAME,
+                        DESCRIPTION: project.DESCRIPTION,
+                        START_DATE: project.START_DATE,
+                        END_DATE: project.END_DATE,
+                        STATUS: project.STATUS,
+                        manager_ID: project.manager_ID
+                    })
+                    .where({
+                        ID: projectId
+                    })
+            );
+            // Get Requirement
+            const oRequirement = await tx.run(
+                SELECT.one
+                    .from(PROJECT_REQUIREMENTS)
+                    .where({
+                        project_ID: projectId
+                    })
+            );
+            if (!oRequirement) {
+                return {
+                    message: "Project updated successfully."
+                };
+            }
+
+            // Existing Requirement Skills
+            const aExistingSkills = await tx.run(
+                SELECT
+                    .from(REQUIREMENT_SKILLS)
+                    .where({
+                        requirement_ID: oRequirement.ID
+                    })
+            );
+            // UPDATE / CREATE
+            for (const oSkill of project.skills) {
+                if (oSkill.ID) {
+                    await tx.run(
+                        UPDATE(REQUIREMENT_SKILLS)
+                            .set({
+                                skill_ID: oSkill.skill_ID,
+                                REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                                REQUIRED_RESOURCES: oSkill.REQUIRED_RESOURCES
+                            })
+                            .where({
+                                ID: oSkill.ID
+                            })
+                    );
+                } else {
+                    await tx.run(
+                        INSERT.into(REQUIREMENT_SKILLS).entries({
+                            requirement_ID: oRequirement.ID,
+                            skill_ID: oSkill.skill_ID,
+                            REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                            REQUIRED_RESOURCES: oSkill.REQUIRED_RESOURCES
+                        })
+                    );
+                }
+            }
+            // DELETE REMOVED SKILLS
+            for (const oExisting of aExistingSkills) {
+                const bExists = project.skills.some(function (oSkill) {
+                    return oSkill.ID === oExisting.ID;
+
+                });
+                if (!bExists) {
+                    await tx.run(
+                        DELETE.from(REQUIREMENT_SKILLS)
+                            .where({
+                                ID: oExisting.ID
+                            })
+                    );
+                }
+            }
+            return {
+                message: "Project updated successfully."
+            };
+
+        });
     }
 }

@@ -3,7 +3,8 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
-], (Controller, MessageToast, MessageBox, JSONModel) => {
+    "sap/ui/core/Core"
+], (Controller, MessageToast, MessageBox, JSONModel, Core) => {
     "use strict";
 
     const NAV_PAGES = {
@@ -54,9 +55,9 @@ sap.ui.define([
                 }),
                 "summary"
             );
-            const oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("ProjectDetail")
-                .attachPatternMatched(this._onObjectMatched, this);
+            // const oRouter = this.getOwnerComponent().getRouter();
+            // oRouter.getRoute("ProjectDetail")
+            //     .attachPatternMatched(this._onObjectMatched, this);
             this.getView().setModel(
                 new JSONModel({
                     recommendations: []
@@ -102,13 +103,32 @@ sap.ui.define([
             if (!sViewId) {
                 return;
             }
-
             this
-            .byId("adminNavContainer")
+                .byId("adminNavContainer")
                 .to(this.byId(sViewId));
-
-            if (sKey === "spof") {
-                this._loadSpofRisks();
+            if(sKey==="spof"){
+                sap.ui.getCore().getEventBus().publish(
+                    "Spof",
+                    "Refresh"
+                );
+            }
+            if(sKey==="forecast"){
+                sap.ui.getCore().getEventBus().publish(
+                    "Forecast",
+                    "Refresh"
+                );
+            }
+            if(sKey ==="allocations"){
+                sap.ui.getCore().getEventBus().publish(
+                    "Allocations",      
+                    "Refresh"
+                );
+            }
+            if(sKey==="dashboard"){
+                sap.ui.getCore().getEventBus().publish(
+                    "Dashboard",
+                    "Refresh"
+                );
             }
         },
 
@@ -121,6 +141,20 @@ sap.ui.define([
             }
             this.byId("adminNavContainer")
                 .to(this.byId(sViewId));
+        },
+        onThemeToggle: function (oEvent) {
+
+            const bPressed = oEvent.getSource().getPressed();
+
+            if (bPressed) {
+                Core.applyTheme("sap_horizon_dark");
+                oEvent.getSource().setText("Light Mode");
+                oEvent.getSource().setIcon("sap-icon://light-mode");
+            } else {
+                Core.applyTheme("sap_horizon");
+                oEvent.getSource().setText("Dark Mode");
+                oEvent.getSource().setIcon("sap-icon://dark-mode");
+            }
         }
 
 

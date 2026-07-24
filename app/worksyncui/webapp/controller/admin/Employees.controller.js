@@ -38,21 +38,20 @@ sap.ui.define([
                 );
 
             },
+            //Refresh Employees
             refreshEmployees: async function () {
                 await this._loadEmployees();
             },
-            _loadEmployees: async function () {
 
+            //Load Employees
+            _loadEmployees: async function () {
                 const oBinding = this.getOwnerComponent()
                     .getModel()
                     .bindList("/EMPLOYEES", undefined, undefined, undefined, {
                         $expand: "designation"
                     });
-
                 const aContexts = await oBinding.requestContexts(0, 100);
-
                 const aEmployees = aContexts.map(oContext => oContext.getObject());
-
                 this.getOwnerComponent()
                     .getModel("table")
                     .setProperty("/EMPLOYEES", aEmployees);
@@ -60,6 +59,8 @@ sap.ui.define([
                     this.getOwnerComponent().getModel("table").getData()
                 );
             },
+
+            //Load Designations
             async _loadDesignations() {
                 const oModel = this.getOwnerComponent().getModel();
 
@@ -82,6 +83,8 @@ sap.ui.define([
                     "designationModel"
                 );
             },
+
+            //Add Employee Dialog
             onAddEmployee: async function () {
                 if (!this._oEmployeeDialog) {
                     this._oEmployeeDialog = await Fragment.load({
@@ -94,15 +97,14 @@ sap.ui.define([
                 this._clearEmployeeForm();
                 this._oEmployeeDialog.open();
             },
-            onSaveEmployee: async function () {
 
+            //Save Employee
+            onSaveEmployee: async function () {
                 if (!this._validateEmployeeForm()) {
                     MessageToast.show("Please fill all required fields");
                     return;
                 }
-
                 const oModel = this.getView().getModel();
-
                 const oPayload = {
                     NAME: this.byId("empName").getValue(),
                     EMAIL: this.byId("empEmail").getValue(),
@@ -119,39 +121,30 @@ sap.ui.define([
                 // Show busy indicator immediately
                 this._oEmployeeDialog.setBusyIndicatorDelay(0);
                 this._oEmployeeDialog.setBusy(true);
-
                 try {
-
                     const oEmpCtx = oModel.bindList("/EMPLOYEES").create(oPayload);
                     await oEmpCtx.created();
-
                     const sEmpId = oEmpCtx.getProperty("ID");
-
-                    await this._loadEmployees();
-
+                    await this._loadEmployees(); // Refresh the employee list after creation
                     MessageToast.show("Employee Created Successfully");
-
                     this._oEmployeeDialog.close();
                     this._clearEmployeeForm();
-
                 } catch (e) {
-
                     console.error(e);
                     MessageBox.error(e.message || "Employee Creation Failed");
-
                 } finally {
-
                     // Always remove busy indicator
                     this._oEmployeeDialog.setBusy(false);
-
                 }
             },
 
+            //Cancel Employee Dialog
             onCancelEmployee: function () {
                 this._oEmployeeDialog.close();
                 this._clearEmployeeForm();
             },
 
+            //Validate Employee Form
             _validateEmployeeForm: function () {
                 let bValid = true;
                 [
@@ -198,6 +191,7 @@ sap.ui.define([
                     }
                 });
             },
+
             //View Employee Details
             onViewEmployee: function (oEvent) {
                 const oContext = oEvent.getSource().getBindingContext("table");
@@ -210,8 +204,8 @@ sap.ui.define([
                     employeeId: sEmployeeId
                 });
             },
-            // EMPLOYEE SEARCH
 
+            // EMPLOYEE SEARCH
             onEmployeeFilterChange: async function () {
                 try {
                     const sSearch = this.byId("employeeSearch").getValue().trim();
@@ -279,6 +273,8 @@ sap.ui.define([
                     MessageBox.error("Unable to search employees.");
                 }
             },
+
+            //Clear Filters
             onClearFilters: async function () {
 
                 this.byId("employeeSearch").setValue("");
@@ -289,12 +285,11 @@ sap.ui.define([
 
                 await this._loadEmployees();
             },
+
+            //Field Change Validation
             onFieldChange: function (oEvent) {
-
                 const oControl = oEvent.getSource();
-
                 let bValid = false;
-
                 if (oControl.getValue) {
                     bValid = oControl.getValue().trim() !== "";
                 } else if (oControl.getSelectedKey) {
@@ -302,7 +297,6 @@ sap.ui.define([
                 } else if (oControl.getDateValue) {
                     bValid = !!oControl.getDateValue();
                 }
-
                 if (bValid) {
                     oControl.setValueState("None");
                     oControl.setValueStateText("");
@@ -311,7 +305,6 @@ sap.ui.define([
                     oControl.setValueStateText("Required");
                 }
             }
-
         }
     );
 });

@@ -18,6 +18,7 @@ sap.ui.define([
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Projects", {
 
+        //Create Project Dialog
         onCreateProject: async function () {
             this.getView().getModel("projectModel").setData({
                 skills: []
@@ -36,11 +37,13 @@ sap.ui.define([
             this._oProjectDialog.open();
         },
 
+        //Close Project Dialog  
         onCloseProjectDialog: function () {
             this._resetProjectForm();
             this._oProjectDialog.close();
         },
 
+        //Add Required Skill
         onAddRequiredSkill: function () {
             const oModel = this.getView().getModel("projectModel");
             const aSkills = oModel.getProperty("/skills") || [];
@@ -54,6 +57,7 @@ sap.ui.define([
             oModel.setProperty("/skills", aSkills);
         },
 
+        //Delete Required Skill
         onDeleteRequiredSkill: function (oEvent) {
             const oModel = this.getView().getModel("projectModel");
             const aSkills = oModel.getProperty("/skills");
@@ -65,6 +69,7 @@ sap.ui.define([
             oModel.setProperty("/skills", aSkills);
         },
 
+        //Save Project
         onSaveProject: async function () {
 
             const oModel = this.getView().getModel();
@@ -116,7 +121,7 @@ sap.ui.define([
                 this._resetProjectForm();
 
                 oDialog.close();
-                oModel.refresh();
+                oModel.refresh(); // Refresh the model to reflect the new project in the list
 
             } catch (e) {
                 MessageBox.error(e.message || "Project Creation Failed");
@@ -125,6 +130,7 @@ sap.ui.define([
             }
         },
 
+        //View Project Details
         onViewProject: function (oEvent) {
             const sId = oEvent.getSource()
                 .getBindingContext()
@@ -143,6 +149,7 @@ sap.ui.define([
                 });
         },
 
+        //Search Projects
         onProjectSearch: function (oEvent) {
             const sValue = oEvent.getParameter("newValue");
             const oTable = this.byId("projectsTable");
@@ -154,14 +161,35 @@ sap.ui.define([
             }
 
             const aFilters = [
-                new Filter("PROJECT_ID", FilterOperator.Contains, sValue),
-                new Filter("PROJECT_NAME", FilterOperator.Contains, sValue),
-                new Filter("DESCRIPTION", FilterOperator.Contains, sValue),
-                new Filter("STATUS", FilterOperator.Contains, sValue)
+                new Filter({
+                    path: "PROJECT_ID",
+                    operator: FilterOperator.Contains,
+                    value1: sValue,
+                    caseSensitive: false
+                }),
+                new Filter({
+                    path: "PROJECT_NAME",
+                    operator: FilterOperator.Contains,
+                    value1: sValue,
+                    caseSensitive: false
+                }),
+                new Filter({
+                    path: "DESCRIPTION",
+                    operator: FilterOperator.Contains,
+                    value1: sValue,
+                    caseSensitive: false
+                }),
+                new Filter({
+                    path: "STATUS",
+                    operator: FilterOperator.Contains,
+                    value1: sValue,
+                    caseSensitive: false
+                })
             ];
 
             oBinding.filter(new Filter({
                 filters: aFilters,
+                caseSensitive: false,
                 and: false
             }));
         },

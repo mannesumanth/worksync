@@ -85,12 +85,34 @@ sap.ui.define([
                 "spofChart"
             );
 
+            sap.ui.getCore().getEventBus().subscribe(
+                "Dashboard",
+                "Refresh",
+                this._onDashboardRefresh,
+                this
+            );
+
             this._configureCharts();
             this._loadDashboardStats();
             this._loadAvailabilityForecast();
             this._loadSpofRisks();
         },
 
+        _onDashboardRefresh: function () {
+            this._configureCharts();
+            this._loadDashboardStats();
+            this._loadAvailabilityForecast();
+            this._loadSpofRisks();
+        },
+
+        onExit: function () {
+            sap.ui.getCore().getEventBus().unsubscribe(
+                "Dashboard",
+                "Refresh",
+                this._onDashboardRefresh,
+                this
+            );
+        },
         onTilePress: function (oEvent) {
             const sKey = oEvent.getSource().data("nav");
             this.getOwnerComponent().getRouter().navTo(sKey);

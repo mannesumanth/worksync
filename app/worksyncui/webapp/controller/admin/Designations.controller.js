@@ -16,6 +16,8 @@ sap.ui.define([
     "use strict";
     return Controller.extend("com.amista.worksyncui.controller.admin.Designation", {
 
+
+        // Designation Dialog
         onOpenDesignationDialog: async function () {
             if (!this._oDesignationDialog) {
                 this._oDesignationDialog = await Fragment.load({
@@ -28,7 +30,10 @@ sap.ui.define([
             this._oDesignationDialog.open();
         },
 
+        // Close Designation Dialog
         onCloseDesignation: function () { this._oDesignationDialog.close(); },
+
+        // Save Designation
         onSaveDesignation: async function () {
             const oPayload = {
                 NAME: this.byId("designationNameInput").getValue(),
@@ -42,6 +47,8 @@ sap.ui.define([
                 this._oDesignationDialog.close();
             } catch (e) { MessageBox.error(e.message || "Failed"); }
         },
+
+        // Delete Designation
         onDeleteDesignation: function (oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             if (!oContext) { return; }
@@ -96,6 +103,8 @@ sap.ui.define([
                 }
             );
         },
+
+        // Edit Designation
         onEditDesignation: async function (oEvent) {
 
             if (!this._oEditDesignationDialog) {
@@ -117,6 +126,8 @@ sap.ui.define([
             this._oEditDesignationDialog.setModel(oModel, "edit");
             this._oEditDesignationDialog.open();
         },
+
+        // Update Designation
         onUpdateDesignation: async function () {
 
             const oEditData = this._oEditDesignationDialog
@@ -133,6 +144,10 @@ sap.ui.define([
             this._oDesignationContext.setProperty("NAME", oEditData.NAME);
 
             await this.getView().getModel().submitBatch("$auto");
+            sap.ui.getCore().getEventBus().publish(
+                        "Employees",
+                        "Refresh"
+                    );
 
             MessageToast.show("Designation updated successfully.");
 

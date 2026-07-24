@@ -12,7 +12,6 @@ sap.ui.define([
         {
 
             // INIT — Attach route pattern handler
-
             onInit: function () {
                 const oRouter = this.getOwnerComponent().getRouter();
                 oRouter.getRoute("ProjectDetail")
@@ -28,10 +27,7 @@ sap.ui.define([
                     "ui"
                 );
             },
-
-
             //  Bind the view to the correct Project
-
             _onObjectMatched: function (oEvent) {
                 const sProjectId = oEvent.getParameter("arguments").projectId;
                 this.getView().bindElement({
@@ -53,21 +49,16 @@ sap.ui.define([
 
             // NAVIGATION — Back button
             onNavBack: function () {
-
                 const oFCL = this.getOwnerComponent()
                     .getRootControl()
                     .byId("fcl");
-
                 oFCL.setLayout(
                     sap.f.LayoutType.OneColumn
                 );
-
                 window.history.back();
             },
-
             // EDIT Project Status
             onProjectStatusChange: async function (oEvent) {
-
                 try {
                     await this.getView().getModel().submitBatch("$auto");
                     MessageToast.show("Project status updated successfully.");
@@ -88,15 +79,12 @@ sap.ui.define([
                     this.getView()
                         .getModel("recommend")
                         .setProperty("/resources", oResult.value);
-
                 } catch (e) {
                     MessageBox.error(e.message);
                 }
             },
             onAssignEmployee: async function () {
-
                 if (!this._oAssignAllocationDialog) {
-
                     this._oAssignAllocationDialog = await sap.ui.core.Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.AssignAllocation",
@@ -105,12 +93,9 @@ sap.ui.define([
 
                     this.getView().addDependent(this._oAssignAllocationDialog);
                 }
-
                 const oProject = this.getView().getBindingContext().getObject();
-
                 this.byId("allocationStartDate")
                     .setDateValue(new Date(oProject.START_DATE));
-
                 this.byId("allocationEndDate")
                     .setDateValue(new Date(oProject.END_DATE));
 
@@ -125,7 +110,10 @@ sap.ui.define([
                 this._oAssignAllocationDialog.close();
 
             },
+            // Save Allocation
             onSaveAllocation: async function () {
+                const oMessageManager = sap.ui.getCore().getMessageManager();
+                oMessageManager.removeAllMessages();
                 const oView = this.getView();
                 const oModel = oView.getModel();
                 const oProject = oView.getBindingContext().getObject();
@@ -185,12 +173,14 @@ sap.ui.define([
                     MessageBox.warning(
                         "Allocation dates must be within the project duration."
                     );
+
                     return;
                 }
                 // Duplicate Validation
                 const oBinding = oModel.bindList("/ALLOCATIONS");
                 // Load all allocations from backend
                 const aContexts = await oBinding.requestContexts();
+                console.log(aContexts);
                 const bExists = aContexts.some(function (oContext) {
                     const oAllocation = oContext.getObject();
                     return (
@@ -205,57 +195,26 @@ sap.ui.define([
                     );
                     return;
                 }
-                // Available Allocation
-                // const aRecommended =
-                //     this.getView()
-                //         .getModel("recommend")
-                //         .getProperty("/resources") || [];
-
-                // const oRecommendedEmployee =
-                //     aRecommended.find(function (oEmp) {
-                //         return oEmp.ID === sEmployeeId;
-                //     });
-
-                // // if (!oRecommendedEmployee) {
-                // //     MessageBox.error("Selected employee not found.");
-                // //     return;
-                // // }
-
-                // if (iAllocation > oRecommendedEmployee.AVAILABLE_PERCENT) {
-
-                //     MessageBox.warning(
-                //         "Employee has only " +
-                //         oRecommendedEmployee.AVAILABLE_PERCENT +
-                //         "% allocation available."
-                //     );
-
-                //     return;
-                // }
+                // Allocation Percentage Validation
                 const iCurrentAllocation = aContexts
                     .filter(function (oContext) {
-
                         const oAllocation = oContext.getObject();
-
-                        return (
-                            oAllocation.employee_ID === sEmployeeId &&
-                            oAllocation.STATUS !== "RELEASED"
-                        );
-
+                        return oAllocation.employee_ID === sEmployeeId;
                     })
                     .reduce(function (sum, oContext) {
-
-                        return sum + oContext.getObject().ALLOCATION_PERCENTAGE;
-
+                        return sum + Number(oContext.getObject().ALLOCATION_PERCENTAGE || 0);
                     }, 0);
 
                 const iAvailable = 100 - iCurrentAllocation;
 
+                console.log("Current Allocation:", iCurrentAllocation);
+                console.log("Available Allocation:", iAvailable);
+
                 if (iAllocation > iAvailable) {
-
                     MessageBox.warning(
-                        "Employee has only " + iAvailable + "% allocation available."
+                        `Allocation exceeds 100%. Current allocation is ${iCurrentAllocation}%. ` +
+                        `Only ${iAvailable}% is available for this employee.`
                     );
-
                     return;
                 }
                 const oPayload = {
@@ -299,7 +258,9 @@ sap.ui.define([
                 const day = String(oDate.getDate()).padStart(2, "0");
                 return `${year}-${month}-${day}`;
             },
+
             onEditAllocation: async function (oEvent) {
+                const oAllocationContext = oEvent.getSource().getBindingContext();
                 if (!this._oEditAllocationDialog) {
                     this._oEditAllocationDialog = await Fragment.load({
                         id: this.getView().getId(),
@@ -308,116 +269,278 @@ sap.ui.define([
                     });
                     this.getView().addDependent(this._oEditAllocationDialog);
                 }
-                const oAllocationContext = oEvent.getSource().getBindingContext();
-                const sAllocationId = oAllocationContext.getProperty("ID");
-                this._oEditAllocationDialog.bindElement({
-                    path: "/ALLOCATIONS(" + sAllocationId + ")",
-                    parameters: {
-                        $expand: "employee"
-                    }
-                });
+                // Keep the OData context for saving later
+                this._oCurrentAllocationContext = oAllocationContext;
+                // Create a copy of the allocation data
+                const oAllocationData = structuredClone(oAllocationContext.getObject());
+                // JSON model for editing
+                const oEditModel = new sap.ui.model.json.JSONModel(oAllocationData);
+                this._oEditAllocationDialog.setModel(oEditModel, "editAllocation");
                 this._oEditAllocationDialog.open();
             },
+
             onUpdateAllocation: async function () {
+                const oMessageManager = sap.ui.getCore().getMessageManager();
+                oMessageManager.removeAllMessages();
+
                 try {
+
+                    const oEditData = this._oEditAllocationDialog
+                        .getModel("editAllocation")
+                        .getData();
+                    const oContext = this._oCurrentAllocationContext;
+                    oContext.setProperty("PROJECT_ROLE", oEditData.PROJECT_ROLE);
+                    oContext.setProperty("ALLOCATION_PERCENTAGE", oEditData.ALLOCATION_PERCENTAGE);
+                    oContext.setProperty("START_DATE", oEditData.START_DATE);
+                    oContext.setProperty("END_DATE", oEditData.END_DATE);
                     await this.getView().getModel().submitBatch("$auto");
+                    const aMessages = oMessageManager
+                        .getMessageModel()
+                        .getData();
+                    const oBackendError = aMessages.find(function (m) {
+                        return m.type === sap.ui.core.MessageType.Error;
+                    });
+                    if (oBackendError) {
+                        MessageBox.error(oBackendError.message);
+                        return;
+                    }
                     MessageToast.show("Allocation updated successfully.");
                     this._oEditAllocationDialog.close();
-                    this.getView().getBindingContext().refresh();
-                    await this._loadRecommendedResources(
-                        this.getView().getBindingContext().getObject().ID
-                    );
-                } catch (e) {
-                    MessageBox.error(e.message);
+                    await this.getView().getElementBinding().refresh();
+                } catch (oError) {
+                    MessageBox.error(oError.message || "Update failed.");
                 }
             },
             onCancelEditAllocation: function () {
-                const oModel =
-                    this.getView().getModel();
-                if (oModel.hasPendingChanges()) {
-                    oModel.resetChanges();
-
+                if (this._oEditAllocationDialog) {
+                    this._oEditAllocationDialog.close();
                 }
-
-                this._oEditAllocationDialog.close();
-
             },
             onDeleteAllocation: function (oEvent) {
-
                 const oContext =
                     oEvent.getSource().getBindingContext();
-
                 const sProjectId =
                     this.getView()
                         .getBindingContext()
                         .getObject().ID;
 
                 MessageBox.confirm(
-
                     "Remove this allocation?",
-
                     {
-
                         actions: [
                             MessageBox.Action.YES,
                             MessageBox.Action.NO
                         ],
-
                         onClose: async (sAction) => {
-
                             if (
                                 sAction !==
                                 MessageBox.Action.YES
                             ) {
-
                                 return;
-
                             }
-
                             try {
-
                                 await oContext.delete("$auto");
-
                                 MessageToast.show(
                                     "Allocation removed."
                                 );
-
                                 this.getView()
                                     .getBindingContext()
                                     .refresh();
-
                                 await this._loadRecommendedResources(
                                     sProjectId
                                 );
-
                             } catch (oError) {
-
                                 MessageBox.error(
                                     oError.message
                                 );
-
                             }
-
                         }
-
                     }
-
                 );
+            },
+            //Edit Project Dialog
+            onEditProjectPress: async function () {
+                if (!this._oEditProjectDialog) {
+                    this._oEditProjectDialog = await Fragment.load({
+                        id: this.getView().getId(),
+                        name: "com.amista.worksyncui.view.fragments.EditProject",
+                        controller: this
+                    });
+                    this.getView().addDependent(this._oEditProjectDialog);
+                }
+                const oProject = this.getView()
+                    .getBindingContext()
+                    .getObject();
+                const aSkills = [];
+                console.log("Project:", oProject);
+                console.log("Manager:", oProject.manager);
+                console.log("Requirements:", oProject.requirements);
+                (oProject.requirements || []).forEach(function (oRequirement) {
+                    (oRequirement.requirementSkills || []).forEach(function (oSkill) {
+                        console.log("Requirement Skill:", oSkill);
+                        aSkills.push({
+                            ID: oSkill.ID,
+                            skill_ID: oSkill.skill.ID,
+                            REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                            REQUIRED_RESOURCES: oSkill.REQUIRED_RESOURCES
+                        });
+                    });
+                });
+                console.log("Skills:", aSkills);
+                const oEditModel = new sap.ui.model.json.JSONModel({
+                    ID: oProject.ID,
+                    PROJECT_NAME: oProject.PROJECT_NAME,
+                    DESCRIPTION: oProject.DESCRIPTION,
+                    START_DATE: oProject.START_DATE,
+                    END_DATE: oProject.END_DATE,
+                    STATUS: oProject.STATUS,
+                    manager_ID: oProject.manager.ID,
+                    skills: aSkills
+
+                });
+
+                this.getView().setModel(oEditModel, "editProject");
+                this._oEditProjectDialog.open();
+            },
+            onAddEditRequiredSkill: function () {
+                const oModel = this.getView().getModel("editProject");
+                const aSkills = oModel.getProperty("/skills") || [];
+                aSkills.push({
+                    ID: null,
+                    skill_ID: "",
+                    REQUIRED_LEVEL: "BEGINNER",
+                    REQUIRED_RESOURCES: 1
+                });
+                oModel.setProperty("/skills", aSkills);
 
             },
-            onEditProjectPress: function () {
-                const pId = this.getView().getBindingContext().getProperty("ID");
-                const oFCL = this.getOwnerComponent()
-                    .getRootControl()
-                    .byId("fcl");
+            onDeleteEditRequiredSkill: function (oEvent) {
+                const oTable = this.byId("editRequiredSkillsTable");
+                const oItem = oEvent.getSource().getParent();
+                const iIndex = oTable.indexOfItem(oItem);
+                const oModel = this.getView().getModel("editProject");
+                const aSkills = oModel.getProperty("/skills");
+                MessageBox.confirm(
+                    "Remove this required skill?",
+                    {
+                        actions: [
+                            MessageBox.Action.YES,
+                            MessageBox.Action.NO
+                        ],
+                        onClose: function (sAction) {
+                            if (sAction === MessageBox.Action.YES) {
+                                aSkills.splice(iIndex, 1);
+                                oModel.setProperty("/skills", aSkills);
+                            }
+                        }
+                    }
+                );
+            },
+            onCloseEditProjectDialog: function () {
+                MessageBox.confirm(
+                    "Discard all changes?",
+                    {
+                        actions: [
+                            MessageBox.Action.YES,
+                            MessageBox.Action.NO
+                        ],
+                        onClose: (sAction) => {
+                            if (sAction === MessageBox.Action.YES) {
+                                this.getView()
+                                    .getModel("editProject")
+                                    .setData({});
 
-                oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
+                                this._oEditProjectDialog.close();
 
-                this.getOwnerComponent()
-                    .getRouter()
-                    .navTo("EditProject", {
-                        projectId: pId
+                            }
+                        }
+                    }
+                );
+            },
+            onUpdateProject: async function () {
+                const oView = this.getView();
+                const oModel = oView.getModel();
+                const oProject = oView
+                    .getBindingContext()
+                    .getObject();
+                const oEdit = oView
+                    .getModel("editProject")
+                    .getData();
+                    const dStart = new Date(oEdit.START_DATE);
+                    const dEnd = new Date(oEdit.END_DATE);
+                // Validation
+                if (!oEdit.PROJECT_NAME) {
+                    MessageBox.error("Project Name is required.");
+                    return;
+                }
+                if (!oEdit.START_DATE || !oEdit.END_DATE) {
+                    MessageBox.error("Start Date and End Date are required.");
+                    return;
+                }
+                if (dStart > dEnd) {
+                    MessageBox.error("End Date cannot be before Start Date.");
+                    return;
+                }
+                if (!oEdit.manager_ID) {
+                    MessageBox.error("Please select a Project Manager.");
+                    return;
+                }
+                if (!oEdit.skills.length) {
+                    MessageBox.error("Please add at least one required skill.");
+                    return;
+                }
+                // Duplicate Skill Validation
+                const aSkillIds = oEdit.skills.map(s => s.skill_ID);
+                if (new Set(aSkillIds).size !== aSkillIds.length) {
+                    MessageBox.error("Duplicate skills are not allowed.");
+                    return;
+                }
+                this._oEditProjectDialog.setBusy(true);
+                try {
+                    const oAction = oModel.bindContext("/UpdateProject(...)");
+                    oAction.setParameter("projectId", oProject.ID);
+                    oAction.setParameter("project", {
+                        PROJECT_NAME: oEdit.PROJECT_NAME,
+                        DESCRIPTION: oEdit.DESCRIPTION,
+                        START_DATE: dStart.toISOString().split("T")[0],
+                        END_DATE: dEnd.toISOString().split("T")[0],
+                        STATUS: oEdit.STATUS,
+                        manager_ID: oEdit.manager_ID,
+                        skills: oEdit.skills.map(function (oSkill) {
+                            return {
+                                ID: oSkill.ID,
+                                skill_ID: oSkill.skill_ID,
+                                REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                                REQUIRED_RESOURCES: Number(oSkill.REQUIRED_RESOURCES)
+                            };
+                        })
                     });
+
+                    await oAction.execute();
+                    MessageToast.show("Project updated successfully.");
+                    this._oEditProjectDialog.close();
+                    // Refresh Project Detail
+                    await oView.getElementBinding().refresh();
+                    // Refresh Allocations
+                    if (this._loadAllocations) {
+                        await this._loadAllocations();
+                    }
+                    // Refresh Projects List
+                    sap.ui.getCore()
+                        .getEventBus()
+                        .publish("Projects", "Refresh");
+
+                } catch (oError) {
+                    console.error(oError);
+                    MessageBox.error(
+                        oError.message || "Failed to update project."
+                    );
+                } finally {
+
+                    this._oEditProjectDialog.setBusy(false);
+
+                }
+
             },
 
             onViewProject: function (oEvent) {
@@ -428,9 +551,7 @@ sap.ui.define([
                 const oFCL = this.getOwnerComponent()
                     .getRootControl()
                     .byId("fcl");
-
                 oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
-
                 this.getOwnerComponent()
                     .getRouter()
                     .navTo("ProjectDetail", {

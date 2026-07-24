@@ -7,7 +7,8 @@ module.exports = {
             EMPLOYEES,
             EMPLOYEE_SKILLS,
             ALLOCATIONS,
-            LEAVE_BALANCE
+            LEAVE_BALANCE,
+            PROJECTS
         } = service.entities;
         // Generate Employee ID
         service.before("CREATE", EMPLOYEES, async (req) => {
@@ -166,6 +167,46 @@ module.exports = {
                 isAdmin: req.user.is("Admin"),
                 isEmployee: req.user.is("Employee")
             };
+        });
+
+        service.before("UPDATE", EMPLOYEES, async (req) => {
+
+            // Only execute when STATUS is being updated
+            if (!req.data.STATUS) {
+                return;
+            }
+
+            const statuses = ["RESIGNED", "TERMINATED", "BENCH"];
+
+            if (!statuses.includes(req.data.STATUS)) {
+                return;
+            }
+
+            const employeeId = req.data.ID;
+
+            // Check if employee manages any projects
+            const managedProjects = await cds.run(
+                SELECT.from(PROJECTS)
+                    .where({
+                        manager_ID: employeeId
+                    })
+            );
+
+            if (managedProjects.length > 0) {
+                req.error(
+                    400,
+                    "Employee is assigned as Project Manager. Please assign another project manager before updating the employee status."
+                );
+            }
+
+            // Remove all project allocations
+            await cds.run(
+                DELETE.from(ALLOCATIONS)
+                    .where({
+                        employee_ID: employeeId
+                    })
+            );
+
         });
     }
 

@@ -8,8 +8,16 @@ sap.ui.define([
     return Controller.extend("com.amista.worksyncui.controller.admin.Spof", {
         onInit: function () {
             this.onLoadSpofRisks();
+            sap.ui.getCore().getEventBus().subscribe(
+                "Spof",
+                "Refresh",
+                this.onLoadSpofRisks,
+                this
+            );
         },
-
+        refreshSPOF: function () {
+            this.onLoadSpofRisks();
+        },
         onLoadSpofRisks: async function () {
             const oModel = this.getOwnerComponent().getModel();
             try {

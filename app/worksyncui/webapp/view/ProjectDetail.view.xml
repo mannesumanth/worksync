@@ -5,7 +5,7 @@
     xmlns:core="sap.ui.core">
 	<Page title="Project Details" showNavButton="true" navButtonPress=".onNavBack">
 		<headerContent>
-    <Label text="Status"/>
+    <!-- <Label text="Status"/>
 
     <Select
     id="projectStatusSelect"
@@ -14,10 +14,10 @@
 
     <core:Item key="ACTIVE" text="Active"/>
     <core:Item key="ON_HOLD" text="On Hold"/>
-    <core:Item key="COMPLETED" text="Completed"/>
-
-</Select>
-	<Button text="Edit Project" press="onEditProjectPress"/>
+    <core:Item key="COMPLETED" text="Completed"/> -->
+<!-- 
+</Select> -->
+	<Button text="Edit Project" press=".onEditProjectPress"/>
 </headerContent>
 		<content>
 			<!--  Project Header  -->

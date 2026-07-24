@@ -38,13 +38,7 @@
 						</fc:header>
 					</fc:Card>
 				</HBox>
-
-				<HBox justifyContent="End">
-					<Button text="Refresh" icon="sap-icon://refresh" type="Emphasized" press="onRefreshForecast" />
-				</HBox>
-
 				<!-- Search -->
-
 				<OverflowToolbar>
 					<SearchField id="forecastSearch" width="18rem" placeholder="Search Employee" liveChange="onForecastSearch" />
 
@@ -56,16 +50,6 @@
 							<core:Item key="AVAILABLE" text="Available" />
 							<core:Item key="BENCH" text="Bench" />
 							<core:Item key="On Leave" text="On Leave" />
-							<core:Item key="FULLY_ALLOCATED" text="Fully Allocated" />
-						</items>
-					</Select>
-
-					<Select id="allocationFilter" width="12rem" change="onAllocationFilter">
-						<items>
-							<core:Item key="" text="All Allocation" />
-							<core:Item key="0" text="0%" />
-							<core:Item key="50" text="Below 50%" />
-							<core:Item key="100" text="100%" />
 						</items>
 					</Select>
 				</OverflowToolbar>
