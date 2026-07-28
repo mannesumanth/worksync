@@ -9,7 +9,8 @@ module.exports = {
             DESIGNATIONS,
             SKILL_CATEGORIES,
             SKILLS,
-            REQUIREMENT_SKILLS
+            REQUIREMENT_SKILLS,
+            ALLOCATIONS
         } = service.entities;
 
         service.before('CREATE', PROJECTS, async (req) => {
@@ -60,6 +61,16 @@ module.exports = {
                         ID: projectId
                     })
             );
+            if (["COMPLETED", "ON_HOLD", "UPCOMING"].includes(project.STATUS)) {
+
+                await tx.run(
+                    DELETE.from(ALLOCATIONS)
+                        .where({
+                            project_ID: projectId
+                        })
+                );
+
+            }
             // Get Requirement
             const oRequirement = await tx.run(
                 SELECT.one
@@ -127,5 +138,6 @@ module.exports = {
             };
 
         });
+        
     }
 }

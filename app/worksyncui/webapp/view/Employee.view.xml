@@ -20,96 +20,83 @@
                 <Title
                     text="WorkSync"
                     level="H2"
-                    class="sapUiTinyMarginBegin"
-                />
+                    class="sapUiTinyMarginBegin"/>
 
                 <ToolbarSpacer />
-                <ToggleButton
-    id="themeToggle1"
-    text="Dark Mode"
-    icon="sap-icon://dark-mode"
-    press=".onThemeToggle1"/>
+                    <ToggleButton
+                        id="themeToggle1"
+                        text="Dark Mode"
+                        icon="sap-icon://dark-mode"
+                        press=".onThemeToggle1"/>
             </OverflowToolbar>
         </tnt:header>
         <!-- Side Navigation -->
-        <tnt:sideContent>
-            <tnt:SideNavigation>
-                <tnt:NavigationList itemSelect=".onMenuSelect">
-                    <tnt:NavigationListItem
-                        text="My Profile"
-                        icon="sap-icon://employee"
-                        key="profile"
-                    />
+            <tnt:sideContent>
+                <tnt:SideNavigation>
+                    <tnt:NavigationList itemSelect=".onMenuSelect">
+                        <tnt:NavigationListItem
+                            text="My Profile"
+                            icon="sap-icon://employee"
+                            key="profile"/>
 
-                    <tnt:NavigationListItem
-                        text="My Projects"
-                        icon="sap-icon://project-definition-triangle-2"
-                        key="projects"
-                    />
+                        <tnt:NavigationListItem
+                            text="My Projects"
+                            icon="sap-icon://project-definition-triangle-2"
+                            key="projects" />
 
-                    <tnt:NavigationListItem
-                        text="My Skills"
-                        icon="sap-icon://competitor"
-                        key="skills"
-                    />
+                        <tnt:NavigationListItem
+                            text="My Skills"
+                            icon="sap-icon://competitor"
+                            key="skills"/>
 
-                    <tnt:NavigationListItem
-                        text="My Leaves"
-                        icon="sap-icon://calendar"
-                        key="leaves"
-                    />
-                </tnt:NavigationList>
-            </tnt:SideNavigation>
-        </tnt:sideContent>
+                        <tnt:NavigationListItem
+                            text="My Leaves"
+                            icon="sap-icon://calendar"
+                            key="leaves"/>
+                    </tnt:NavigationList>
+                </tnt:SideNavigation>
+            </tnt:sideContent>
 
         <tnt:mainContents>
             <NavContainer id="employeeNavContainer">
                 <Page
                     id="profilePage"
-                    title="My Profile"
-                >
+                    title="My Profile">
                     <content>
                         <VBox class="sapUiLargeMargin">
                             <!-- Employee Header -->
                             <Panel
                                 headerText="Basic Information"
-                                class="sapUiMediumMarginBottom"
-                            >
+                                class="sapUiMediumMarginBottom" >
                                 <content>
                                     <VBox class="sapUiMediumMargin">
                                         <HBox class="sapUiSmallMarginBottom">
                                             <Label
                                                 width="10rem"
-                                                text="Name"
-                                            />
+                                                text="Name" />
                                             <Title
                                                 text="{employee>NAME}"
-                                                level="H3"
-                                            />
+                                                level="H3" />
                                         </HBox>
                                         <HBox class="sapUiSmallMarginBottom">
                                             <Label
                                                 width="10rem"
-                                                text="Employee ID"
-                                            />
+                                                text="Employee ID"/>
                                             <Text text="{employee>EMP_ID}" />
                                         </HBox>
                                         <HBox class="sapUiSmallMarginBottom">
                                             <Label
                                                 width="10rem"
-                                                text="Role"
-                                            />
+                                                text="Role"/>
                                             <Text text="{employee>ROLE}" />
                                         </HBox>
                                         <HBox>
                                             <Label
                                                 width="10rem"
-                                                text="Status"
-                                            />
+                                                text="Status" />
                                             <ObjectStatus
                                                 text="{employee>STATUS}"
-                                                state="Success"
-                                            />
+                                                state="Success"/>
                                         </HBox>
                                     </VBox>
                                 </content>
@@ -117,44 +104,37 @@
                             <!-- Personal Information -->
                             <Panel
                                 headerText="Personal Information"
-                                class="sapUiMediumMarginTop"
-                            >
+                                class="sapUiMediumMarginTop" >
                                 <VBox class="sapUiMediumMargin">
                                     <HBox class="sapUiSmallMarginBottom">
                                         <Label
                                             width="12rem"
-                                            text="Email"
-                                        />
+                                            text="Email"/>
                                         <Text text="{employee>EMAIL}" />
                                     </HBox>
                                     <HBox class="sapUiSmallMarginBottom">
                                         <Label
                                             width="12rem"
-                                            text="Phone Number"
-                                        />
+                                            text="Phone Number" />
                                         <Text text="{employee>PHONE_NUMBER}" />
                                     </HBox>
                                     <HBox class="sapUiSmallMarginBottom">
                                         <Label
                                             width="12rem"
-                                            text="Role"
-                                        />
+                                            text="Role" />
                                         <Text text="{employee>ROLE}" />
                                     </HBox>
                                     <HBox class="sapUiSmallMarginBottom">
                                         <Label
                                             width="12rem"
-                                            text="Experience"
-                                        />
+                                            text="Experience" />
                                         <Text
-                                            text="{employee>EXPERIENCE} Years"
-                                        />
+                                            text="{employee>EXPERIENCE} Years" />
                                     </HBox>
                                     <HBox>
                                         <Label
                                             width="12rem"
-                                            text="Joining Date"
-                                        />
+                                            text="Joining Date" />
                                         <Text text="{employee>JOINING_DATE}" />
                                     </HBox>
                                 </VBox>
@@ -162,8 +142,7 @@
                             <!-- Work Information -->
                             <Panel
                                 headerText="Work Information"
-                                class="sapUiMediumMarginTop"
-                            >
+                                class="sapUiMediumMarginTop" >
                                 <VBox class="sapUiMediumMargin">
                                     <Label text="Allocation" />
                                     <ProgressIndicator
@@ -176,21 +155,18 @@
                                             : ${employee>ALLOCATION_PERCENT} >= 80
                                             ? 'Warning'
                                             : 'Success'
-                                        }"
-                                    />
+                                        }" />
                                     <HBox class="sapUiMediumMarginTop">
                                         <Label
                                             width="12rem"
-                                            text="Status"
-                                        />
+                                            text="Status" />
                                         <ObjectStatus
                                             text="{employee>STATUS}"
                                             state="{=
                                                 ${employee>STATUS} === 'ACTIVE'
                                                 ? 'Success'
                                                 : 'Error'
-                                            }"
-                                        />
+                                            }" />
                                     </HBox>
                                 </VBox>
                             </Panel>
@@ -200,46 +176,36 @@
                 <!-- Projects Page -->
                 <Page
                     id="projectsPage"
-                    title="My Projects"
-                >
+                    title="My Projects">
                     <content>
                         <List
                             items="{projects>/value}"
                             growing="true"
-                            noDataText="No Projects Assigned"
-                        >
+                            noDataText="No Projects Assigned" >
                             <CustomListItem>
-                                <Panel
-                                    class="sapUiSmallMarginBottom sapUiResponsiveMargin"
-                                >
+                                <Panel class="sapUiSmallMarginBottom sapUiResponsiveMargin" >
                                     <VBox class="sapUiMediumMargin">
                                         <!-- Project Header -->
                                         <HBox
                                             justifyContent="SpaceBetween"
-                                            alignItems="Center"
-                                        >
+                                            alignItems="Center" >
                                             <VBox>
                                                 <Title
                                                     text="{projects>PROJECT_NAME}"
-                                                    level="H3"
-                                                />
+                                                    level="H3" />
                                                 <Text
                                                     text="{projects>PROJECT_ID}"
-                                                    class="sapUiTinyMarginBottom"
-                                                />
+                                                    class="sapUiTinyMarginBottom" />
                                                 <Text
                                                     text="{projects>DESCRIPTION}"
                                                     wrapping="true"
-                                                    class="sapUiSmallMarginTop sapUiSmallMarginBottom"
-                                                />
+                                                    class="sapUiSmallMarginTop sapUiSmallMarginBottom" />
                                                 <HBox
                                                     class="sapUiSmallMarginBottom"
-                                                    wrap="Wrap"
-                                                >
+                                                    wrap="Wrap">
                                                     <VBox
                                                         width="12rem"
-                                                        class="sapUiMediumMarginEnd"
-                                                    >
+                                                        class="sapUiMediumMarginEnd" >
                                                         <Label text="Status" />
                                                         <ObjectStatus
                                                             text="{projects>PROJECT_STATUS}"
@@ -249,16 +215,13 @@
                                                             : ${projects>PROJECT_STATUS} === 'COMPLETED'
                                                             ? 'Information'
                                                             : 'Warning'
-                                                        }"
-                                                        />
+                                                        }"/>
                                                     </VBox>
                                                     <VBox
                                                         width="12rem"
-                                                        class="sapUiMediumMarginEnd"
-                                                    >
+                                                        class="sapUiMediumMarginEnd" >
                                                         <Label
-                                                            text="Priority"
-                                                        />
+                                                            text="Priority"/>
                                                         <ObjectStatus
                                                             text="{projects>PROJECT_PRIORITY}"
                                                             state="{=
@@ -267,8 +230,7 @@
                                                             : ${projects>PROJECT_PRIORITY} === 'MEDIUM'
                                                             ? 'Warning'
                                                             : 'Success'
-                                                        }"
-                                                        />
+                                                        }" />
                                                     </VBox>
                                                 </HBox>
                                             </VBox>
@@ -277,37 +239,29 @@
                                         <HBox wrap="Wrap">
                                             <VBox
                                                 width="12rem"
-                                                class="sapUiMediumMarginEnd"
-                                            >
+                                                class="sapUiMediumMarginEnd" >
                                                 <Label text="Role" />
-                                                <Text
-                                                    text="{projects>PROJECT_ROLE}"
-                                                />
+                                                <Text text="{projects>PROJECT_ROLE}"/>
                                             </VBox>
                                             <VBox
                                                 width="12rem"
-                                                class="sapUiMediumMarginEnd"
-                                            >
+                                                class="sapUiMediumMarginEnd" >
                                                 <Label text="Allocation" />
                                                 <ObjectNumber
                                                     number="{projects>ALLOCATION_PERCENTAGE}"
-                                                    unit="%"
-                                                />
+                                                    unit="%"/>
                                             </VBox>
                                             <VBox
                                                 width="12rem"
-                                                class="sapUiMediumMarginEnd"
-                                            >
+                                                class="sapUiMediumMarginEnd">
                                                 <Label text="Start Date" />
                                                 <Text
-                                                    text="{projects>PROJECT_START_DATE}"
-                                                />
+                                                    text="{projects>PROJECT_START_DATE}" />
                                             </VBox>
                                             <VBox width="12rem">
                                                 <Label text="End Date" />
                                                 <Text
-                                                    text="{projects>PROJECT_END_DATE}"
-                                                />
+                                                    text="{projects>PROJECT_END_DATE}"/>
                                             </VBox>
                                         </HBox>
                                     </VBox>
@@ -319,14 +273,12 @@
                 <!-- Skills Page -->
                 <Page
                     id="skillsPage"
-                    title="My Skills"
-                >
+                    title="My Skills" >
                     <content>
                         <f:GridList
                             items="{skills>/value}"
                             noDataText="No Skills Found"
-                            class="sapUiTinyMargin"
-                        >
+                            class="sapUiTinyMargin" >
                             <f:customLayout>
                                 <grid:GridBoxLayout boxWidth="300px" />
                             </f:customLayout>
@@ -336,16 +288,13 @@
                                     <VBox class="sapUiMediumMargin">
                                         <HBox
                                             justifyContent="SpaceBetween"
-                                            alignItems="Center"
-                                        >
+                                            alignItems="Center" >
                                             <Title
                                                 text="{skills>SKILL_NAME}"
-                                                level="H5"
-                                            />
+                                                level="H5"/>
                                             <ObjectStatus
                                                 text="{skills>PROFICIENCY_LEVEL}"
-                                                state="Success"
-                                            />
+                                                state="Success"/>
                                         </HBox>
                                     </VBox>
                                 </f:GridListItem>
@@ -356,128 +305,108 @@
                 <!-- Leaves Page -->
                 <Page
                     id="leavesPage"
-                    title="My Leaves"
-                >
+                    title="My Leaves" >
                     <content>
                         <!-- Leave Balance Summary -->
                         <HBox
                             justifyContent="Start"
                             wrap="Wrap"
-                            class="sapUiMediumMargin"
-                        >
+                            class="sapUiMediumMargin">
                             <fc:Card
                                 width="15rem"
                                 height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom" >
                                 <fc:header>
                                     <card:NumericHeader
                                         title="Available"
                                         subtitle="Leave Balance"
                                         number="{leaveStats>/available}"
-                                        state="Good"
-                                    />
+                                        state="Good" />
                                 </fc:header>
                             </fc:Card>
 
                             <fc:Card
                                 width="15rem"
                                 height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom" >
                                 <fc:header>
                                     <card:NumericHeader
                                         title="Used"
                                         subtitle="Leave Taken"
                                         number="{leaveStats>/used}"
-                                        state="None"
-                                    />
+                                        state="None" />
                                 </fc:header>
                             </fc:Card>
 
                             <fc:Card
                                 width="15rem"
                                 height="10rem"
-                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                            >
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom" >
                                 <fc:header>
                                     <card:NumericHeader
                                         title="Pending"
                                         subtitle="Awaiting Approval"
                                         number="{leaveStats>/pending}"
-                                        state="Critical"
-                                    />
+                                        state="Critical" />
                                 </fc:header>
                             </fc:Card>
                         </HBox>
                         <Panel
                             headerText="My Leave Calendar"
                             expandable="false"
-                            class="sapUiContentPadding"
-                        >
+                            class="sapUiContentPadding" >
                             <content>
                                 <VBox
                                     width="100%"
                                     alignItems="Center"
-                                    class="sapUiMediumMarginBottom"
-                                >
+                                    class="sapUiMediumMarginBottom" >
                                     <!-- Calendar -->
                                     <unified:Calendar
                                         id="leaveCalendar"
-                                        months="1"
-                                        width="700px"
-                                        class="sapUiMediumMarginTop"
-                                    />
+                                        months="3"
+                                        width="1050px"
+                                        class="sapUiMediumMarginTop" />
 
                                     <!-- Legend -->
                                     <HBox
                                         justifyContent="Start"
                                         alignItems="Start"
                                         wrap="Wrap"
-                                        class="sapUiMediumMarginTop"
-                                    >
+                                        class="sapUiMediumMarginTop">
                                         <HBox
                                             alignItems="Center"
-                                            class="sapUiMediumMarginEnd"
-                                        >
+                                            class="sapUiMediumMarginEnd" >
                                             <core:Icon
                                                 src="sap-icon://accept"
                                                 color="#107E3E"
-                                                class="sapUiTinyMarginEnd"
-                                            />
+                                                class="sapUiTinyMarginEnd"/>
 
                                             <ObjectStatus
                                                 text="Approved"
-                                                state="Success"
-                                            />
+                                                state="Success"/>
                                         </HBox>
 
                                         <HBox
                                             alignItems="Center"
-                                            class="sapUiMediumMarginEnd"
-                                        >
+                                            class="sapUiMediumMarginEnd">
                                             <core:Icon
                                                 src="sap-icon://pending"
-                                                color="#E9730C"
-                                                class="sapUiTinyMarginEnd"
-                                            />
+                                                color="#2067ea"
+                                                class="sapUiTinyMarginEnd"/>
 
                                             <ObjectStatus
                                                 text="Pending"
-                                                state="Warning"
-                                            />
+                                                state="Information"/>
                                         </HBox>
                                         <HBox alignItems="Center">
                                             <core:Icon
                                                 src="sap-icon://decline"
                                                 color="#BB0000"
-                                                class="sapUiTinyMarginEnd"
-                                            />
+                                                class="sapUiTinyMarginEnd" />
 
                                             <ObjectStatus
                                                 text="Rejected"
-                                                state="Error"
-                                            />
+                                                state="Error"/>
                                         </HBox>
                                     </HBox>
                                 </VBox>
@@ -486,55 +415,46 @@
                         <!-- Apply Leave -->
                         <Panel
                             headerText="Apply Leave"
-                            class="sapUiContentPadding sapUiMediumMarginTop"
-                        >
+                            class="sapUiContentPadding sapUiMediumMarginTop">
                             <content>
                                 <layout:SimpleForm
                                     editable="true"
                                     layout="ResponsiveGridLayout"
-                                    singleContainerFullSize="false"
-                                >
+                                    singleContainerFullSize="false" >
                                     <Label text="Leave Type" />
 
                                     <Select
                                         id="leaveType"
-                                        width="100%"
-                                    >
+                                        width="100%" >
                                         <items>
                                             <core:Item
                                                 key="CASUAL"
-                                                text="Casual Leave"
-                                            />
+                                                text="Casual Leave" />
                                             <core:Item
                                                 key="SICK"
-                                                text="Sick Leave"
-                                            />
+                                                text="Sick Leave"/>
                                             <core:Item
                                                 key="EARNED"
-                                                text="Earned Leave"
-                                            />
+                                                text="Earned Leave" />
                                         </items>
                                     </Select>
                                     <Label text="From Date" />
                                     <DatePicker
                                         id="leaveStartDate"
                                         width="100%"
-                                        change="onLeaveDateChange"
-                                    />
+                                        change="onLeaveDateChange" />
 
                                     <Label text="To Date" />
 
                                     <DatePicker
                                         id="leaveEndDate"
                                         width="100%"
-                                        change="onLeaveDateChange"
-                                    />
+                                        change="onLeaveDateChange"/>
 
                                     <Label text="Total Days" />
                                     <Input
                                         id="leaveDays"
-                                        editable="false"
-                                    />
+                                        editable="false" />
 
                                     <Label text="Reason" />
 
@@ -542,29 +462,31 @@
                                         id="leaveReason"
                                         rows="4"
                                         width="100%"
-                                        placeholder="Enter reason for leave..."
-                                    />
+                                        placeholder="Enter reason for leave..." />
                                     <Label text="Confirm" />
                                     <Button
                                         text="Apply Leave"
                                         type="Emphasized"
                                         icon="sap-icon://accept"
-                                        press=".onApplyLeave"
-                                    />
+                                        press=".onApplyLeave" />
                                 </layout:SimpleForm>
                             </content>
                         </Panel>
                         <!-- Leave History -->
                         <Panel
                             headerText="Leave History"
-                            class="sapUiMediumMarginTop sapUiContentPadding"
-                        >
+                            class="sapUiMediumMarginTop sapUiContentPadding" >
                             <Table
                                 growing="true"
                                 growingScrollToLoad="true"
                                 noDataText="No Leave Requests"
-                                items="{leaves>/value}"
-                            >
+                                items="{
+                                    path: 'leaves>/value',
+                                    sorter: {
+                                        path: 'LEAVE_FROM',
+                                        descending: true
+                                    }
+                                }" >
                             
                                 <columns>
                                     <Column>
@@ -600,38 +522,32 @@
                                             <Text
                                                 text="{
                                                 path: 'leaves>LEAVE_FROM'
-                                            }"
-                                            />
+                                            }" />
                                             <Text
                                                 text="{
                                                 path: 'leaves>LEAVE_TO'
-                                            }"
-                                            />
+                                            }"/>
                                             <Text text="{leaves>DAYS}" />
                                             <Text
                                                 text="{leaves>REASON}"
-                                                maxLines="2"
-                                            />
+                                                maxLines="2" />
                                             <ObjectStatus
                                                 text="{leaves>STATUS}"
                                                 state="{
                                                     path: 'leaves>STATUS',
                                                     formatter: '.leaveStatusFormatter'
-                                                }"
-                                            />
+                                                }"/>
                                             <HBox>
                                                 <Button
                                                     text="Cancel"
                                                     type="Reject"
                                                     visible="{= ${leaves>STATUS} === 'PENDING' }"
-                                                    press=".onCancelLeave"
-                                                />
+                                                    press=".onCancelLeave" />
                                                 <Button
                                                     text="Withdraw"
                                                     type="Reject"
                                                     visible="{= ${leaves>STATUS} === 'APPROVED' }"
-                                                    press=".onWithdrawLeave"
-                                                />
+                                                    press=".onWithdrawLeave"/>
                                             </HBox>
                                         </cells>
                                     </ColumnListItem>

@@ -466,8 +466,9 @@ sap.ui.define([
                 const oEdit = oView
                     .getModel("editProject")
                     .getData();
-                    const dStart = new Date(oEdit.START_DATE);
-                    const dEnd = new Date(oEdit.END_DATE);
+                //this._oOriginalProject = JSON.parse(JSON.stringify(editProject));
+                const dStart = new Date(oEdit.START_DATE);
+                const dEnd = new Date(oEdit.END_DATE);
                 // Validation
                 if (!oEdit.PROJECT_NAME) {
                     MessageBox.error("Project Name is required.");
@@ -495,6 +496,16 @@ sap.ui.define([
                     MessageBox.error("Duplicate skills are not allowed.");
                     return;
                 }
+                // Check if anything has changed
+                // const bNoChanges =
+                //     JSON.stringify(this._oOriginalProject) ===
+                //     JSON.stringify(oEdit);
+
+                // if (bNoChanges) {
+                //     MessageToast.show("No changes to save.");
+                //     return;
+                // }
+
                 this._oEditProjectDialog.setBusy(true);
                 try {
                     const oAction = oModel.bindContext("/UpdateProject(...)");
@@ -517,6 +528,10 @@ sap.ui.define([
                     });
 
                     await oAction.execute();
+                    sap.ui.getCore().getEventBus().publish(
+                        "Project",
+                        "ProjectUpdated"
+                    );
                     MessageToast.show("Project updated successfully.");
                     this._oEditProjectDialog.close();
                     // Refresh Project Detail

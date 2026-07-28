@@ -22,7 +22,7 @@
 
 					<fc:Card width="15rem" height="10rem">
 						<fc:header>
-							<card:NumericHeader title="Employees OnBench" subtitle="No Allocation" number="{summary>/bench}" />
+							<card:NumericHeader title="Employees On Bench" subtitle="No Allocation (Available)" number="{summary>/bench}" />
 						</fc:header>
 					</fc:Card>
 

@@ -130,35 +130,209 @@ module.exports = cds.service.impl(async function () {
         });
         return leaves;
     });
+    //Apply Leave Action
+
+    // this.on('ApplyLeave', async req => {
+
+    //     const db = await cds.connect.to('db');
+    //     const employee = await getCurrentEmployee(req);
+
+    //     if (req.data.leaveFrom > req.data.leaveTo) {
+    //         req.error(400, "Leave From date cannot be greater than Leave To date");
+    //     }
+
+    //     // Check for overlapping leaves
+    //     const existingLeave = await db.run(
+    //         SELECT.one
+    //             .from(LEAVE_CALENDAR)
+    //             .where({ employee_ID: employee.ID })
+    //             .where`
+    //             LEAVE_FROM <= ${req.data.leaveTo}
+    //             AND LEAVE_TO >= ${req.data.leaveFrom}
+    //             AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
+    //         `
+    //     );
+
+    //     if (existingLeave) {
+    //         req.error(
+    //             400,
+    //             `A leave already exists from ${existingLeave.LEAVE_FROM} to ${existingLeave.LEAVE_TO}.`
+    //         );
+    //     }
+
+    //     // Helper to calculate weekdays
+    //     const getWeekDays = (from, to) => {
+    //         let days = 0;
+    //         let current = new Date(from);
+    //         const end = new Date(to);
+    //         while (current <= end) {
+    //             const day = current.getDay();
+    //             if (day !== 0 && day !== 6) {
+    //                 days++;
+    //             }
+    //             current.setDate(current.getDate() + 1);
+    //         }
+
+    //         return days;
+    //     };
+
+    //     // Requested leave days
+    //     const requestedDays = getWeekDays(
+    //         req.data.leaveFrom,
+    //         req.data.leaveTo
+    //     );
+
+    //     // Get approved leaves
+    //     const approvedLeaves = await db.run(
+    //         SELECT.from(LEAVE_CALENDAR)
+    //             .columns("LEAVE_FROM", "LEAVE_TO")
+    //             .where({
+    //                 employee_ID: employee.ID,
+    //                 STATUS: "APPROVED"
+    //             })
+    //     );
+
+    //     // Calculate used days
+    //     let usedDays = 0;
+
+    //     approvedLeaves.forEach(leave => {
+    //         usedDays += getWeekDays(
+    //             leave.LEAVE_FROM,
+    //             leave.LEAVE_TO
+    //         );
+    //     });
+
+    //     const TOTAL_LEAVES = 20;
+    //     const availableDays = TOTAL_LEAVES - usedDays;
+
+    //     if (requestedDays > availableDays) {
+    //         req.error(
+    //             400,
+    //             `You don't have enough leave balance. You have only ${availableDays} day(s) remaining, but you requested ${requestedDays} day(s).`
+    //         );
+    //     }
+
+    //     const leaveId = await generateBusinessId(
+    //         req,
+    //         "LEAVE_SEQ",
+    //         "LEV"
+    //     );
+
+    //     await db.run(
+    //         INSERT.into(LEAVE_CALENDAR).entries({
+    //             LEAVE_ID: leaveId,
+    //             employee_ID: employee.ID,
+    //             LEAVE_TYPE: req.data.leaveType,
+    //             LEAVE_FROM: req.data.leaveFrom,
+    //             LEAVE_TO: req.data.leaveTo,
+    //             REASON: req.data.reason,
+    //             STATUS: "PENDING"
+    //         })
+    //     );
+
+    //     return {
+    //         message: "Leave request submitted successfully"
+    //     };
+    // });
 
     this.on('ApplyLeave', async req => {
+
         const db = await cds.connect.to('db');
         const employee = await getCurrentEmployee(req);
+
+        // Validate dates
         if (req.data.leaveFrom > req.data.leaveTo) {
-            req.error(400, "Leave From date cannot be greater than Leave To date");
+            return req.reject(
+                400,
+                "Leave From date cannot be greater than Leave To date."
+            );
         }
-        // Check for overlapping leaves
+
+        // Helper to calculate weekdays (excluding Saturday & Sunday)
+        const getWeekDays = (from, to) => {
+
+            let days = 0;
+            let current = new Date(from);
+            const end = new Date(to);
+
+            while (current <= end) {
+
+                const day = current.getDay();
+
+                if (day !== 0 && day !== 6) {
+                    days++;
+                }
+
+                current.setDate(current.getDate() + 1);
+            }
+
+            return days;
+        };
+
+        // Calculate requested leave days
+        const requestedDays = getWeekDays(
+            req.data.leaveFrom,
+            req.data.leaveTo
+        );
+
+        // Get all approved leaves
+        const approvedLeaves = await db.run(
+            SELECT.from(LEAVE_CALENDAR)
+                .columns("LEAVE_FROM", "LEAVE_TO")
+                .where({
+                    employee_ID: employee.ID,
+                    STATUS: "APPROVED"
+                })
+        );
+
+        // Calculate used leave days
+        let usedDays = 0;
+
+        for (const leave of approvedLeaves) {
+            usedDays += getWeekDays(
+                leave.LEAVE_FROM,
+                leave.LEAVE_TO
+            );
+        }
+
+        const TOTAL_LEAVES = 20;
+        const availableDays = TOTAL_LEAVES - usedDays;
+
+        // Check leave balance
+        if (requestedDays > availableDays) {
+            return req.reject(
+                400,
+                `You don't have enough leave balance. You have only ${availableDays} day(s) remaining, but you requested ${requestedDays} day(s).`
+            );
+        }
+
+        // Check overlapping leave
         const existingLeave = await db.run(
             SELECT.one
                 .from(LEAVE_CALENDAR)
                 .where({ employee_ID: employee.ID })
                 .where`
-            LEAVE_FROM <= ${req.data.leaveTo}
-            AND LEAVE_TO >= ${req.data.leaveFrom}
-             AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
-        `
+                LEAVE_FROM <= ${req.data.leaveTo}
+                AND LEAVE_TO >= ${req.data.leaveFrom}
+                AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
+            `
         );
+
         if (existingLeave) {
-            req.error(
+            return req.reject(
                 400,
                 `A leave already exists from ${existingLeave.LEAVE_FROM} to ${existingLeave.LEAVE_TO}.`
             );
         }
+
+        // Generate Leave ID
         const leaveId = await generateBusinessId(
             req,
             "LEAVE_SEQ",
             "LEV"
         );
+
+        // Insert leave request
         await db.run(
             INSERT.into(LEAVE_CALENDAR).entries({
                 LEAVE_ID: leaveId,
@@ -170,6 +344,7 @@ module.exports = cds.service.impl(async function () {
                 STATUS: "PENDING"
             })
         );
+
         return {
             message: "Leave request submitted successfully"
         };
@@ -221,7 +396,7 @@ module.exports = cds.service.impl(async function () {
     this.on('WithdrawLeave', async (req) => {
         const db = await cds.connect.to('db');
 
-        await db.run( UPDATE(LEAVE_CALENDAR)
+        await db.run(UPDATE(LEAVE_CALENDAR)
             .set({
                 STATUS: "WITHDRAWN"
             })

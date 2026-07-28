@@ -17,7 +17,7 @@
 				<grid:CSSGrid width="100%" gridGap="1rem" gridTemplateColumns="repeat(auto-fit, minmax(32rem, 1fr))">
 					<fc:Card width="32rem" class="sapUiSmallMargin">
 						<fc:header>
-							<card:Header title="Employee Allocation" subtitle="Current workforce distribution" iconSrc="sap-icon://employee" />
+							<card:Header title="Employee Allocation" subtitle="Current Employee Allocation" iconSrc="sap-icon://employee" />
 						</fc:header>
 
 						<fc:content>
@@ -31,11 +31,10 @@
 										<viz.data:measures>
 											<viz.data:MeasureDefinition name="Bench" value="{employeeChart>Bench}" />
 
-											<viz.data:MeasureDefinition name="Under Allocated" value="{employeeChart>UnderAllocated}" />
-
 											<viz.data:MeasureDefinition name="Fully Allocated" value="{employeeChart>FullyAllocated}" />
 
-											<viz.data:MeasureDefinition name="Over Allocated" value="{employeeChart>OverAllocated}" />
+											<viz.data:MeasureDefinition name="Under Allocated" value="{employeeChart>UnderAllocated}" />
+
 										</viz.data:measures>
 									</viz.data:FlattenedDataset>
 								</viz:dataset>
@@ -43,11 +42,9 @@
 								<viz:feeds>
 									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Bench" />
 
-									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Under Allocated" />
-
 									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Fully Allocated" />
 
-									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Over Allocated" />
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Under Allocated" />
 
 									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Group" />
 								</viz:feeds>

@@ -9,6 +9,13 @@ module.exports = {
             EMPLOYEE_SKILLS,
             ALLOCATIONS
         } = service.entities;
+        // Proficiency ranking
+        const proficiencyRank = {
+            BEGINNER: 1,
+            INTERMEDIATE: 2,
+            ADVANCED: 3,
+            EXPERT: 4
+        };
 
         service.on('RecommendResources', async (req) => {
 
@@ -67,10 +74,18 @@ module.exports = {
 
                 for (const reqSkill of requirementSkills) {
 
-                    const match = employeeSkills.find(es =>
-                        es.skill_ID === reqSkill.skill_ID &&
-                        es.PROFICIENCY_LEVEL >= reqSkill.REQUIRED_LEVEL
-                    );
+                    const match = employeeSkills.find(es => {
+
+                        const employeeLevel =
+                            proficiencyRank[es.PROFICIENCY_LEVEL];
+
+                        const requiredLevel =
+                            proficiencyRank[reqSkill.REQUIRED_LEVEL];
+                        return (
+                            es.skill_ID === reqSkill.skill_ID &&
+                            employeeLevel >= requiredLevel
+                        );
+                    });
 
                     if (match) {
                         matchedSkills++;
@@ -85,7 +100,6 @@ module.exports = {
                                 employee_ID: emp.ID,
                                 START_DATE: { "<=": today },
                                 END_DATE: { ">=": today }
-
                             })
                     );
                     const allocationPercent =
@@ -122,4 +136,4 @@ module.exports = {
             );
         });
     }
-}
+};

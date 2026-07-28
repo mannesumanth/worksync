@@ -17,6 +17,30 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Projects", {
+        onInit: function () {
+
+            sap.ui.getCore().getEventBus().subscribe(
+                "Project",
+                "ProjectUpdated",
+                this._onProjectUpdated,
+                this
+            );
+
+        },
+
+        _onProjectUpdated: function () {
+            this.getView().getModel().refresh();
+        },
+
+        onExit: function () {
+            sap.ui.getCore().getEventBus().unsubscribe(
+                "Project",
+                "ProjectUpdated",
+                this._onProjectUpdated,
+                this
+            );
+
+        },
 
         //Create Project Dialog
         onCreateProject: async function () {

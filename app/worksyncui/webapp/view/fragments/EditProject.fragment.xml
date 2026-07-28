@@ -99,6 +99,9 @@
                                 <core:Item
                                     key="ON_HOLD"
                                     text="ON HOLD"/>
+                                <core:Item 
+                                    key="UPCOMING"
+                                    text="UPCOMING"/>
 
                             </items>
 

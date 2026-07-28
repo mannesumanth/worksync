@@ -17,6 +17,7 @@ sap.ui.define([
                 this._loadLeaves();
                 this._loadProjects();
                 this._loadSkills();
+                
 
             },
             onToggleSideNavigation: function () {
@@ -130,21 +131,29 @@ sap.ui.define([
             },
             //Calculate Leave Stats
             _calculateLeaveStats: function (aLeaves) {
+
                 let used = 0;
                 let pending = 0;
+                const TOTAL_LEAVES = 20;
                 aLeaves.forEach(function (oLeave) {
-                    if (oLeave.STATUS === "APPROVED") {
-                        used++;
+
+                    const iLeaveDays = this._getWeekDays(
+                        oLeave.LEAVE_FROM,
+                        oLeave.LEAVE_TO
+                    );
+                    switch (oLeave.STATUS) {
+                        case "APPROVED":
+                            used += iLeaveDays;
+                            break;
+                        case "PENDING":
+                            pending += iLeaveDays;
+                            break;
                     }
-                    if (oLeave.STATUS === "PENDING") {
-                        pending++;
-                    }
-                });
+                }.bind(this));
                 const oStats = {
-                    available: 20 - used,
+                    available: TOTAL_LEAVES - used,
                     used: used,
                     pending: pending
-
                 };
                 this.getView().setModel(
                     new JSONModel(oStats),
@@ -268,20 +277,19 @@ sap.ui.define([
 
             //Load Leave Calendar
             _loadLeaveCalendar: function (aLeaves) {
-                const oCalendar =
-                    this.byId("leaveCalendar");
+                const oCalendar = this.byId("leaveCalendar");
                 oCalendar.destroySpecialDates();
                 aLeaves.forEach(function (oLeave) {
-                    let sType = "Type01";
+                    let sType = "None";
                     switch (oLeave.STATUS) {
                         case "APPROVED":
-                            sType = "Type08";
+                            sType = "Type08"; // Green
                             break;
                         case "PENDING":
-                            sType = "Type01";
+                            sType = "Type06"; // Blue
                             break;
                         case "REJECTED":
-                            sType = "Type11";
+                            sType = "Type11"; // Red
                             break;
                         case "CANCELLED":
                             sType = "None";
@@ -289,16 +297,28 @@ sap.ui.define([
                         default:
                             sType = "None";
                     }
-                    oCalendar.addSpecialDate(
-                        new sap.ui.unified.DateTypeRange({
-                            startDate:
-                                new Date(oLeave.LEAVE_FROM),
-                            endDate:
-                                new Date(oLeave.LEAVE_TO),
-                            type: sType
-                        })
-                    );
+                    // Skip cancelled leaves
+                    if (sType === "None") {
+                        return;
+                    }
+                    let oCurrent = new Date(oLeave.LEAVE_FROM);
+                    const oEnd = new Date(oLeave.LEAVE_TO);
+                    while (oCurrent <= oEnd) {
+                        const iDay = oCurrent.getDay();
+                        // Skip Saturday (6) and Sunday (0)
+                        if (iDay !== 0 && iDay !== 6) {
+                            oCalendar.addSpecialDate(
+                                new sap.ui.unified.DateTypeRange({
+                                    startDate: new Date(oCurrent),
+                                    type: sType
+                                })
+                            );
+                        }
+                        oCurrent.setDate(oCurrent.getDate() + 1);
+                    }
+
                 });
+
             },
             //Calculate Leave Days
             onLeaveDateChange: function () {
@@ -350,18 +370,40 @@ sap.ui.define([
             },
             onThemeToggle1: function (oEvent) {
 
-            const bPressed = oEvent.getSource().getPressed();
+                const bPressed = oEvent.getSource().getPressed();
 
-            if (bPressed) {
-                Core.applyTheme("sap_horizon_dark");
-                oEvent.getSource().setText("Light Mode");
-                oEvent.getSource().setIcon("sap-icon://light-mode");
-            } else {
-                Core.applyTheme("sap_horizon");
-                oEvent.getSource().setText("Dark Mode");
-                oEvent.getSource().setIcon("sap-icon://dark-mode");
-            }
-        }
+                if (bPressed) {
+                    Core.applyTheme("sap_horizon_dark");
+                    oEvent.getSource().setText("Light Mode");
+                    oEvent.getSource().setIcon("sap-icon://light-mode");
+                } else {
+                    Core.applyTheme("sap_horizon");
+                    oEvent.getSource().setText("Dark Mode");
+                    oEvent.getSource().setIcon("sap-icon://dark-mode");
+                }
+            },
+            // Calculate weekdays between two dates (inclusive)
+            _getWeekDays: function (sFrom, sTo) {
+
+                let iDays = 0;
+                let oCurrent = new Date(sFrom);
+                const oEnd = new Date(sTo);
+
+                while (oCurrent <= oEnd) {
+
+                    const iDay = oCurrent.getDay();
+
+                    // Exclude Saturday (6) and Sunday (0)
+                    if (iDay !== 0 && iDay !== 6) {
+                        iDays++;
+                    }
+
+                    oCurrent.setDate(oCurrent.getDate() + 1);
+                }
+
+                return iDays;
+            },
+
         }
     );
 

@@ -25,37 +25,25 @@ sap.ui.define([
                     "REJECTED"
                 );
             },
-            _updateLeaveStatus: async function (
-                leaveId,
-                status
-            ) {
+            _updateLeaveStatus: async function (leaveId, status) {
                 try {
-                    const response = await fetch("/odata/v4/admin/ApproveLeave",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            body: JSON.stringify({
-                                leaveId,
-                                status
-                            })
-                        }
-                    );
-                    if (!response.ok) {
-                        throw new Error("Failed to update leave");
-                    }
+                    const oModel = this.getView().getModel();
+
+                    const oAction = oModel.bindContext("/ApproveLeave(...)");
+
+                    oAction.setParameter("leaveId", leaveId);
+                    oAction.setParameter("status", status);
+
+                    await oAction.execute();
+
                     sap.m.MessageToast.show(
-                        "Leave " +
-                        status.toLowerCase() +
-                        " successfully"
+                        "Leave " + status.toLowerCase() + " successfully"
                     );
-                    this.getView().getModel().refresh();
-                } catch (error) {
-                    sap.m.MessageBox.error(
-                        error.message
-                    );
+
+                    oModel.refresh();
+
+                } catch (oError) {
+                    sap.m.MessageBox.error(oError.message);
                 }
             },
             onSearch: function () {

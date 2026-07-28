@@ -15,7 +15,7 @@ sap.ui.define([
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Skill", {
         onInit: function () {
-            
+
         },
 
         onEditSkill: async function (oEvent) {
@@ -62,8 +62,13 @@ sap.ui.define([
                             await oContext.delete();
                             MessageToast.show("Skill deleted successfully");
                         } catch (oError) {
-                            MessageBox.error("Unable to delete skill");
-                            console.error(oError);
+                            const sMessage =
+                                oError?.error?.message ||
+                                oError?.message ||
+                                "Unable to delete skill";
+
+                            MessageBox.error(sMessage);
+
 
                         }
                     }
@@ -245,7 +250,7 @@ sap.ui.define([
         onCancelSkillCategory: function () {
             this._oEditCategoryDialog.close();
         },
-         onDeleteSkillCategory: function (oEvent) {
+        onDeleteSkillCategory: function (oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             MessageBox.confirm(
                 "Are you sure you want to delete this skill category?",

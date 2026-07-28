@@ -1,6 +1,6 @@
 using worksync.db as db from '../db/schema';
 
-//@requires: 'authenticated-user'
+@requires: 'authenticated-user'
 //@(requires: 'Admin')
 service AdminService {
 

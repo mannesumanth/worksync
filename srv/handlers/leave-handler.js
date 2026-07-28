@@ -17,9 +17,6 @@ module.exports = {
             if (!oLeave) {
                 return req.error(404, `Leave request ${leaveId} not found`);
             }
-            if (oLeave.STATUS !== 'PENDING') {
-                return req.error(400, `Leave request is already ${oLeave.STATUS}`);
-            }
             await cds.run(
                 UPDATE(LEAVE_CALENDAR)
                     .set({ STATUS: status })

@@ -146,8 +146,7 @@ sap.ui.define([
                                 Group: "Employees",
                                 Bench: oStats.benchEmployees,
                                 UnderAllocated: oStats.underAllocatedEmployees,
-                                FullyAllocated: oStats.fullyAllocatedEmployees,
-                                OverAllocated: oStats.overAllocatedEmployees
+                                FullyAllocated: oStats.fullyAllocatedEmployees
                             }
                         ]
                     });
