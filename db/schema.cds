@@ -2,10 +2,10 @@ namespace worksync.db;
 using { managed } from '@sap/cds/common';
 
   // ENUMS
-type Role : String enum {
-    ADMIN;
-    EMPLOYEE;
-}
+// type Role : String enum {
+//     ADMIN;
+//     EMPLOYEE;
+// }
 type EmployeeStatus : String enum {
     ACTIVE;
     ON_LEAVE;
@@ -66,7 +66,7 @@ entity EMPLOYEES : managed {
     JOINING_DATE            : Date @mandatory;
     designation            : Association to DESIGNATIONS @mandatory;
     EXPERIENCE              : Decimal(4,1) default 0;
-    ROLE                    : Role default 'EMPLOYEE';
+    // ROLE                    : Role default 'EMPLOYEE';
     STATUS                  : EmployeeStatus default 'ACTIVE';
     skills                  : Composition of many EMPLOYEE_SKILLS
                               on skills.employee = $self;

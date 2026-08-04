@@ -28,30 +28,36 @@
                         />
 
                         <Label text="Name" />
-                        <Input value="{edit>/NAME}" />
+                        <Input
+                            id="editName"
+                            value="{edit>/NAME}"
+                            liveChange=".onEditFieldChange"
+                        />
 
                         <Label text="Email" />
                         <Input
+                            id="editEmail"
                             value="{edit>/EMAIL}"
                             type="Email"
+                            liveChange=".onEditFieldChange"
                         />
-                        <Label text="Gender" />
 
+                        <Label text="Gender" />
                         <Select
+                            id="editGender"
                             width="100%"
                             forceSelection="true"
                             selectedKey="{edit>/GENDER}"
+                            change=".onEditFieldChange"
                         >
                             <core:Item
                                 key="MALE"
                                 text="Male"
                             />
-
                             <core:Item
                                 key="FEMALE"
                                 text="Female"
                             />
-
                             <core:Item
                                 key="OTHER"
                                 text="Other"
@@ -59,36 +65,45 @@
                         </Select>
 
                         <Label text="Phone" />
-                        <Input value="{edit>/PHONE_NUMBER}" />
+                        <Input
+                            id="editPhone"
+                            value="{edit>/PHONE_NUMBER}"
+                            liveChange=".onEditFieldChange"
+                        />
 
                         <Label text="Date of Birth" />
                         <DatePicker
+                            id="editDob"
                             value="{edit>/DATE_OF_BIRTH}"
                             valueFormat="yyyy-MM-dd"
                             displayFormat="dd/MM/yyyy"
+                            change=".onEditFieldChange"
                         />
 
                         <Label text="Joining Date" />
                         <DatePicker
+                            id="editJoiningDate"
                             value="{edit>/JOINING_DATE}"
                             valueFormat="yyyy-MM-dd"
                             displayFormat="dd/MM/yyyy"
+                            change=".onEditFieldChange"
                         />
 
                         <Label text="Experience" />
                         <Input
+                            id="editExperience"
                             value="{edit>/EXPERIENCE}"
                             type="Number"
+                            liveChange=".onEditFieldChange"
                         />
 
                         <Label text="Designation" />
-
                         <Select
                             id="editDesignation"
                             width="100%"
-                            forceSelection="false"
                             items="{/DESIGNATIONS}"
                             selectedKey="{edit>/designation_ID}"
+                            change=".onEditFieldChange"
                         >
                             <core:Item
                                 key="{ID}"
@@ -96,30 +111,12 @@
                             />
                         </Select>
 
-                        <Label text="Role" />
-
-                        <Select
-                            width="100%"
-                            forceSelection="false"
-                            selectedKey="{edit>/ROLE}"
-                        >
-                            <core:Item
-                                key="ADMIN"
-                                text="Admin"
-                            />
-
-                            <core:Item
-                                key="EMPLOYEE"
-                                text="Employee"
-                            />
-                        </Select>
-
                         <Label text="Status" />
-
                         <Select
+                            id="editStatus"
                             width="100%"
-                            forceSelection="false"
                             selectedKey="{edit>/STATUS}"
+                            change=".onEditFieldChange"
                         >
                             <core:Item
                                 key="ONBOARDING"

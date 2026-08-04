@@ -1,6 +1,7 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller"
-], function (Controller) {
+    "sap/ui/core/mvc/Controller",
+    "sap/m/MessageToast"
+], function (Controller, MessageToast) {
     "use strict";
 
     return Controller.extend("com.amista.worksyncui.controller.Home", {
@@ -22,12 +23,15 @@ sap.ui.define([
 
                 if (oUser.isAdmin) {
                     oRouter.navTo("Home");
-                } else {
+                }
+                else if (oUser.isEmployee) {
                     oRouter.navTo("Employee");
+                }
+                else{
+                    MessageToast.show("You do not have access to this application.");
                 }
             } catch (err) {
                 console.error("Failed to fetch user", err);
-                oRouter.navTo("Employee");
             } finally {
                 // Hide busy indicator
                 oView.setBusy(false);

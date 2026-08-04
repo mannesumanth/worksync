@@ -3,8 +3,9 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/core/Fragment"
-], function (Controller, MessageToast, MessageBox, JSONModel, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/ui/core/format/DateFormat"
+], function (Controller, MessageToast, MessageBox, JSONModel, Fragment, DateFormat) {
     "use strict";
 
     return Controller.extend(
@@ -13,9 +14,6 @@ sap.ui.define([
 
             // INIT — Attach route pattern handler
             onInit: function () {
-                const oRouter = this.getOwnerComponent().getRouter();
-                oRouter.getRoute("ProjectDetail")
-                    .attachPatternMatched(this._onObjectMatched, this);
                 this.getView().setModel(
                     new JSONModel({ resources: [] }),
                     "recommend"
@@ -27,35 +25,10 @@ sap.ui.define([
                     "ui"
                 );
             },
-            //  Bind the view to the correct Project
-            _onObjectMatched: function (oEvent) {
-                const sProjectId = oEvent.getParameter("arguments").projectId;
-                this.getView().bindElement({
-                    path: "/PROJECTS(" + sProjectId + ")",
-                    parameters: {
-                        $expand: "manager,requirements($expand=requirementSkills($expand=skill)),allocations($expand=employee)"
-                    },
-                    events: {
-                        dataReceived: async (oData) => {
-                            if (!oData.getParameter("data")) {
-                                MessageToast.show("Project not found");
-                                this.onNavBack();
-                            }
-                            await this._loadRecommendedResources(sProjectId);
-                        }
-                    }
-                });
-            },
-
             // NAVIGATION — Back button
             onNavBack: function () {
-                const oFCL = this.getOwnerComponent()
-                    .getRootControl()
-                    .byId("fcl");
-                oFCL.setLayout(
-                    sap.f.LayoutType.OneColumn
-                );
-                window.history.back();
+                this.getOwnerComponent().getRouter().navTo("Admin");
+                sap.ui.getCore().getEventBus().publish("Admin", "BackToProjects");
             },
             // EDIT Project Status
             onProjectStatusChange: async function (oEvent) {
@@ -237,6 +210,10 @@ sap.ui.define([
                         oModel.bindList("/ALLOCATIONS").create(oPayload);
                     await oContext.created();
                     MessageToast.show("Employee assigned successfully.");
+                    sap.ui.getCore().getEventBus().publish(
+                        "Employees",
+                        "Refresh"
+                    );
                     this._oAssignAllocationDialog.close();
                     // Refresh Project Details
                     oView.getBindingContext().refresh();
@@ -258,7 +235,7 @@ sap.ui.define([
                 const day = String(oDate.getDate()).padStart(2, "0");
                 return `${year}-${month}-${day}`;
             },
-
+            // Edit Allocation Dialog
             onEditAllocation: async function (oEvent) {
                 const oAllocationContext = oEvent.getSource().getBindingContext();
                 if (!this._oEditAllocationDialog) {
@@ -278,7 +255,7 @@ sap.ui.define([
                 this._oEditAllocationDialog.setModel(oEditModel, "editAllocation");
                 this._oEditAllocationDialog.open();
             },
-
+            // Save Edited Allocation
             onUpdateAllocation: async function () {
                 const oMessageManager = sap.ui.getCore().getMessageManager();
                 oMessageManager.removeAllMessages();
@@ -289,11 +266,25 @@ sap.ui.define([
                         .getModel("editAllocation")
                         .getData();
                     const oContext = this._oCurrentAllocationContext;
+                    const oAllocation = this._oCurrentAllocationContext.getObject();
+                    console.log(this._oCurrentAllocationContext.getObject());
+
+                    // Allocation dates
+                    const dStart = new Date(oEditData.START_DATE);
+                    const dEnd = new Date(oEditData.END_DATE);
+
+                    // End date should be after start date
+                    if (dEnd < dStart) {
+                        MessageBox.error("End Date cannot be earlier than Start Date.");
+                        return;
+                    }
+
                     oContext.setProperty("PROJECT_ROLE", oEditData.PROJECT_ROLE);
                     oContext.setProperty("ALLOCATION_PERCENTAGE", oEditData.ALLOCATION_PERCENTAGE);
                     oContext.setProperty("START_DATE", oEditData.START_DATE);
                     oContext.setProperty("END_DATE", oEditData.END_DATE);
                     await this.getView().getModel().submitBatch("$auto");
+
                     const aMessages = oMessageManager
                         .getMessageModel()
                         .getData();
@@ -305,6 +296,14 @@ sap.ui.define([
                         return;
                     }
                     MessageToast.show("Allocation updated successfully.");
+                    sap.ui.getCore().getEventBus().publish(
+                        "Employees",
+                        "Refresh"
+                    );
+                    sap.ui.getCore().getEventBus().publish(
+                        "Forecast",
+                        "Refresh"
+                    );
                     this._oEditAllocationDialog.close();
                     await this.getView().getElementBinding().refresh();
                 } catch (oError) {
@@ -457,6 +456,7 @@ sap.ui.define([
                     }
                 );
             },
+            //Update Project    
             onUpdateProject: async function () {
                 const oView = this.getView();
                 const oModel = oView.getModel();
@@ -467,6 +467,9 @@ sap.ui.define([
                     .getModel("editProject")
                     .getData();
                 //this._oOriginalProject = JSON.parse(JSON.stringify(editProject));
+                const oDateFormat = DateFormat.getDateInstance({
+                    pattern: "yyyy-MM-dd"
+                });
                 const dStart = new Date(oEdit.START_DATE);
                 const dEnd = new Date(oEdit.END_DATE);
                 // Validation
@@ -496,15 +499,6 @@ sap.ui.define([
                     MessageBox.error("Duplicate skills are not allowed.");
                     return;
                 }
-                // Check if anything has changed
-                // const bNoChanges =
-                //     JSON.stringify(this._oOriginalProject) ===
-                //     JSON.stringify(oEdit);
-
-                // if (bNoChanges) {
-                //     MessageToast.show("No changes to save.");
-                //     return;
-                // }
 
                 this._oEditProjectDialog.setBusy(true);
                 try {
@@ -513,8 +507,8 @@ sap.ui.define([
                     oAction.setParameter("project", {
                         PROJECT_NAME: oEdit.PROJECT_NAME,
                         DESCRIPTION: oEdit.DESCRIPTION,
-                        START_DATE: dStart.toISOString().split("T")[0],
-                        END_DATE: dEnd.toISOString().split("T")[0],
+                        START_DATE: oDateFormat.format(dStart),
+                        END_DATE: oDateFormat.format(dEnd),
                         STATUS: oEdit.STATUS,
                         manager_ID: oEdit.manager_ID,
                         skills: oEdit.skills.map(function (oSkill) {
@@ -526,8 +520,15 @@ sap.ui.define([
                             };
                         })
                     });
-
+                    console.log("Skills being sent:", oEdit.skills);
                     await oAction.execute();
+                    sap.ui.getCore().getEventBus().publish(
+                        "Project",
+                        "Rebind",
+                        {
+                            projectId: oProject.ID
+                        }
+                    );
                     sap.ui.getCore().getEventBus().publish(
                         "Project",
                         "ProjectUpdated"
@@ -562,11 +563,6 @@ sap.ui.define([
                 const sId = oEvent.getSource()
                     .getBindingContext()
                     .getProperty("ID");
-
-                const oFCL = this.getOwnerComponent()
-                    .getRootControl()
-                    .byId("fcl");
-                oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
                 this.getOwnerComponent()
                     .getRouter()
                     .navTo("ProjectDetail", {

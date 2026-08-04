@@ -7,8 +7,15 @@
     <Page
         title="Employee Details"
         showNavButton="true"
-        navButtonPress="onNavBack"
-    >
+        navButtonPress="onNavBack">
+    <headerContent>
+                <Button
+                    text="Edit Employee"
+                    icon="sap-icon://edit"
+                    type="Emphasized"
+                    press="onEditEmployee"
+                />
+            </headerContent>
         <content>
             <!-- Employee Header -->
             <ObjectHeader
@@ -80,9 +87,6 @@
 
                     <Label text="Experience" />
                     <Text text="{EXPERIENCE} Years" />
-
-                    <Label text="Role" />
-                    <Text text="{ROLE}" />
 
                     <Label text="Status" />
                     <ObjectStatus
@@ -245,18 +249,5 @@
                 </Table>
             </Panel>
         </content>
-
-        <footer>
-            <OverflowToolbar>
-                <ToolbarSpacer />
-
-                <Button
-                    text="Edit Employee"
-                    icon="sap-icon://edit"
-                    type="Emphasized"
-                    press="onEditEmployee"
-                />
-            </OverflowToolbar>
-        </footer>
     </Page>
 </mvc:View>

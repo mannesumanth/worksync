@@ -8,18 +8,17 @@
     xmlns:suite="sap.suite.ui.microchart">
 
     <Page id="adminprojectsPage" title="Projects">
-
         <headerContent>
+        <!-- Button for Creating Project -->
             <Button
                 text="Create Project"
                 icon="sap-icon://add"
                 type="Emphasized"
                 press="onCreateProject" />
         </headerContent>
-
         <content>
             <VBox class="sapUiMediumMargin">
-
+            <!-- Projects Table -->
                 <Table
                     id="projectsTable"
                     mode="None"
@@ -36,28 +35,21 @@
                             <Title
                                 text="Project List"
                                 level="H3" />
-
                             <ToolbarSpacer />
-
                             <SearchField
                                 width="18rem"
                                 placeholder="Search by Project ID or Name"
                                 liveChange=".onProjectSearch" />
                         </OverflowToolbar>
                     </headerToolbar>
-
                     <columns>
-                        <Column width="8rem">
+                        <Column >
                             <Text text="Project ID" />
                         </Column>
 
                         <Column >
                             <Text text="Project Name" />
                         </Column>
-
-                        <!-- <Column>
-                            <Text text="Description" />
-                        </Column> -->
 
                         <Column>
                             <Text text="Start Date" />
@@ -82,12 +74,8 @@
                             press=".onViewProject">
 
                             <cells>
-                                <ObjectIdentifier
-                                    title="{PROJECT_ID}" />
-
-                                <Text
-                                    text="{PROJECT_NAME}" />
-
+                                <ObjectIdentifier title="{PROJECT_ID}" />
+                                <Text text="{PROJECT_NAME}" />
                                 <Text
                                     text="{START_DATE}"
                                     textAlign="Center" />
@@ -112,15 +100,10 @@
                                     tooltip="View Project Details"
                                     press=".onViewProject" />
                             </cells>
-
                         </ColumnListItem>
                     </items>
-
                 </Table>
-
             </VBox>
         </content>
-
     </Page>
-
 </mvc:View>

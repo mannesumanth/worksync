@@ -15,6 +15,45 @@ sap.ui.define([
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Skill", {
         onInit: function () {
+        },
+        onExit: function () {
+            sap.ui.getCore().getEventBus().unsubscribe(
+                "Skills", "Refresh",
+                this._refreshTables,
+                this
+            );
+        },
+        // Refresh both tables
+        _refreshTables: function () {
+            this.byId("skillsTable")?.getBinding("items")?.refresh();
+            this.byId("skillCategoriesTable")?.getBinding("items")?.refresh();
+        },
+
+        _refreshSkillCategoryDropdown: function () {
+            const oSelect = this.byId("skillCategoryCombo");
+            if (oSelect) {
+                oSelect.getBinding("items")?.refresh();
+            }
+        },
+
+        _clearForms: function () {
+            if (this.byId("categoryNameInput")) {
+                this.byId("categoryNameInput").setValue("");
+            }
+            if (this.byId("skillNameInput")) {
+                this.byId("skillNameInput").setValue("");
+            }
+            if (this.byId("skillCategoryCombo")) {
+                this.byId("skillCategoryCombo").setSelectedKey("");
+            }
+
+        },
+
+        _closeDialog: function (oDialog) {
+
+            if (oDialog) {
+                oDialog.close();
+            }
 
         },
 
@@ -60,6 +99,10 @@ sap.ui.define([
                         }
                         try {
                             await oContext.delete();
+                            sap.ui.getCore().getEventBus().publish(
+                                "Skills",
+                                "Refresh"
+                            );
                             MessageToast.show("Skill deleted successfully");
                         } catch (oError) {
                             const sMessage =
@@ -97,8 +140,15 @@ sap.ui.define([
                 this._oEditContext.setProperty("category_ID", oData.category_ID);
 
                 await this.getView().getModel().submitBatch("$auto");
+                sap.ui.getCore().getEventBus().publish(
+                    "Skills",
+                    "Refresh"
+                );
 
                 MessageToast.show("Skill updated successfully");
+                this.byId("skillsTable")
+                    .getBinding("items")
+                    .refresh();
 
                 this._oEditSkillDialog.close();
 
@@ -130,32 +180,57 @@ sap.ui.define([
             this._oSkillCategoryDialog.open();
         },
 
-        onCloseSkillCategory: function () {
-            this._oSkillCategoryDialog.close();
-        },
-
         onSaveSkillCategory: async function () {
             const oPayload = {
-                CATEGORY_NAME: this.byId("categoryNameInput").getValue()
+                CATEGORY_NAME: this.byId("categoryNameInput").getValue().trim()
             };
+
             if (!oPayload.CATEGORY_NAME) {
                 MessageToast.show("Category Name is required");
                 return;
             }
+
+            const oModel = this.getView().getModel();
+            const oCtx = oModel.bindList("/SKILL_CATEGORIES").create(oPayload);
+
             try {
-                const oCtx = this.getView()
-                    .getModel()
-                    .bindList("/SKILL_CATEGORIES")
-                    .create(oPayload);
                 await oCtx.created();
+
                 MessageToast.show("Skill Category Created");
-                this.byId("skillCategoriesTable")
-                    .getBinding("items")
-                    .refresh();
-                this._oSkillCategoryDialog.close();
+                this._refreshTables();
+                this._refreshSkillCategoryDropdown();
+                this._clearForms();
+                this._closeDialog(this._oSkillCategoryDialog);
+
             } catch (e) {
-                MessageBox.error(e.message || "Failed to create Skill Category");
+                console.error(e);
+
+                // Backend sends { error: { message: "..." } } — read that first.
+                const sMessage =
+                    e?.error?.message ||
+                    e?.cause?.error?.message ||
+                    e?.message ||
+                    "Failed to create Skill Category";
+
+                // CRITICAL: remove the failed transient row from the list
+                // binding's pending-changes queue, otherwise UI5 keeps
+                // resubmitting it on every future $auto batch and breaks
+                // subsequent creates/updates.
+                if (oCtx.isTransient()) {
+                    try {
+                        await oCtx.delete();
+                    } catch (delErr) {
+                        console.error("Cleanup failed:", delErr);
+                    }
+                }
+
+                MessageBox.error(sMessage);
             }
+        },
+        // Close Skill Category Dialog
+        onCloseSkillCategory: function () {
+            this._clearForms();
+            this._closeDialog(this._oSkillCategoryDialog);
         },
 
         // Skill
@@ -172,29 +247,33 @@ sap.ui.define([
         },
 
         onCloseSkill: function () {
-            this._oSkillDialog.close();
+            this._clearForms();
+            this._closeDialog(this._oSkillDialog);
         },
-
+        // Save Skill
         onSaveSkill: async function () {
             const oPayload = {
-                SKILL_NAME: this.byId("skillNameInput").getValue(),
+                SKILL_NAME: this.byId("skillNameInput").getValue().trim(),
                 category_ID: this.byId("skillCategoryCombo").getSelectedKey()
             };
             if (!oPayload.SKILL_NAME) {
                 MessageToast.show("Skill Name is required");
                 return;
             }
+            const oCtx = this.getView()
+                .getModel()
+                .bindList("/SKILLS")
+                .create(oPayload);
             try {
-                const oCtx = this.getView()
-                    .getModel()
-                    .bindList("/SKILLS")
-                    .create(oPayload);
                 await oCtx.created();
+                sap.ui.getCore().getEventBus().publish(
+                    "Skills",
+                    "Refresh"
+                );
                 MessageToast.show("Skill Created");
-                this.byId("skillsTable")
-                    .getBinding("items")
-                    .refresh();
-                this._oSkillDialog.close();
+                this._refreshTables();
+                this._clearForms();
+                this._closeDialog(this._oSkillDialog);
             } catch (e) {
                 MessageBox.error(e.message || "Failed to create Skill");
             }
@@ -218,7 +297,9 @@ sap.ui.define([
 
             this._oEditCategoryDialog.open();
 
-        }, onUpdateSkillCategory: async function () {
+        },
+        // Skill Category Update
+        onUpdateSkillCategory: async function () {
             const oData = this.getView()
                 .getModel("editCategory")
                 .getData();
@@ -238,6 +319,8 @@ sap.ui.define([
                 await this.getView()
                     .getModel()
                     .submitBatch("$auto");
+                this._refreshTables();
+                this._refreshSkillCategoryDropdown();
                 MessageToast.show("Category updated successfully");
                 this._oEditCategoryDialog.close();
             } catch (e) {
@@ -250,6 +333,7 @@ sap.ui.define([
         onCancelSkillCategory: function () {
             this._oEditCategoryDialog.close();
         },
+        // Skill Category Delete
         onDeleteSkillCategory: function (oEvent) {
             const oContext = oEvent.getSource().getBindingContext();
             MessageBox.confirm(
@@ -267,6 +351,8 @@ sap.ui.define([
                         try {
                             await oContext.delete();
                             MessageToast.show("Category deleted successfully");
+                            this._refreshTables();
+                            this._refreshSkillCategoryDropdown();
                         } catch (oError) {
                             const sMessage =
                                 oError?.error?.message ||
@@ -279,6 +365,5 @@ sap.ui.define([
                 }
             );
         }
-
     });
 });

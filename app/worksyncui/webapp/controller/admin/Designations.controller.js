@@ -31,21 +31,59 @@ sap.ui.define([
         },
 
         // Close Designation Dialog
-        onCloseDesignation: function () { this._oDesignationDialog.close(); },
-
+        onCloseDesignation: function () {
+            this.byId("designationNameInput").setValue("");
+            this._oDesignationDialog.close();
+        },
         // Save Designation
         onSaveDesignation: async function () {
+
             const oPayload = {
-                NAME: this.byId("designationNameInput").getValue(),
+                NAME: this.byId("designationNameInput").getValue().trim()
             };
-            if (!oPayload.NAME) { MessageToast.show("Name is required"); return; }
+
+            if (!oPayload.NAME) {
+                MessageToast.show("Name is required");
+                return;
+            }
+
+            // Show busy indicator
+            this._oDesignationDialog.setBusyIndicatorDelay(0);
+            this._oDesignationDialog.setBusy(true);
+
             try {
-                const oCtx = this.getView().getModel().bindList("/DESIGNATIONS").create(oPayload);
+                const oCtx = this.getView()
+                    .getModel()
+                    .bindList("/DESIGNATIONS")
+                    .create(oPayload);
+
                 await oCtx.created();
+
                 MessageToast.show("Designation Created");
-                this.byId("designationsTable")?.getBinding("items")?.refresh();
+
+                this.byId("designationsTable")
+                    ?.getBinding("items")
+                    ?.refresh();
+
+                sap.ui.getCore().getEventBus().publish(
+                    "Employees",
+                    "Refresh"
+                );
+
+                sap.ui.getCore().getEventBus().publish(
+                    "Designations",
+                    "Refresh"
+                );
+
+                this.byId("designationNameInput").setValue("");
                 this._oDesignationDialog.close();
-            } catch (e) { MessageBox.error(e.message || "Failed"); }
+
+            } catch (e) {
+                MessageBox.error(e.message || "Failed");
+            } finally {
+                // Always remove busy indicator
+                this._oDesignationDialog.setBusy(false);
+            }
         },
 
         // Delete Designation
@@ -92,6 +130,14 @@ sap.ui.define([
                             MessageToast.show(
                                 "Designation deleted successfully."
                             );
+                            sap.ui.getCore().getEventBus().publish(
+                                "Employees",
+                                "Refresh"
+                            );
+                            sap.ui.getCore().getEventBus().publish(
+                                "Designations",
+                                "Refresh"
+                            );
                             this.byId("designationsTable").getBinding("items").refresh();
                         } catch (oError) {
                             console.error(oError);
@@ -118,18 +164,15 @@ sap.ui.define([
             }
 
             this._oDesignationContext = oEvent.getSource().getBindingContext();
-
             const oModel = new sap.ui.model.json.JSONModel(
                 JSON.parse(JSON.stringify(this._oDesignationContext.getObject()))
             );
-
             this._oEditDesignationDialog.setModel(oModel, "edit");
             this._oEditDesignationDialog.open();
         },
 
         // Update Designation
         onUpdateDesignation: async function () {
-
             const oEditData = this._oEditDesignationDialog
                 .getModel("edit")
                 .getData();
@@ -137,24 +180,41 @@ sap.ui.define([
             // No changes
             if (this._oDesignationContext.getProperty("NAME") === oEditData.NAME) {
                 MessageToast.show("No changes to save.");
+                this._clearEditForm();
                 this._oEditDesignationDialog.close();
                 return;
             }
-
             this._oDesignationContext.setProperty("NAME", oEditData.NAME);
-
             await this.getView().getModel().submitBatch("$auto");
             sap.ui.getCore().getEventBus().publish(
-                        "Employees",
-                        "Refresh"
-                    );
-
+                "Employees",
+                "Refresh"
+            );
+            sap.ui.getCore().getEventBus().publish(
+                "Designations",
+                "Refresh"
+            );
+            this._clearEditForm();
             MessageToast.show("Designation updated successfully.");
-
             this._oEditDesignationDialog.close();
         },
+        // Cancel Edit Designation
         onCancelDesignation: function () {
+            this._clearEditForm();
             this._oEditDesignationDialog.close();
+        },
+        //clear Edit Form
+        _clearEditForm: function () {
+            const oModel = this._oEditDesignationDialog.getModel("edit");
+
+            if (oModel) {
+                oModel.setData({
+                    DESIGNATION_ID: "",
+                    NAME: ""
+                });
+            }
+
+            this._oDesignationContext = null;
         }
     });
 });

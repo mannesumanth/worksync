@@ -26,7 +26,7 @@ module.exports = cds.service.impl(async function () {
         const employee = await db.run(
             SELECT.one.from(EMPLOYEES)
                 .where({
-                    EMAIL: 'manne.sumanth@amista.com' // req.user.id
+                    EMAIL: req.user.id // 'manne.sumanth@amista.com'
                 })
         );
         console.log("Logged User:", req.user.id);
@@ -36,7 +36,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'MyProfile', async req => {
         console.log("User =", req.user);
-        const email = 'manne.sumanth@amista.com';// req.user.id; //'manne.sumanth@amista.com';//req.user.id; 
+        const email = req.user.id;  // 'manne.sumanth@amista.com';//req.user.id; 
         console.log("Email =", email);
         return await db.run(
             SELECT.one
@@ -130,111 +130,6 @@ module.exports = cds.service.impl(async function () {
         });
         return leaves;
     });
-    //Apply Leave Action
-
-    // this.on('ApplyLeave', async req => {
-
-    //     const db = await cds.connect.to('db');
-    //     const employee = await getCurrentEmployee(req);
-
-    //     if (req.data.leaveFrom > req.data.leaveTo) {
-    //         req.error(400, "Leave From date cannot be greater than Leave To date");
-    //     }
-
-    //     // Check for overlapping leaves
-    //     const existingLeave = await db.run(
-    //         SELECT.one
-    //             .from(LEAVE_CALENDAR)
-    //             .where({ employee_ID: employee.ID })
-    //             .where`
-    //             LEAVE_FROM <= ${req.data.leaveTo}
-    //             AND LEAVE_TO >= ${req.data.leaveFrom}
-    //             AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
-    //         `
-    //     );
-
-    //     if (existingLeave) {
-    //         req.error(
-    //             400,
-    //             `A leave already exists from ${existingLeave.LEAVE_FROM} to ${existingLeave.LEAVE_TO}.`
-    //         );
-    //     }
-
-    //     // Helper to calculate weekdays
-    //     const getWeekDays = (from, to) => {
-    //         let days = 0;
-    //         let current = new Date(from);
-    //         const end = new Date(to);
-    //         while (current <= end) {
-    //             const day = current.getDay();
-    //             if (day !== 0 && day !== 6) {
-    //                 days++;
-    //             }
-    //             current.setDate(current.getDate() + 1);
-    //         }
-
-    //         return days;
-    //     };
-
-    //     // Requested leave days
-    //     const requestedDays = getWeekDays(
-    //         req.data.leaveFrom,
-    //         req.data.leaveTo
-    //     );
-
-    //     // Get approved leaves
-    //     const approvedLeaves = await db.run(
-    //         SELECT.from(LEAVE_CALENDAR)
-    //             .columns("LEAVE_FROM", "LEAVE_TO")
-    //             .where({
-    //                 employee_ID: employee.ID,
-    //                 STATUS: "APPROVED"
-    //             })
-    //     );
-
-    //     // Calculate used days
-    //     let usedDays = 0;
-
-    //     approvedLeaves.forEach(leave => {
-    //         usedDays += getWeekDays(
-    //             leave.LEAVE_FROM,
-    //             leave.LEAVE_TO
-    //         );
-    //     });
-
-    //     const TOTAL_LEAVES = 20;
-    //     const availableDays = TOTAL_LEAVES - usedDays;
-
-    //     if (requestedDays > availableDays) {
-    //         req.error(
-    //             400,
-    //             `You don't have enough leave balance. You have only ${availableDays} day(s) remaining, but you requested ${requestedDays} day(s).`
-    //         );
-    //     }
-
-    //     const leaveId = await generateBusinessId(
-    //         req,
-    //         "LEAVE_SEQ",
-    //         "LEV"
-    //     );
-
-    //     await db.run(
-    //         INSERT.into(LEAVE_CALENDAR).entries({
-    //             LEAVE_ID: leaveId,
-    //             employee_ID: employee.ID,
-    //             LEAVE_TYPE: req.data.leaveType,
-    //             LEAVE_FROM: req.data.leaveFrom,
-    //             LEAVE_TO: req.data.leaveTo,
-    //             REASON: req.data.reason,
-    //             STATUS: "PENDING"
-    //         })
-    //     );
-
-    //     return {
-    //         message: "Leave request submitted successfully"
-    //     };
-    // });
-
     this.on('ApplyLeave', async req => {
 
         const db = await cds.connect.to('db');

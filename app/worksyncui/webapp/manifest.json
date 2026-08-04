@@ -155,19 +155,12 @@
         {
           "name": "AdminEmployeeDetail",
           "pattern": "employee/{employeeId}",
-          "layout": "TwoColumnsMidExpanded",
-          "target": [
-            "Admin",
-            "AdminEmployeeDetail"
-          ]
+          "target": "Admin"
         },
         {
           "name": "ProjectDetail",
           "pattern": "project/{projectId}",
-          "target": [
-            "Admin",
-            "ProjectDetail"
-          ]
+          "target": "Admin"
         }
       ],
       "targets": {
@@ -193,12 +186,6 @@
           "id": "AdminEmployeeDetail",
           "name": "admin.AdminEmployeeDetail",
           "viewName": "admin.AdminEmployeeDetail",
-          "controlAggregation": "midColumnPages"
-        },
-        "ProjectDetail": {
-          "id": "ProjectDetail",
-          "name": "ProjectDetail",
-          "viewName": "ProjectDetail",
           "controlAggregation": "midColumnPages"
         },
         "Forecast": {

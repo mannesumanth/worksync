@@ -1,10 +1,8 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/m/MessageToast",
-    "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
     "sap/ui/core/Core"
-], (Controller, MessageToast, MessageBox, JSONModel, Core) => {
+], (Controller, JSONModel, Core) => {
     "use strict";
 
     const NAV_PAGES = {
@@ -21,131 +19,144 @@ sap.ui.define([
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Admin", {
         onInit: function () {
-            this.getView().setModel(new JSONModel({ skills: [] }), "projectModel");
-            this.getView().setModel(new JSONModel({ currentMonthAvailable: 0, nextMonthAvailable: 0, currentMonthLeaves: 0, nextMonthLeaves: 0, pendingLeaves: 0 }), "forecast");
-            this.getView().setModel(new JSONModel({
-                empCount: 0,
-                projCount: 0,
-                allocCount: 0,
-                leaveCount: 0,
-                skillCount: 0,
-                spofCount: 0,
-                spofPercent: 0,
-                leavePending: 0,
-                leaveApproved: 0,
-                leaveRejected: 0
-            }), "dash");
+            //Nav to Employee detail
+            this.getOwnerComponent().getRouter()
+                .getRoute("AdminEmployeeDetail")
+                .attachPatternMatched(this._onEmployeeDetailMatched, this);
 
-            this._searchValue = "";
-            this._statusValue = "";
-            this._allocationValue = "";
-            this.getView().setModel(
-                new JSONModel({
-                    value: []
-                }),
-                "forecast"
+            sap.ui.getCore().getEventBus().subscribe(
+                "Admin", "BackToEmployees", this._onBackToEmployees, this
             );
-            this.getView().setModel(
-                new JSONModel({
-                    available: 0,
-                    bench: 0,
-                    leave: 0,
-                    utilization: 0,
-                    employeeCount: 0
-                }),
-                "summary"
+            //Nav to Project Detail
+            this.getOwnerComponent().getRouter()
+                .getRoute("ProjectDetail")
+                .attachPatternMatched(this._onProjectDetailMatched, this);
+
+            sap.ui.getCore().getEventBus().subscribe(
+                "Admin", "BackToProjects", this._onBackToProjects, this
             );
-            // const oRouter = this.getOwnerComponent().getRouter();
-            // oRouter.getRoute("ProjectDetail")
-            //     .attachPatternMatched(this._onObjectMatched, this);
-            this.getView().setModel(
-                new JSONModel({
-                    recommendations: []
-                }),
-                "recommendations"
+
+            //Refresh Recommended Resources on Project Detail
+            sap.ui.getCore().getEventBus().subscribe(
+                "Project",
+                "Rebind",
+                this._rebindProject,
+                this
             );
-            this._bExpanded = true;
         },
+        //Rebind Project Detail
+        _rebindProject: function (sChannel, sEvent, oData) {
+
+            this._onProjectDetailMatched({
+                getParameter: function () {
+                    return {
+                        projectId: oData.projectId
+                    };
+                }
+            });
+
+        },
+        //Check does Employee matched 
+        _onEmployeeDetailMatched: function (oEvent) {
+            const sEmployeeId = oEvent.getParameter("arguments").employeeId;
+            const oDetailView = this.byId("adminEmployeeDetail");
+
+            this.byId("adminNavContainer").to(oDetailView);
+            //Binding Data
+            oDetailView.bindElement({
+                path: "/EMPLOYEES('" + sEmployeeId + "')",
+                parameters: {
+                    $expand: "designation,skills($expand=skill),allocations($expand=project)"
+                }
+            });
+        },
+        //Nav Back to Employees page
+        _onBackToEmployees: function () {
+            this.byId("adminNavContainer").to(this.byId("employeesView"));
+            this.byId("sideNavigation").setSelectedKey("employees"); // keep nav highlight in sync
+        },
+        //Check Project Matched
+        _onProjectDetailMatched: function (oEvent) {
+            const sProjectId = oEvent.getParameter("arguments").projectId;
+            const oDetailView = this.byId("adminProjectDetail");
+
+            this.byId("adminNavContainer").to(oDetailView);
+
+            oDetailView.bindElement({
+                path: "/PROJECTS('" + sProjectId + "')",
+                parameters: {
+                    $expand: "manager,requirements($expand=requirementSkills($expand=skill)),allocations($expand=employee)"
+                },
+                events: {
+                    dataReceived: (oDataEvent) => {
+                        if (!oDataEvent.getParameter("data")) {
+                            MessageToast.show("Project not found");
+                            this.byId("adminNavContainer").to(this.byId("projectsView"));
+                            return;
+                        }
+                        // call the detail view's controller method directly
+                        const oDetailController = oDetailView.getController();
+                        oDetailController._loadRecommendedResources(sProjectId);
+                    }
+                }
+            });
+        },
+        //Nav Back to Projects
+        _onBackToProjects: function () {
+            this.byId("adminNavContainer").to(this.byId("projectsView"));
+            this.byId("sideNavigation").setSelectedKey("projects");
+        },
+        //Side Navigation Button
         onToggleSideNavigation: function () {
-
             const oSideNav = this.byId("sideNavigation");
-
             oSideNav.setExpanded(
                 !oSideNav.getExpanded()
             );
-
         },
 
         // SIDEBAR NAVIGATION
         onNavSelect: function (oEvent) {
-
             const oFCL = this.getOwnerComponent()
                 .getRootControl()
                 .byId("fcl");
 
-            if (oFCL) {
-                oFCL.setLayout(sap.f.LayoutType.OneColumn);
-            }
-
+            if (oFCL) { oFCL.setLayout(sap.f.LayoutType.OneColumn); }
             this.getOwnerComponent()
                 .getRouter()
                 .navTo("Admin", {}, true);
 
-
             const oItem = oEvent.getParameter("item");
             const sKey = oItem.getKey();   // e.g. "employees", "dashboard"
 
-            const sPageId = NAV_PAGES[sKey];
-            if (!sPageId) return;
-
             const sViewId = NAV_PAGES[sKey];
-
             if (!sViewId) {
                 return;
             }
-            this
-                .byId("adminNavContainer")
-                .to(this.byId(sViewId));
-            if(sKey==="spof"){
-                sap.ui.getCore().getEventBus().publish(
-                    "Spof",
-                    "Refresh"
-                );
+            //Refresh Pages on Navigation
+            this.byId("adminNavContainer").to(this.byId(sViewId));
+            if (sKey === "employees") {
+                sap.ui.getCore().getEventBus().publish("Employees", "Refresh");
             }
-            if(sKey==="forecast"){
-                sap.ui.getCore().getEventBus().publish(
-                    "Forecast",
-                    "Refresh"
-                );
+            if (sKey === "spof") {
+                sap.ui.getCore().getEventBus().publish("Spof", "Refresh");
             }
-            if(sKey ==="allocations"){
-                sap.ui.getCore().getEventBus().publish(
-                    "Allocations",      
-                    "Refresh"
-                );
+            if (sKey === "forecast") {
+                sap.ui.getCore().getEventBus().publish("Forecast", "Refresh");
             }
-            if(sKey==="dashboard"){
-                sap.ui.getCore().getEventBus().publish(
-                    "Dashboard",
-                    "Refresh"
-                );
+            if (sKey === "allocations") {
+                sap.ui.getCore().getEventBus().publish("Allocations", "Refresh");
             }
-        },
+            if (sKey === "dashboard") {
+                sap.ui.getCore().getEventBus().publish("Dashboard", "Refresh");
+            }
+            if (sKey === "leave") {
+                sap.ui.getCore().getEventBus().publish("Leaves", "Refresh");
+            }
 
-        onTilePress: function (oEvent) {
-            const sKey = oEvent.getSource().data("nav");
-            const sViewId = NAV_PAGES[sKey];
-            if (!sViewId) {
-                MessageToast.show("Page not found");
-                return;
-            }
-            this.byId("adminNavContainer")
-                .to(this.byId(sViewId));
         },
+        //Theme Button Controller
         onThemeToggle: function (oEvent) {
-
             const bPressed = oEvent.getSource().getPressed();
-
             if (bPressed) {
                 Core.applyTheme("sap_horizon_dark");
                 oEvent.getSource().setText("Light Mode");
@@ -156,8 +167,6 @@ sap.ui.define([
                 oEvent.getSource().setIcon("sap-icon://dark-mode");
             }
         }
-
-
     });
 
 });

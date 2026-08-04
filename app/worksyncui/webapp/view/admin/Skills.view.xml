@@ -8,7 +8,65 @@
     title="Skills and Categories">
 
     <content>
+    <!-- Skill Categories Section -->
+        <VBox class="sapUiMediumMargin">
+            <Toolbar>
+                <Title text="Skill Categories" level="H2"/>
+                <ToolbarSpacer/>
+                <Button
+                    text="Add Category"
+                    icon="sap-icon://add"
+                    type="Emphasized"
+                    press="onOpenSkillCategoryDialog"/>
+            </Toolbar>
 
+            <Table
+                id="skillCategoriesTable"
+                growing="true"
+                growingScrollToLoad="true"
+                sticky="ColumnHeaders"
+                width="100%"
+                noDataText="No Skill Categories Available"
+                items="{
+                    path:'/SKILL_CATEGORIES',
+                    sorter:{
+                        path:'CATEGORY_NAME'
+                    }
+                }">
+
+                <columns>
+                    <Column width="12%">
+                        <Text text="Category ID"/>
+                    </Column>
+                    <Column width="58%">
+                        <Text text="Category Name"/>
+                    </Column>
+                    <Column width="15%" hAlign="Center">
+                        <Text text="Edit"/>
+                    </Column>
+                    <Column width="15%" hAlign="Center">
+                        <Text text="Delete"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{CAT_ID}"/>
+                            <Text text="{CATEGORY_NAME}"/>
+                            <Button
+                                icon="sap-icon://edit"
+                                type="Transparent"
+                                press="onEditSkillCategory"/>
+                            <Button
+                                icon="sap-icon://delete"
+                                type="Transparent"
+                                press="onDeleteSkillCategory"/>
+
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </VBox>
         <!-- Skills Section -->
         <VBox class="sapUiMediumMargin">
 
@@ -44,136 +102,39 @@
                         }
                     ]
                 }">
-
                 <columns>
-
                     <Column width="12%">
                         <Text text="Skill ID"/>
                     </Column>
-
                     <Column width="58%">
                         <Text text="Skill Name"/>
                     </Column>
-
                     <Column width="15%" hAlign="Center">
                         <Text text="Edit"/>
                     </Column>
-
                     <Column width="15%" hAlign="Center">
                         <Text text="Delete"/>
                     </Column>
 
                 </columns>
-
                 <items>
-
                     <ColumnListItem>
-
                         <cells>
-
                             <Text text="{SKILL_ID}"/>
-
                             <Text text="{SKILL_NAME}"/>
-
                             <Button
                                 icon="sap-icon://edit"
                                 type="Transparent"
                                 press="onEditSkill"/>
-
                             <Button
                                 icon="sap-icon://delete"
                                 type="Transparent"
                                 press="onDeleteSkill"/>
-
                         </cells>
-
                     </ColumnListItem>
-
                 </items>
-
             </Table>
-
         </VBox>
-
-        <!-- Skill Categories Section -->
-
-        <VBox class="sapUiMediumMargin">
-
-            <Toolbar>
-                <Title text="Skill Categories" level="H2"/>
-                <ToolbarSpacer/>
-                <Button
-                    text="Add Category"
-                    icon="sap-icon://add"
-                    type="Emphasized"
-                    press="onOpenSkillCategoryDialog"/>
-            </Toolbar>
-
-            <Table
-                id="skillCategoriesTable"
-                growing="true"
-                growingScrollToLoad="true"
-                sticky="ColumnHeaders"
-                width="100%"
-                noDataText="No Skill Categories Available"
-                items="{
-                    path:'/SKILL_CATEGORIES',
-                    sorter:{
-                        path:'CATEGORY_NAME'
-                    }
-                }">
-
-                <columns>
-
-                    <Column width="12%">
-                        <Text text="Category ID"/>
-                    </Column>
-
-                    <Column width="58%">
-                        <Text text="Category Name"/>
-                    </Column>
-
-                    <Column width="15%" hAlign="Center">
-                        <Text text="Edit"/>
-                    </Column>
-
-                    <Column width="15%" hAlign="Center">
-                        <Text text="Delete"/>
-                    </Column>
-
-                </columns>
-
-                <items>
-
-                    <ColumnListItem>
-
-                        <cells>
-
-                            <Text text="{CAT_ID}"/>
-
-                            <Text text="{CATEGORY_NAME}"/>
-
-                            <Button
-                                icon="sap-icon://edit"
-                                type="Transparent"
-                                press="onEditSkillCategory"/>
-
-                            <Button
-                                icon="sap-icon://delete"
-                                type="Transparent"
-                                press="onDeleteSkillCategory"/>
-
-                        </cells>
-
-                    </ColumnListItem>
-
-                </items>
-
-            </Table>
-
-        </VBox>
-
     </content>
-
 </Page>
 </mvc:View>

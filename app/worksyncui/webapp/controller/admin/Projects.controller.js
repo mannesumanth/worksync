@@ -5,7 +5,8 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/model/json/JSONModel"
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/core/format/DateFormat"
 ], function (
     Controller,
     Fragment,
@@ -13,19 +14,22 @@ sap.ui.define([
     MessageBox,
     Filter,
     FilterOperator,
+    JSONModel,
+    DateFormat
 ) {
     "use strict";
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Projects", {
         onInit: function () {
-
+            //Project Model
+            this.getView().setModel(new JSONModel({ skills: [] }), "projectModel");
+            //Event Bus to Refresh Projects
             sap.ui.getCore().getEventBus().subscribe(
                 "Project",
                 "ProjectUpdated",
                 this._onProjectUpdated,
                 this
             );
-
         },
 
         _onProjectUpdated: function () {
@@ -54,10 +58,8 @@ sap.ui.define([
                     name: "com.amista.worksyncui.view.fragments.AddProject",
                     controller: this
                 });
-
                 this.getView().addDependent(this._oProjectDialog);
             }
-
             this._oProjectDialog.open();
         },
 
@@ -71,13 +73,11 @@ sap.ui.define([
         onAddRequiredSkill: function () {
             const oModel = this.getView().getModel("projectModel");
             const aSkills = oModel.getProperty("/skills") || [];
-
             aSkills.push({
                 skill_ID: "",
                 REQUIRED_LEVEL: "BEGINNER",
                 REQUIRED_RESOURCES: 1
             });
-
             oModel.setProperty("/skills", aSkills);
         },
 
@@ -85,45 +85,49 @@ sap.ui.define([
         onDeleteRequiredSkill: function (oEvent) {
             const oModel = this.getView().getModel("projectModel");
             const aSkills = oModel.getProperty("/skills");
-
             const iIndex = this.byId("requiredSkillsTable")
                 .indexOfItem(oEvent.getSource().getParent());
-
             aSkills.splice(iIndex, 1);
             oModel.setProperty("/skills", aSkills);
         },
 
         //Save Project
         onSaveProject: async function () {
-
             const oModel = this.getView().getModel();
             const oDialog = this._oProjectDialog;
-
             const aSkills = this.getView()
                 .getModel("projectModel")
                 .getProperty("/skills");
-
+            const oDateFormat = DateFormat.getDateInstance({
+                pattern: "yyyy-MM-dd"
+            });
             const sName = this.byId("projectName").getValue();
-
             if (!sName) {
                 MessageToast.show("Project Name is required");
                 return;
             }
+            const oStartDate = this.byId("projectStartDate").getDateValue();
+            const oEndDate = this.byId("projectEndDate").getDateValue();
 
+            if (!oStartDate || !oEndDate) {
+                MessageBox.error("Please select both Start Date and End Date.");
+                return;
+            }
+            if (oEndDate < oStartDate) {
+                MessageBox.error("End Date cannot be earlier than Start Date.");
+                return;
+            }
             const oPayload = {
                 PROJECT_NAME: sName,
                 DESCRIPTION: this.byId("projectDescription").getValue(),
-                START_DATE: this.byId("projectStartDate")
-                    .getDateValue()
-                    ?.toISOString()
-                    .split("T")[0],
-                END_DATE: this.byId("projectEndDate")
-                    .getDateValue()
-                    ?.toISOString()
-                    .split("T")[0],
+                START_DATE: oDateFormat.format(
+                    this.byId("projectStartDate").getDateValue()
+                ),
+                END_DATE: oDateFormat.format(
+                    this.byId("projectEndDate").getDateValue()
+                ),
                 STATUS: this.byId("projectStatus").getSelectedKey(),
                 manager_ID: this.byId("projectManager").getSelectedKey(),
-
                 requirements: [{
                     requirementSkills: aSkills.map(function (s) {
                         return {
@@ -136,35 +140,24 @@ sap.ui.define([
             };
 
             oDialog.setBusy(true);
-
             try {
                 const oContext = oModel.bindList("/PROJECTS").create(oPayload);
                 await oContext.created();
-
                 MessageToast.show("Project Created Successfully");
                 this._resetProjectForm();
-
                 oDialog.close();
                 oModel.refresh(); // Refresh the model to reflect the new project in the list
-
             } catch (e) {
                 MessageBox.error(e.message || "Project Creation Failed");
             } finally {
                 oDialog.setBusy(false);
             }
         },
-
         //View Project Details
         onViewProject: function (oEvent) {
             const sId = oEvent.getSource()
                 .getBindingContext()
                 .getProperty("ID");
-
-            const oFCL = this.getOwnerComponent()
-                .getRootControl()
-                .byId("fcl");
-
-            oFCL.setLayout(sap.f.LayoutType.TwoColumnsMidExpanded);
 
             this.getOwnerComponent()
                 .getRouter()

@@ -10,6 +10,23 @@ sap.ui.define([
         "use strict";
 
         return Controller.extend("com.amista.worksyncui.controller.admin.LeaveCalender", {
+            onInit: function () {
+                sap.ui.getCore().getEventBus().subscribe(
+                    "Leaves","Refresh", 
+                    this._onLeaveRefresh, 
+                    this
+                );
+            },
+            _onLeaveRefresh: function () {
+                this.getView().getModel().refresh();
+            },
+            onExit: function () {
+                sap.ui.getCore().getEventBus().unsubscribe(
+                    "Leaves","Refresh", 
+                    this._onLeaveRefresh, 
+                    this
+                );
+            },
             onApproveLeave: function (oEvent) {
                 const oLeave =
                     oEvent.getSource().getBindingContext().getObject();

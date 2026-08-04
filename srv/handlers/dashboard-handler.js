@@ -25,7 +25,6 @@ module.exports = {
                 cds.run( SELECT.from(LEAVE_CALENDAR).columns("STATUS")),
                 cds.run(SELECT.from(SKILLS).columns("ID")),
                 cds.run( SELECT.from(DESIGNATIONS).columns("ID"))
-
             ]);
             // Employee KPIs
             const totalEmployees = employees.length;

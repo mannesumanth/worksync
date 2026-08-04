@@ -81,16 +81,16 @@
                             <items>
                                 <core:Item
                                     key="ACTIVE"
-                                    text="ACTIVE"
-                                />
+                                    text="ACTIVE"/>
                                 <core:Item
                                     key="COMPLETED"
-                                    text="COMPLETED"
-                                />
+                                    text="COMPLETED" />
                                 <core:Item
                                     key="ON_HOLD"
-                                    text="ON HOLD"
-                                />
+                                    text="ON HOLD"/>
+                                <core:Item 
+                                    key = "UPCOMING"
+                                    text = "UPCOMING"/>
                             </items>
                         </Select>
                     </VBox>

@@ -84,12 +84,6 @@
                                                 text="Employee ID"/>
                                             <Text text="{employee>EMP_ID}" />
                                         </HBox>
-                                        <HBox class="sapUiSmallMarginBottom">
-                                            <Label
-                                                width="10rem"
-                                                text="Role"/>
-                                            <Text text="{employee>ROLE}" />
-                                        </HBox>
                                         <HBox>
                                             <Label
                                                 width="10rem"
@@ -117,12 +111,6 @@
                                             width="12rem"
                                             text="Phone Number" />
                                         <Text text="{employee>PHONE_NUMBER}" />
-                                    </HBox>
-                                    <HBox class="sapUiSmallMarginBottom">
-                                        <Label
-                                            width="12rem"
-                                            text="Role" />
-                                        <Text text="{employee>ROLE}" />
                                     </HBox>
                                     <HBox class="sapUiSmallMarginBottom">
                                         <Label
@@ -237,12 +225,7 @@
                                         </HBox>
                                         <!-- Project Information -->
                                         <HBox wrap="Wrap">
-                                            <VBox
-                                                width="12rem"
-                                                class="sapUiMediumMarginEnd" >
-                                                <Label text="Role" />
-                                                <Text text="{projects>PROJECT_ROLE}"/>
-                                            </VBox>
+                                            
                                             <VBox
                                                 width="12rem"
                                                 class="sapUiMediumMarginEnd" >

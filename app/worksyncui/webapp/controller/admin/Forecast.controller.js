@@ -33,7 +33,26 @@ sap.ui.define([
                 }),
                 "summary"
             );
+            sap.ui.getCore().getEventBus().subscribe(
+                "Forecast",
+                "Refresh",
+                this.onRefreshForecast,
+                this
+            );
             this._loadForecast();
+        },
+
+        onRefreshForecast: async function () {
+            await this._loadForecast();
+            console.log("Forecast refreshed");
+        },
+        onExit: function () {
+            sap.ui.getCore().getEventBus().unsubscribe(
+                "Forecast",
+                "Refresh",
+                this.onRefreshForecast,
+                this
+            );
         },
 
         _loadForecast: async function () {

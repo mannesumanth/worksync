@@ -9,7 +9,8 @@ module.exports = {
             ALLOCATIONS,
             LEAVE_BALANCE,
             PROJECTS,
-            SKILLS
+            SKILLS,
+            REQUIREMENT_SKILLS
         } = service.entities;
         // Generate Employee ID
         service.before("CREATE", EMPLOYEES, async (req) => {
@@ -113,15 +114,7 @@ module.exports = {
 
     // Search Employees
     service.on("SearchEmployees", async (req) => {
-        const {
-            search,
-            status,
-            designation,
-            minExp,
-            maxExp,
-            skip = 0,
-            top = 20
-        } = req.data;
+        const { search, status, designation, minExp, maxExp, skip = 0, top = 20 } = req.data;
         let query = SELECT.from(EMPLOYEES).columns(
             "*",
             {
@@ -163,7 +156,6 @@ module.exports = {
 
         for (const emp of employees) {
             if (!emp.ID) continue;
-
             const result = await cds.run(
                 SELECT.from(ALLOCATIONS)
                     .columns("SUM(ALLOCATION_PERCENTAGE) as TOTAL")
@@ -171,12 +163,9 @@ module.exports = {
                         employee_ID: emp.ID
                     })
             );
-
             emp.ALLOCATION_PERCENT = parseFloat(result[0]?.TOTAL || 0);
         }
-
         return employees;
-
     });
 
     // Current User

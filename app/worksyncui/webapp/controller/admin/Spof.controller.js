@@ -7,6 +7,7 @@ sap.ui.define([
 
     return Controller.extend("com.amista.worksyncui.controller.admin.Spof", {
         onInit: function () {
+            this.getView().setModel(new sap.ui.model.json.JSONModel({ risks: [] }), "spof");
             this.onLoadSpofRisks();
             sap.ui.getCore().getEventBus().subscribe(
                 "Spof",
@@ -28,15 +29,6 @@ sap.ui.define([
                 const oRiskModel = new sap.ui.model.json.JSONModel({ risks: aRisks });
 
                 this.getView().setModel(oRiskModel, "spof");
-                this.byId("tileSpofCount")
-                    ?.setValue(aRisks.length);
-                const oDashModel = this.getView().getModel("dash");
-                const nSkillCount = oDashModel.getProperty("/skillCount") || 0;
-                oDashModel.setProperty("/spofCount", aRisks.length);
-                oDashModel.setProperty(
-                    "/spofPercent",
-                    nSkillCount > 0 ? Math.round((aRisks.length / nSkillCount) * 100) : 0
-                );
             } catch (oError) {
                 console.error("Error loading SPOF risks", oError);
                 sap.m.MessageToast.show("Failed to load SPOF Risks");

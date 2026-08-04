@@ -28,22 +28,34 @@ sap.ui.define([
                         this._onObjectMatched,
                         this
                     );
+                sap.ui.getCore().getEventBus().subscribe(
+                    "Skills",
+                    "Refresh",
+                    this._refreshSkillDropdown,
+                    this
+                );
             },
+            _refreshSkillDropdown: function () {
 
-            _getFCL: function () {
-                return this.getOwnerComponent()
-                    .getRootControl()
-                    .byId("fcl");
+                const oCombo = this.byId("employeeSkillCombo");
+
+                if (oCombo) {
+                    oCombo.getBinding("items")?.refresh();
+                }
+
+            }, onExit: function () {
+
+                sap.ui.getCore().getEventBus().unsubscribe(
+                    "Skills",
+                    "Refresh",
+                    this._refreshSkillDropdown,
+                    this
+                );
+
             },
-
             //Match object to the employee detail view
             _onObjectMatched: function (oEvent) {
                 const sEmployeeId = oEvent.getParameter("arguments").employeeId;
-
-                const oFCL = this._getFCL();
-                if (oFCL) {
-                    oFCL.setLayout(LayoutType.TwoColumnsMidExpanded);
-                }
                 this.getView().bindElement({
                     path: "/EMPLOYEES('" + sEmployeeId + "')",
                     parameters: {
@@ -51,13 +63,10 @@ sap.ui.define([
                     }
                 });
             },
-            //Back Navigation to Admin view
             onNavBack: function () {
-                const oFCL = this._getFCL();
-                if (oFCL) oFCL.setLayout(LayoutType.OneColumn);
                 this.getOwnerComponent().getRouter().navTo("Admin");
+                sap.ui.getCore().getEventBus().publish("Admin", "BackToEmployees");
             },
-
             //Add Employee Skill
             onAddEmployeeSkill: async function () {
                 if (!this._oEmployeeSkillDialog) {
@@ -73,6 +82,7 @@ sap.ui.define([
 
             //Close Employee Skill Dialog
             onCloseEmployeeSkill: function () {
+                this._clearEmployeeSkillForm();
                 this._oEmployeeSkillDialog.close();
 
             },
@@ -114,6 +124,7 @@ sap.ui.define([
                     await oContext.created();
                     MessageToast.show("Skill assigned successfully.");
                     this.getView().getBindingContext().refresh();
+                    this._clearEmployeeSkillForm();
                     this._oEmployeeSkillDialog.close();
                 } catch (e) {
                     MessageBox.error(e.message);
@@ -123,12 +134,18 @@ sap.ui.define([
             //Edit Employee
             onEditEmployee: async function () {
                 if (!this._oEditDialog) {
+
                     this._oEditDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.EditEmployee",
                         controller: this
                     });
                     this.getView().addDependent(this._oEditDialog);
+                }
+                const oDesignationBinding = this.byId("editDesignation").getBinding("items");
+
+                if (oDesignationBinding) {
+                    oDesignationBinding.refresh();
                 }
                 const oEmployee = structuredClone(
                     this.getView()
@@ -149,6 +166,10 @@ sap.ui.define([
 
             //Update Employee
             onUpdateEmployee: async function () {
+                if (!this._validateEditEmployeeForm()) {
+                    MessageBox.error("Please correct the highlighted fields.");
+                    return;
+                }
                 const oContext = this.getView().getBindingContext();
                 const oModel = this.getView().getModel();
                 const oEditData = this._oEditDialog
@@ -165,7 +186,6 @@ sap.ui.define([
                         "DATE_OF_BIRTH",
                         "JOINING_DATE",
                         "EXPERIENCE",
-                        "ROLE",
                         "STATUS"
                     ];
                     aFields.forEach((sField) => {
@@ -311,9 +331,216 @@ sap.ui.define([
                     sap.m.MessageBox.error(
                         e.message || "Failed to delete employee skill."
                     );
+                }
+            },
+            _clearEmployeeSkillForm: function () {
 
+                const oSkillCombo = this.byId("employeeSkillCombo");
+                const oLevel = this.byId("addproficiencyLevel");
+
+                if (oSkillCombo) {
+                    oSkillCombo.setSelectedKey("");
+                    oSkillCombo.setValue("");
                 }
 
+                if (oLevel) {
+                    oLevel.setSelectedKey("BEGINNER");
+                }
+            },
+            //Edit Feilds Validation
+            onEditFieldChange: function (oEvent) {
+
+                const oField = oEvent.getSource();
+                const sId = oField.getId();
+
+                oField.setValueState("None");
+                oField.setValueStateText("");
+
+                switch (true) {
+
+                    case sId.includes("editName"):
+                        if (!oField.getValue().trim()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Name is required");
+                        }
+                        break;
+
+                    case sId.includes("editEmail"):
+                        const sEmail = oField.getValue().trim();
+
+                        if (!sEmail) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Email is required");
+                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sEmail)) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Enter a valid email");
+                        }
+                        break;
+
+                    case sId.includes("editPhone"):
+                        const sPhone = oField.getValue().trim();
+
+                        if (!sPhone) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Phone number is required");
+                        } else if (!/^\d{10}$/.test(sPhone)) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Enter a valid 10-digit phone number");
+                        }
+                        break;
+
+                    case sId.includes("editExperience"):
+                        const fExp = parseFloat(oField.getValue());
+
+                        if (isNaN(fExp) || fExp < 0) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Invalid experience");
+                        }
+                        break;
+
+                    case sId.includes("editGender"):
+                        if (!oField.getSelectedKey()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select gender");
+                        }
+                        break;
+
+                    case sId.includes("editStatus"):
+                        if (!oField.getSelectedKey()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select status");
+                        }
+                        break;
+
+                    case sId.includes("editDesignation"):
+                        if (!oField.getSelectedKey()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select designation");
+                        }
+                        break;
+
+                    case sId.includes("editDob"):
+                        if (!oField.getDateValue()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Date of Birth is required");
+                        }
+                        break;
+
+                    case sId.includes("editJoiningDate"):
+                        if (!oField.getDateValue()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Joining Date is required");
+                        }
+                        break;
+                }
+            },
+            // Validate Edit Employee Form
+            _validateEditEmployeeForm: function () {
+                let bValid = true;
+
+                const aFields = [
+                    this.byId("editName"),
+                    this.byId("editEmail"),
+                    this.byId("editPhone"),
+                    this.byId("editDob"),
+                    this.byId("editJoiningDate"),
+                    this.byId("editExperience")
+                ];
+
+                aFields.forEach((oField) => {
+                    let bFieldValid = true;
+                    let sErrorText = "Required";
+
+                    if (oField.getValue) {
+
+                        const sValue = oField.getValue().trim();
+
+                        if (!sValue) {
+                            bFieldValid = false;
+                        }
+
+                        // Email
+                        else if (oField.getId().includes("editEmail") &&
+                            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sValue)) {
+
+                            bFieldValid = false;
+                            sErrorText = "Enter a valid email";
+                        }
+
+                        // Phone
+                        else if (oField.getId().includes("editPhone") &&
+                            !/^\d{10}$/.test(sValue)) {
+
+                            bFieldValid = false;
+                            sErrorText = "Enter a valid 10-digit phone number";
+                        }
+
+                        // Experience
+                        else if (oField.getId().includes("editExperience")) {
+
+                            const fExp = parseFloat(sValue);
+
+                            if (isNaN(fExp) || fExp < 0) {
+                                bFieldValid = false;
+                                sErrorText = "Invalid experience";
+                            }
+                        }
+
+                    } else if (oField.getDateValue) {
+
+                        if (!oField.getDateValue()) {
+                            bFieldValid = false;
+                        }
+
+                    }
+
+                    if (!bFieldValid) {
+                        oField.setValueState("Error");
+                        oField.setValueStateText(sErrorText);
+                        bValid = false;
+                    } else {
+                        oField.setValueState("None");
+                        oField.setValueStateText("");
+                    }
+                });
+
+                // Gender
+                const oGender = this.byId("editGender");
+
+                if (!oGender.getSelectedKey()) {
+                    oGender.setValueState("Error");
+                    oGender.setValueStateText("Please select gender");
+                    bValid = false;
+                } else {
+                    oGender.setValueState("None");
+                    oGender.setValueStateText("");
+                }
+
+                // Status
+                const oStatus = this.byId("editStatus");
+
+                if (!oStatus.getSelectedKey()) {
+                    oStatus.setValueState("Error");
+                    oStatus.setValueStateText("Please select status");
+                    bValid = false;
+                } else {
+                    oStatus.setValueState("None");
+                    oStatus.setValueStateText("");
+                }
+
+                // Designation
+                const oDesignation = this.byId("editDesignation");
+
+                if (!oDesignation.getSelectedKey()) {
+                    oDesignation.setValueState("Error");
+                    oDesignation.setValueStateText("Please select designation");
+                    bValid = false;
+                } else {
+                    oDesignation.setValueState("None");
+                    oDesignation.setValueStateText("");
+                }
+
+                return bValid;
             },
 
         }

@@ -17,13 +17,11 @@ sap.ui.define([
                 this._loadLeaves();
                 this._loadProjects();
                 this._loadSkills();
-                
+
 
             },
             onToggleSideNavigation: function () {
-
                 const oSideNav = this.byId("toggleNavigation");
-
                 oSideNav.setExpanded(
                     !oSideNav.getExpanded()
                 );
@@ -53,15 +51,12 @@ sap.ui.define([
             _loadProfile: async function () {
                 try {
                     const oModel = this.getOwnerComponent().getModel("employee");
-
                     const aContexts = await oModel
                         .bindList("/MyProfile")
                         .requestContexts(0, 1);
-
                     if (aContexts.length) {
                         this.getView().setBindingContext(aContexts[0], "employee");
                     }
-
                 } catch (err) {
                     console.error("Profile Load Error", err);
                 }
@@ -72,7 +67,6 @@ sap.ui.define([
                 try {
 
                     const oModel = this.getOwnerComponent().getModel("employee");
-
                     const aContexts = await oModel
                         .bindList("/MyProjects")
                         .requestContexts();
@@ -83,9 +77,7 @@ sap.ui.define([
                         }),
                         "projects"
                     );
-
                 } catch (err) {
-
                     console.error(err);
 
                 }
@@ -176,40 +168,30 @@ sap.ui.define([
             },
             //Apply Leave
             onApplyLeave: async function () {
-
                 const oPage = this.byId("leavesPage");
 
                 try {
-
                     oPage.setBusy(true);
-
                     const leaveType = this.byId("leaveType").getSelectedKey();
                     const dFrom = this.byId("leaveStartDate").getDateValue();
                     const dTo = this.byId("leaveEndDate").getDateValue();
                     const reason = this.byId("leaveReason").getValue();
-
                     if (!leaveType || !dFrom || !dTo || !reason) {
                         MessageBox.error("Please fill all fields");
                         return;
                     }
-
                     const oFormat = sap.ui.core.format.DateFormat.getDateInstance({
                         pattern: "yyyy-MM-dd"
                     });
-
                     const oModel = this.getOwnerComponent().getModel("employee");
-
                     const oAction = oModel.bindContext("/ApplyLeave(...)");
-
                     oAction.setParameter("leaveType", leaveType);
                     oAction.setParameter("leaveFrom", oFormat.format(dFrom));
                     oAction.setParameter("leaveTo", oFormat.format(dTo));
                     oAction.setParameter("reason", reason);
-
                     await oAction.execute();
-
+                    await this._loadLeaves();
                     MessageToast.show("Leave applied successfully");
-
                     this.byId("leaveType").setSelectedKey("");
                     this.byId("leaveStartDate").setValue("");
                     this.byId("leaveEndDate").setValue("");
@@ -219,14 +201,10 @@ sap.ui.define([
                     await this._loadLeaves();
 
                 } catch (err) {
-
                     console.error(err);
                     MessageBox.error(err.message || "Unable to apply leave");
-
                 } finally {
-
                     oPage.setBusy(false);
-
                 }
             },
 
@@ -246,9 +224,8 @@ sap.ui.define([
 
                 }
             },
-
+            //Withdraw Leave
             onWithdrawLeave: async function (oEvent) {
-
                 try {
 
                     const sLeaveId = oEvent.getSource()
@@ -256,21 +233,13 @@ sap.ui.define([
                         .getProperty("ID");
 
                     const oModel = this.getOwnerComponent().getModel("employee");
-
                     const oAction = oModel.bindContext("/WithdrawLeave(...)");
-
                     oAction.setParameter("leaveId", sLeaveId);
-
                     await oAction.execute();
-
                     MessageToast.show("Leave withdrawn successfully");
-
                     await this._loadLeaves();
-
                 } catch (err) {
-
                     MessageBox.error(err.message);
-
                 }
 
             },
@@ -279,46 +248,41 @@ sap.ui.define([
             _loadLeaveCalendar: function (aLeaves) {
                 const oCalendar = this.byId("leaveCalendar");
                 oCalendar.destroySpecialDates();
+                const mDateStatus = {};
                 aLeaves.forEach(function (oLeave) {
-                    let sType = "None";
+                    let sType;
                     switch (oLeave.STATUS) {
                         case "APPROVED":
-                            sType = "Type08"; // Green
+                            sType = "Type08";
                             break;
                         case "PENDING":
-                            sType = "Type06"; // Blue
+                            sType = "Type06";
                             break;
                         case "REJECTED":
-                            sType = "Type11"; // Red
-                            break;
-                        case "CANCELLED":
-                            sType = "None";
+                            sType = "Type11";
                             break;
                         default:
-                            sType = "None";
-                    }
-                    // Skip cancelled leaves
-                    if (sType === "None") {
-                        return;
+                            return;
                     }
                     let oCurrent = new Date(oLeave.LEAVE_FROM);
                     const oEnd = new Date(oLeave.LEAVE_TO);
                     while (oCurrent <= oEnd) {
-                        const iDay = oCurrent.getDay();
-                        // Skip Saturday (6) and Sunday (0)
-                        if (iDay !== 0 && iDay !== 6) {
-                            oCalendar.addSpecialDate(
-                                new sap.ui.unified.DateTypeRange({
-                                    startDate: new Date(oCurrent),
-                                    type: sType
-                                })
-                            );
+                        if (oCurrent.getDay() !== 0 && oCurrent.getDay() !== 6) {
+                            const sKey = oCurrent.toISOString().split("T")[0];
+                            // overwrite previous status
+                            mDateStatus[sKey] = sType;
                         }
                         oCurrent.setDate(oCurrent.getDate() + 1);
                     }
-
                 });
-
+                Object.keys(mDateStatus).forEach(function (sDate) {
+                    oCalendar.addSpecialDate(
+                        new sap.ui.unified.DateTypeRange({
+                            startDate: new Date(sDate),
+                            type: mDateStatus[sDate]
+                        })
+                    );
+                });
             },
             //Calculate Leave Days
             onLeaveDateChange: function () {
@@ -368,10 +332,9 @@ sap.ui.define([
                     this.byId("leaveDays").setValue(iDays);
                 }
             },
+            // Theme Toggle
             onThemeToggle1: function (oEvent) {
-
                 const bPressed = oEvent.getSource().getPressed();
-
                 if (bPressed) {
                     Core.applyTheme("sap_horizon_dark");
                     oEvent.getSource().setText("Light Mode");
@@ -388,22 +351,16 @@ sap.ui.define([
                 let iDays = 0;
                 let oCurrent = new Date(sFrom);
                 const oEnd = new Date(sTo);
-
                 while (oCurrent <= oEnd) {
-
                     const iDay = oCurrent.getDay();
-
                     // Exclude Saturday (6) and Sunday (0)
                     if (iDay !== 0 && iDay !== 6) {
                         iDays++;
                     }
-
                     oCurrent.setDate(oCurrent.getDate() + 1);
                 }
-
                 return iDays;
             },
-
         }
     );
 

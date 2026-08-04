@@ -13,9 +13,19 @@ module.exports = {
             ALLOCATIONS
         } = service.entities;
 
-        service.before('CREATE', PROJECTS, async (req) => {
-            req.data.PROJECT_ID = await generateBusinessId(req, 'PROJECTS_SEQ', 'PRJ');
+        service.before("CREATE", PROJECTS, async (req) => {
+            req.data.PROJECT_ID = await generateBusinessId(req, "PROJECTS_SEQ", "PRJ");
+            const { START_DATE, END_DATE } = req.data;
+            if (!START_DATE || !END_DATE) {
+                req.error(400, "Start Date and End Date are required.");
+            }
+            const startDate = new Date(START_DATE);
+            const endDate = new Date(END_DATE);
+            if (endDate < startDate) {
+                req.error(400, "End Date cannot be earlier than Start Date.");
+            }
         });
+
         service.before('CREATE', PROJECT_REQUIREMENTS, async (req) => {
             req.data.REQUIREMENT_ID = await generateBusinessId(req, 'REQUIREMENT_SEQ', 'REQ');
             console.log("Generated:", req.data.REQUIREMENT_ID);
@@ -24,7 +34,7 @@ module.exports = {
             req.data.DESIGNATION_ID = await generateBusinessId(req, 'DESIGNATION_SEQ', 'DES');
             console.log('Generated DESIGNATION_ID:', req.data.DESIGNATION_ID);
         });
-        service.before('CREATE', SKILL_CATEGORIES, async (req) => {
+       service.before('CREATE', SKILL_CATEGORIES, async (req) => {
             req.data.CAT_ID = await generateBusinessId(req, 'CATEGORY_SEQ', 'CAT');
         });
 
@@ -138,6 +148,6 @@ module.exports = {
             };
 
         });
-        
+
     }
 }

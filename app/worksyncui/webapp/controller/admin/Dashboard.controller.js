@@ -261,7 +261,7 @@ sap.ui.define([
                     .setData({
                         data: [
                             {
-                                Category: "At Risk",
+                                Category: "Spof Risks",
                                 Count: aRisks.length
                             },
                             {
@@ -279,8 +279,6 @@ sap.ui.define([
 
 
         _configureCharts: function () {
-            console.log(typeof this.byId("employeeChartViz").setVizProperties);
-
             const aCharts = [
                 this.byId("projectChartViz"),
                 this.byId("availabilityChartViz"),
@@ -291,7 +289,9 @@ sap.ui.define([
                     visible: false
                 },
                 legend: {
-                    visible: true
+                    visible: true,
+                    position: "bottom"
+
                 },
                 plotArea: {
                     dataLabel: {
@@ -309,6 +309,9 @@ sap.ui.define([
                 title: {
                     visible: false
                 },
+                legend: {
+                    visible: true,
+                },
                 plotArea: {
                     dataLabel: {
                         visible: true,
@@ -318,7 +321,6 @@ sap.ui.define([
                         "#0A6ED1", // Bench
                         "#E9730C", // Under Allocated
                         "#107E3E", // Fully Allocated
-                        "#BB0000"  // Over Allocated
                     ]
                 }
             });
@@ -331,7 +333,8 @@ sap.ui.define([
                         visible: false
                     },
                     legend: {
-                        visible: true
+                        visible: true,
+                        position: "bottom"
                     },
                     plotArea: {
                         dataLabel: {

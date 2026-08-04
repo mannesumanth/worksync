@@ -93,7 +93,7 @@
 								<Text text="{forecast>DESIGNATION}" />
 								<!-- Allocation -->
 								<VBox>
-									<ProgressIndicator percentValue="{forecast>CURRENT_ALLOCATION}" displayValue="{forecast>CURRENT_ALLOCATION}%" state="Success" />
+									<ProgressIndicator percentValue="{forecast>CURRENT_ALLOCATION}" displayValue="{forecast>CURRENT_ALLOCATION}%" state="{= ${forecast>CURRENT_ALLOCATION} >= 100 ? 'Error' : ${forecast>CURRENT_ALLOCATION} >= 80 ? 'Warning' : 'Success' }" />
 								</VBox>
 								<!-- Available -->
 								<VBox>
