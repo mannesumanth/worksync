@@ -179,43 +179,33 @@ sap.ui.define([
             }
             this._oSkillCategoryDialog.open();
         },
-
+        //Save Skill Category
         onSaveSkillCategory: async function () {
             const oPayload = {
                 CATEGORY_NAME: this.byId("categoryNameInput").getValue().trim()
             };
-
             if (!oPayload.CATEGORY_NAME) {
                 MessageToast.show("Category Name is required");
                 return;
             }
-
-            const oModel = this.getView().getModel();
+            const oView = this.getView();
+            const oModel = oView.getModel();
+            oView.setBusy(true);
             const oCtx = oModel.bindList("/SKILL_CATEGORIES").create(oPayload);
-
             try {
                 await oCtx.created();
-
                 MessageToast.show("Skill Category Created");
                 this._refreshTables();
                 this._refreshSkillCategoryDropdown();
                 this._clearForms();
                 this._closeDialog(this._oSkillCategoryDialog);
-
             } catch (e) {
                 console.error(e);
-
-                // Backend sends { error: { message: "..." } } — read that first.
                 const sMessage =
                     e?.error?.message ||
                     e?.cause?.error?.message ||
                     e?.message ||
                     "Failed to create Skill Category";
-
-                // CRITICAL: remove the failed transient row from the list
-                // binding's pending-changes queue, otherwise UI5 keeps
-                // resubmitting it on every future $auto batch and breaks
-                // subsequent creates/updates.
                 if (oCtx.isTransient()) {
                     try {
                         await oCtx.delete();
@@ -223,8 +213,9 @@ sap.ui.define([
                         console.error("Cleanup failed:", delErr);
                     }
                 }
-
                 MessageBox.error(sMessage);
+            } finally {
+                oView.setBusy(false);
             }
         },
         // Close Skill Category Dialog
@@ -258,6 +249,10 @@ sap.ui.define([
             };
             if (!oPayload.SKILL_NAME) {
                 MessageToast.show("Skill Name is required");
+                return;
+            }
+            if(!oPayload.category_ID) {
+                MessageToast.show("Skill Category is required");
                 return;
             }
             const oCtx = this.getView()

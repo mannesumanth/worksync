@@ -10,7 +10,9 @@ module.exports = {
             SKILLS,
             DESIGNATIONS
         } = service.entities;
+        // Handler to get dashboard statistics
         service.on("GetDashboardStats", async () => {
+            // Fetch all necessary data in parallel 
             const [
                 employees,
                 projects,
@@ -29,6 +31,7 @@ module.exports = {
             // Employee KPIs
             const totalEmployees = employees.length;
             const employeeAllocation = new Map();
+            // Calculate the total allocation percentage for each employee
             allocations.forEach(allocation => {
                 const current =
                     employeeAllocation.get(allocation.employee_ID) || 0;
@@ -38,11 +41,13 @@ module.exports = {
                     Number(allocation.ALLOCATION_PERCENTAGE || 0)
                 );
             });
+            // Initialize counters for different employee allocation statuses
             let availableEmployees = 0;
             let benchEmployees = 0;
             let underAllocatedEmployees = 0;
             let fullyAllocatedEmployees = 0;
             let overAllocatedEmployees = 0;
+            // Iterate through each employee to categorize them based on their allocation percentage
             employees.forEach(employee => {
                 const allocation =
                     employeeAllocation.get(employee.ID) || 0;
@@ -61,6 +66,7 @@ module.exports = {
 
             // Allocation KPIs
             const totalAllocations = allocations.length;
+            // Calculate the total allocation percentage across all employees
             const totalAllocationPercentage =
                 allocations.reduce(
                     (sum, allocation) =>
@@ -68,7 +74,7 @@ module.exports = {
                         Number(allocation.ALLOCATION_PERCENTAGE || 0),
                     0
                 );
-
+                // Calculate the average utilization across all employees
             const averageUtilization =
                 totalEmployees > 0
                     ? Number(
@@ -83,12 +89,10 @@ module.exports = {
             const pendingLeaves = leaves.filter( leave => leave.STATUS === "PENDING").length;
             const approvedLeaves =leaves.filter(leave => leave.STATUS === "APPROVED" ).length;
             const rejectedLeaves =leaves.filter(leave => leave.STATUS === "REJECTED" ).length;
-
             // Master Data KPIs
-
             const totalSkills = skills.length;
             const totalDesignations = designations.length;
-
+            // Return the calculated KPIs as a response
             return {
                 // Employee KPIs
                 totalEmployees,

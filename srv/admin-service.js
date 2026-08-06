@@ -41,7 +41,7 @@ module.exports = cds.service.impl(async function (srv) {
     dashboardHandler.register(srv);
     notificationHandler.register(srv);
 
-    srv.on("currentUser", (req) => {
+    srv.on("GetCurrentUser", (req) => {
         return {
             id: req.user.id,
             isAdmin: req.user.is("Admin"),

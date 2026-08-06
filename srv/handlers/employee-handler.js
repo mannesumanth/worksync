@@ -114,7 +114,9 @@ module.exports = {
 
     // Search Employees
     service.on("SearchEmployees", async (req) => {
+        // Extract search parameters from the request data
         const { search, status, designation, minExp, maxExp, skip = 0, top = 20 } = req.data;
+        // Build the base query to select employees with optional filters
         let query = SELECT.from(EMPLOYEES).columns(
             "*",
             {
@@ -122,8 +124,10 @@ module.exports = {
                 expand: [{ ref: ["NAME"] }]
             }
         );
+        // Apply search filters based on the provided parameters
         if (search) {
             const pattern = `%${search.toLowerCase()}%`;
+            // Use a template literal to construct the WHERE clause for the search query
             query.where`
                     lower(NAME) LIKE ${pattern}
                     OR lower(EMAIL) LIKE ${pattern}
@@ -151,9 +155,9 @@ module.exports = {
             });
         }
         query.limit(top, skip);
-
+        // Execute the query to fetch employees based on the constructed filters
         const employees = await cds.run(query);
-
+        // Calculate the allocation percentage for each employee
         for (const emp of employees) {
             if (!emp.ID) continue;
             const result = await cds.run(
@@ -173,8 +177,6 @@ module.exports = {
         console.log("========== CURRENT USER ==========")
         console.log("User:", req.user);
         console.log("ID:", req.user.id)
-        console.log("Scopes:", req.user.scopes);
-        console.log("Attributes:", req.user.attr)
         console.log("Admin?", req.user.is("Admin"));
         console.log("Employee?", req.user.is("Employee"));
         return {
@@ -187,35 +189,13 @@ module.exports = {
     });
 
     service.before("UPDATE", EMPLOYEES, async (req) => {
-
         // Only execute when STATUS is being updated
-        if (!req.data.STATUS) {
-            return;
-        }
-
-        const statuses = ["RESIGNED", "TERMINATED", "BENCH"];
-
+        if (!req.data.STATUS) { return;}
+        const statuses = ["RESIGNED", "TERMINATED","BENCH"];
         if (!statuses.includes(req.data.STATUS)) {
             return;
         }
-
         const employeeId = req.data.ID;
-
-        // Check if employee manages any projects
-        const managedProjects = await cds.run(
-            SELECT.from(PROJECTS)
-                .where({
-                    manager_ID: employeeId
-                })
-        );
-
-        if (managedProjects.length > 0) {
-            req.error(
-                400,
-                "Employee is assigned as Project Manager. Please assign another project manager before updating the employee status."
-            );
-        }
-
         // Remove all project allocations
         await cds.run(
             DELETE.from(ALLOCATIONS)

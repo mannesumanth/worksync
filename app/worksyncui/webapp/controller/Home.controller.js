@@ -7,7 +7,7 @@ sap.ui.define([
     return Controller.extend("com.amista.worksyncui.controller.Home", {
 
         onInit: function () {
-            this._redirectByRole();
+            //this._redirectByRole();
         },
 
         _redirectByRole: async function () {

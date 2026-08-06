@@ -199,7 +199,6 @@ sap.ui.define([
                             bChanged = true;
                         }
                     });
-
                     // Handle Designation 
                     if (oOriginal.designation_ID !== oEditData.designation_ID) {
                         oContext.setProperty(
@@ -207,7 +206,6 @@ sap.ui.define([
                             oEditData.designation_ID
                         );
                         bChanged = true;
-
                     }
                     if (!bChanged) {
                         MessageToast.show("No changes to save.");
@@ -215,7 +213,12 @@ sap.ui.define([
                         return;
                     }
                     await oModel.submitBatch("$auto");
-                    MessageToast.show("Employee updated successfully.");
+                    // Check if the PATCH operation failed
+                    const aMessages = sap.ui.getCore()
+                        .getMessageManager()
+                        .getMessageModel()
+                        .getData();
+                    const oError = aMessages.find(m => m.type === "Error");
                     sap.ui.getCore().getEventBus().publish(
                         "Employees",
                         "Refresh"
@@ -228,6 +231,11 @@ sap.ui.define([
                         .getBindingContext()
                         .refresh();
 
+                    if (oError) {
+                        MessageBox.error(oError.message);
+                        return;
+                    }
+                    MessageToast.show("Employee updated successfully.");
                     this._oEditDialog.close();
                 } catch (e) {
                     console.error(e);

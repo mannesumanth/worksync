@@ -183,6 +183,24 @@
 						</ColumnListItem>
 					</items>
 				</Table>
+				<Table 
+				id = "employeesTable2"
+				items="{/EMPLOYEES}">
+				<columns>
+					<Column >
+					<Text text="EMP ID" />
+					</Column>
+					<Column >
+					<Text text = "Name"/>
+					</Column>
+				</columns>
+				<ColumnListItem >
+				<cells>
+				<Text text="{EMP_ID}"/>
+				<Text text="{NAME}"/>
+				</cells>
+				</ColumnListItem>
+				</Table>
 			</content>
 		</Page>
 </mvc:View>

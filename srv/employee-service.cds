@@ -1,7 +1,7 @@
 using worksync.db as db from '../db/schema';
 
-//@requires: 'authenticated-user'
-@(requires: 'Employee')
+@requires: 'authenticated-user'
+//@(requires: 'Employee')
 service EmployeeService {
     entity MyProfile  as projection on db.EMPLOYEES;
     entity MySkills as projection on db.EMPLOYEE_SKILLS { *,skill };

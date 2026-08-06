@@ -147,6 +147,8 @@ sap.ui.define([
                 try {
                     const oEmpCtx = oModel.bindList("/EMPLOYEES").create(oPayload);
                     await oEmpCtx.created();
+                    const oTable = this.byId("employeesTable2");
+                    oTable.getBinding("items").refresh();
                     const sEmpId = oEmpCtx.getProperty("ID");
                     await this._loadEmployees(); // Refresh the employee list after creation
                     MessageToast.show("Employee Created Successfully");

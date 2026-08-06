@@ -36,7 +36,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', 'MyProfile', async req => {
         console.log("User =", req.user);
-        const email = req.user.id;  // 'manne.sumanth@amista.com';//req.user.id; 
+        const email = req.user.id;  //req.user.id; 
         console.log("Email =", email);
         return await db.run(
             SELECT.one
@@ -104,9 +104,8 @@ module.exports = cds.service.impl(async function () {
         }
         return allocations;
     });
-
+    // Read My Leaves with working days calculation
     this.on("READ", "MyLeaves", async (req) => {
-
         const employee = await getCurrentEmployee(req);
         if (!employee) {
             return [];
@@ -130,11 +129,10 @@ module.exports = cds.service.impl(async function () {
         });
         return leaves;
     });
+    // Apply Leave Action
     this.on('ApplyLeave', async req => {
-
         const db = await cds.connect.to('db');
         const employee = await getCurrentEmployee(req);
-
         // Validate dates
         if (req.data.leaveFrom > req.data.leaveTo) {
             return req.reject(
@@ -142,34 +140,25 @@ module.exports = cds.service.impl(async function () {
                 "Leave From date cannot be greater than Leave To date."
             );
         }
-
         // Helper to calculate weekdays (excluding Saturday & Sunday)
         const getWeekDays = (from, to) => {
-
             let days = 0;
             let current = new Date(from);
             const end = new Date(to);
-
             while (current <= end) {
-
                 const day = current.getDay();
-
                 if (day !== 0 && day !== 6) {
                     days++;
                 }
-
                 current.setDate(current.getDate() + 1);
             }
-
             return days;
         };
-
         // Calculate requested leave days
         const requestedDays = getWeekDays(
             req.data.leaveFrom,
             req.data.leaveTo
         );
-
         // Get all approved leaves
         const approvedLeaves = await db.run(
             SELECT.from(LEAVE_CALENDAR)
@@ -179,20 +168,16 @@ module.exports = cds.service.impl(async function () {
                     STATUS: "APPROVED"
                 })
         );
-
         // Calculate used leave days
         let usedDays = 0;
-
         for (const leave of approvedLeaves) {
             usedDays += getWeekDays(
                 leave.LEAVE_FROM,
                 leave.LEAVE_TO
             );
         }
-
         const TOTAL_LEAVES = 20;
         const availableDays = TOTAL_LEAVES - usedDays;
-
         // Check leave balance
         if (requestedDays > availableDays) {
             return req.reject(
@@ -212,21 +197,18 @@ module.exports = cds.service.impl(async function () {
                 AND STATUS NOT IN ('WITHDRAWN', 'REJECTED', 'CANCELLED')
             `
         );
-
         if (existingLeave) {
             return req.reject(
                 400,
                 `A leave already exists from ${existingLeave.LEAVE_FROM} to ${existingLeave.LEAVE_TO}.`
             );
         }
-
         // Generate Leave ID
         const leaveId = await generateBusinessId(
             req,
             "LEAVE_SEQ",
             "LEV"
         );
-
         // Insert leave request
         await db.run(
             INSERT.into(LEAVE_CALENDAR).entries({
@@ -244,7 +226,7 @@ module.exports = cds.service.impl(async function () {
             message: "Leave request submitted successfully"
         };
     });
-
+    // Calculate total allocation percentage for MyProfile
     this.after("READ", "MyProfile", async (employees) => {
         if (!employees) {
             return;
@@ -273,6 +255,7 @@ module.exports = cds.service.impl(async function () {
     this.before('CREATE', LEAVE_CALENDAR, async (req) => {
         req.data.LEAVE_ID = await generateBusinessId(req, 'LEAVE_SEQ', 'LEV');
     });
+    // Cancel Leave Action
     this.on('CancelLeave', async req => {
         const db = await cds.connect.to('db');
         await db.run(UPDATE(LEAVE_CALENDAR)
@@ -288,6 +271,7 @@ module.exports = cds.service.impl(async function () {
         };
 
     });
+    // Withdraw Leave Action
     this.on('WithdrawLeave', async (req) => {
         const db = await cds.connect.to('db');
 

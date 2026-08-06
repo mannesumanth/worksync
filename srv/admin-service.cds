@@ -1,7 +1,7 @@
 using worksync.db as db from '../db/schema';
 
-//@requires: 'authenticated-user'
-@(requires: 'Admin')
+@requires: 'authenticated-user'
+//@(requires: 'Admin')
 service AdminService {
 
     // Core Entities
