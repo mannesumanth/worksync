@@ -1,7 +1,7 @@
 <mvc:View
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    controllerName="com.amista.worksyncui.controller.admin.Spof"
+    controllerName="com.amista.worksyncui.controller.Spof"
     xmlns:core="sap.ui.core">
 <Page id="spofPage" title="SPOF Risks">
                     <content>

@@ -1,7 +1,7 @@
 <mvc:View
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    controllerName="com.amista.worksyncui.controller.admin.LeaveCalender"
+    controllerName="com.amista.worksyncui.controller.LeaveCalender"
     xmlns:core="sap.ui.core"
 >
     <Page

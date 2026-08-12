@@ -1,0 +1,173 @@
+<mvc:View
+    controllerName="com.amista.worksyncui.controller.Graphs"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    displayBlock="true">
+
+    <Page title="Employee Graphs" class="sapUiContentPadding">
+        <content>
+            <VBox>
+
+                <!--  1. BASE FILTER (Emp_ID, Allocation) -->
+                <Panel headerText="Allocation by Employee" class="sapUiSmallMarginBottom">
+                    <content>
+                        <Toolbar>
+                            <Label text="Employee" class="sapUiTinyMarginEnd"/>
+                            <MultiComboBox id="baseEmpFilter" items="{graphEmployees>/value}" width="14rem" selectionChange="onBaseFilterChange">
+                                <core:Item key="{graphEmployees>EMP_ID}" text="{graphEmployees>EMP_ID} - {graphEmployees>NAME}"/>
+                            </MultiComboBox>
+
+                            <Label text="Allocation %" class="sapUiSmallMarginBegin sapUiTinyMarginEnd"/>
+                            <RangeSlider id="baseAllocFilter" width="12rem" min="0" max="100" step="5"
+                                range="[0,100]" change="onBaseFilterChange"/>
+
+                            <ToolbarSpacer/>
+                            <Button text="Reset" press="onResetBaseFilter"/>
+                        </Toolbar>
+
+                        <viz:VizFrame id="baseChart" uiConfig="{applicationSet:'fiori'}" height="320px" width="100%"
+                            vizType="bar" selectData="onBaseChartSelect">
+                            <viz:dataset>
+                                <viz.data:FlattenedDataset data="{graphEmployees>/value}">
+                                    <viz.data:dimensions>
+                                        <viz.data:DimensionDefinition name="Employee" value="{EMP_ID}"/>
+                                    </viz.data:dimensions>
+                                    <viz.data:measures>
+                                        <viz.data:MeasureDefinition name="Allocation %" value="{TOTAL_ALLOCATION}"/>
+                                    </viz.data:measures>
+                                </viz.data:FlattenedDataset>
+                            </viz:dataset>
+                            <viz:feeds>
+                                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Allocation %"/>
+                                <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Employee"/>
+                            </viz:feeds>
+                        </viz:VizFrame>
+                    </content>
+                </Panel>
+
+                <!--  2. EXPERIENCE FILTER-->
+                <Panel headerText="Experience by Employee" class="sapUiSmallMarginBottom">
+                    <content>
+                        <Toolbar>
+                            <Label text="Employee" class="sapUiTinyMarginEnd"/>
+                            <MultiComboBox id="expEmpFilter" items="{graphEmployees>/value}" width="14rem" selectionChange="onExpFilterChange">
+                                <core:Item key="{graphEmployees>EMP_ID}" text="{graphEmployees>EMP_ID} - {graphEmployees>NAME}"/>
+                            </MultiComboBox>
+
+                            <Label text="Experience (yrs)" class="sapUiSmallMarginBegin sapUiTinyMarginEnd"/>
+                            <RangeSlider id="expFilter" width="12rem" min="0" max="20" step="0.5"
+                                range="[0,20]" change="onExpFilterChange"/>
+
+                            <ToolbarSpacer/>
+                            <Button text="Reset" press="onResetExpFilter"/>
+                        </Toolbar>
+
+                        <viz:VizFrame id="expChart" uiConfig="{applicationSet:'fiori'}" height="320px" width="100%"
+                            vizType="bar" selectData="onExpChartSelect">
+                            <viz:dataset>
+                                <viz.data:FlattenedDataset data="{graphEmployees>/value}">
+                                    <viz.data:dimensions>
+                                        <viz.data:DimensionDefinition name="Employee" value="{EMP_ID}"/>
+                                    </viz.data:dimensions>
+                                    <viz.data:measures>
+                                        <viz.data:MeasureDefinition name="Experience" value="{EXPERIENCE_NUM}"/>
+                                    </viz.data:measures>
+                                </viz.data:FlattenedDataset>
+                            </viz:dataset>
+                            <viz:feeds>
+                                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Experience"/>
+                                <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Employee"/>
+                            </viz:feeds>
+                        </viz:VizFrame>
+                    </content>
+                </Panel>
+
+                <!--  3. LEAVES FILTER (stacked column)-->
+                <Panel headerText="Leaves by Employee (Used vs Available)" class="sapUiSmallMarginBottom">
+                    <content>
+                        <Toolbar>
+                            <Label text="Min Used Leaves" class="sapUiTinyMarginEnd"/>
+                            <StepInput id="usedLeavesFilter" value="0" min="0" max="20" change="onLeavesFilterChange" width="7rem"/>
+
+                            <Label text="Min Available Leaves" class="sapUiSmallMarginBegin sapUiTinyMarginEnd"/>
+                            <StepInput id="availLeavesFilter" value="0" min="0" max="20" change="onLeavesFilterChange" width="7rem"/>
+
+                            <ToolbarSpacer/>
+                            <Button text="Reset" press="onResetLeavesFilter"/>
+                        </Toolbar>
+
+                        <viz:VizFrame id="leavesChart" uiConfig="{applicationSet:'fiori'}" height="320px" width="100%"
+                            vizType="stacked_column" selectData="onLeavesChartSelect">
+                            <viz:dataset>
+                                <viz.data:FlattenedDataset data="{graphEmployees>/value}">
+                                    <viz.data:dimensions>
+                                        <viz.data:DimensionDefinition name="Employee" value="{EMP_ID}"/>
+                                    </viz.data:dimensions>
+                                    <viz.data:measures>
+                                        <viz.data:MeasureDefinition name="Used Leaves" value="{USED_LEAVES_TOTAL}"/>
+                                        <viz.data:MeasureDefinition name="Available Leaves" value="{AVAILABLE_LEAVES_TOTAL}"/>
+                                    </viz.data:measures>
+                                </viz.data:FlattenedDataset>
+                            </viz:dataset>
+                            <viz:feeds>
+                                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Used Leaves,Available Leaves"/>
+                                <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Employee"/>
+                            </viz:feeds>
+                        </viz:VizFrame>
+                    </content>
+                </Panel>
+
+                <!-- ============ 4. PROJECTS FILTER ============ -->
+                <Panel headerText="Project Count by Employee">
+                    <content>
+                        <Toolbar>
+                            <Label text="Employee" class="sapUiTinyMarginEnd"/>
+                            <MultiComboBox id="projEmpFilter" items="{graphEmployees>/value}" width="14rem" selectionChange="onProjFilterChange">
+                                <core:Item key="{graphEmployees>EMP_ID}" text="{graphEmployees>EMP_ID} - {graphEmployees>NAME}"/>
+                            </MultiComboBox>
+
+                            <Label text="Min Projects" class="sapUiSmallMarginBegin sapUiTinyMarginEnd"/>
+                            <StepInput id="projCountFilter" value="0" min="0" max="10" change="onProjFilterChange" width="7rem"/>
+
+                            <ToolbarSpacer/>
+                            <Button text="Reset" press="onResetProjFilter"/>
+                        </Toolbar>
+
+                        <viz:VizFrame id="projChart" uiConfig="{applicationSet:'fiori'}" height="320px" width="100%"
+                            vizType="bar" selectData="onProjChartSelect">
+                            <viz:dataset>
+                                <viz.data:FlattenedDataset data="{graphEmployees>/value}">
+                                    <viz.data:dimensions>
+                                        <viz.data:DimensionDefinition name="Employee" value="{EMP_ID}"/>
+                                    </viz.data:dimensions>
+                                    <viz.data:measures>
+                                        <viz.data:MeasureDefinition name="Project Count" value="{PROJECT_COUNT}"/>
+                                    </viz.data:measures>
+                                </viz.data:FlattenedDataset>
+                            </viz:dataset>
+                            <viz:feeds>
+                                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Project Count"/>
+                                <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Employee"/>
+                            </viz:feeds>
+                        </viz:VizFrame>
+                    </content>
+                </Panel>
+
+            </VBox>
+        </content>
+    </Page>
+
+    <!-- Shared details popover, bound to the renamed graphPopover model -->
+    <Popover id="detailsPopover" title="{graphPopover>/name}" placement="Top" contentWidth="18rem">
+        <content>
+            <List items="{graphPopover>/details}">
+                <StandardListItem title="{graphPopover>label}" description="{graphPopover>value}"/>
+            </List>
+        </content>
+    </Popover>
+
+</mvc:View>

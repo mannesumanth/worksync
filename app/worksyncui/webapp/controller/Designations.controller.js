@@ -14,7 +14,7 @@ sap.ui.define([
     FilterOperator
 ) {
     "use strict";
-    return Controller.extend("com.amista.worksyncui.controller.admin.Designation", {
+    return Controller.extend("com.amista.worksyncui.controller.Designation", {
 
 
         // Designation Dialog

@@ -16,7 +16,7 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend(
-        "com.amista.worksyncui.controller.admin.AdminEmployeeDetail",
+        "com.amista.worksyncui.controller.AdminEmployeeDetail",
         {
 
             onInit: function () {

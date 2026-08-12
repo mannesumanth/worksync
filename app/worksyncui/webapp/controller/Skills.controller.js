@@ -13,7 +13,7 @@ sap.ui.define([
 ) {
     "use strict";
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Skill", {
+    return Controller.extend("com.amista.worksyncui.controller.Skill", {
         onInit: function () {
         },
         onExit: function () {

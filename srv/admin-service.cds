@@ -22,29 +22,24 @@ service AdminService {
 
     entity LEAVE_BALANCE        as projection on db.LEAVE_BALANCE;
 
+    entity AllocationHistory as projection on db.ALLOCATION_HISTORY;
+
     type ResourceForecast {
 
         ID                    : UUID;
         EMP_ID                : String(20);
         NAME                  : String(100);
         DESIGNATION           : String(100);
-
         CURRENT_ALLOCATION    : Decimal(5, 2);
         AVAILABLE_PERCENT     : Decimal(5, 2);
-
         CURRENT_PROJECT_COUNT : Integer;
         NEXT_PROJECT_COUNT    : Integer;
-
         CURRENT_PROJECT_NAME  : String(100);
-
         CURRENT_STATUS        : String(30);
         NEXT_STATUS           : String(30);
-
         CURRENT_AVAILABLE     : Boolean;
         NEXT_AVAILABLE        : Boolean;
-
         NEXT_AVAILABLE_DATE   : Date;
-
         LEAVE_END_DATE        : Date;
         ALLOCATION_END_DATE   : Date;
     }
@@ -64,6 +59,51 @@ service AdminService {
         TYPE       : NotificationType;
         CREATED_AT : Timestamp;
     }
+    // type graphStats 
+    type EmployeeMetrics {
+        // Employee
+        ID                      : UUID;
+        EMP_ID                  : String(20);
+        NAME                    : String(100);
+        EMAIL                   : String(100);
+        DESIGNATION             : String(100);
+        STATUS                  : db.EmployeeStatus;
+        EXPERIENCE              : Decimal(4, 1);
+        JOINING_DATE            : Date;
+
+        // Allocation
+        TOTAL_ALLOCATION        : Decimal(5, 2);
+        AVAILABLE_PERCENT       : Decimal(5, 2);
+        PROJECT_COUNT           : Integer;
+        ACTIVE_PROJECT_COUNT    : Integer;
+        COMPLETED_PROJECT_COUNT : Integer;
+
+        // Leave
+        PENDING_LEAVES          : Integer;
+        APPROVED_LEAVES         : Integer;
+        REJECTED_LEAVES         : Integer;
+
+        CASUAL_AVAILABLE        : Integer;
+        CASUAL_USED             : Integer;
+        SICK_AVAILABLE          : Integer;
+        SICK_USED               : Integer;
+        EARNED_AVAILABLE        : Integer;
+        EARNED_USED             : Integer;
+
+        // Skills
+        TOTAL_SKILLS            : Integer;
+        BEGINNER_SKILLS         : Integer;
+        INTERMEDIATE_SKILLS     : Integer;
+        ADVANCED_SKILLS         : Integer;
+        EXPERT_SKILLS           : Integer;
+
+        // Utilization
+        CURRENT_UTILIZATION     : Decimal(5, 2);
+        IS_AVAILABLE            : Boolean;
+        IS_OVER_ALLOCATED       : Boolean;
+    }
+
+    function   GetEmployeeMetrics()    returns array of EmployeeMetrics;
 
     function SearchEmployees(search: String,
                              status: String,
@@ -72,22 +112,23 @@ service AdminService {
                              maxExp: Decimal(4, 1),
                              skip: Integer,
                              top: Integer)               returns array of EMPLOYEES;
-                             type ProjectSkillInput {
-    ID                 : UUID;
-    skill_ID           : UUID;
-    REQUIRED_LEVEL     : String;
-    REQUIRED_RESOURCES : Integer;
-}
 
-type ProjectUpdateInput {
-    PROJECT_NAME : String(100);
-    DESCRIPTION  : LargeString;
-    START_DATE   : Date;
-    END_DATE     : Date;
-    STATUS       : String;
-    manager_ID   : UUID;
-    skills       : many ProjectSkillInput;
-}
+    type ProjectSkillInput {
+        ID                 : UUID;
+        skill_ID           : UUID;
+        REQUIRED_LEVEL     : String;
+        REQUIRED_RESOURCES : Integer;
+    }
+
+    type ProjectUpdateInput {
+        PROJECT_NAME : String(100);
+        DESCRIPTION  : LargeString;
+        START_DATE   : Date;
+        END_DATE     : Date;
+        STATUS       : String;
+        manager_ID   : UUID;
+        skills       : many ProjectSkillInput;
+    }
 
     action   ApproveLeave(leaveId: UUID, status: String) returns {
         message : String
@@ -176,11 +217,10 @@ type ProjectUpdateInput {
         isEmployee : Boolean;
         email      : String;
     };
-    action UpdateProject(
-    projectId : UUID,
-    project   : ProjectUpdateInput
-) returns {
-    message : String;
-};
+
+    action   UpdateProject(projectId: UUID,
+                           project: ProjectUpdateInput)  returns {
+        message : String;
+    };
 
 }

@@ -1,0 +1,344 @@
+<mvc:View
+    controllerName="com.amista.worksyncui.controller.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:fc="sap.f"
+    xmlns:card="sap.f.cards"
+    xmlns:suite="sap.suite.ui.microchart"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    xmlns:grid="sap.ui.layout.cssgrid"
+>
+    <Page
+        id="dashboardPage"
+        title="Dashboard"
+        showHeader="true"
+    >
+        <content>
+            <VBox class="sapUiResponsiveMargin">
+                <!-- ANALYTICS / VISUALIZATION FRAMES -->
+                <Title
+                    text="Analytics &amp; Insights"
+                    level="H3"
+                    class="sapUiSmallMarginTop sapUiTinyMarginBottom"
+                />
+                <grid:CSSGrid
+                    width="100%"
+                    gridGap="1rem"
+                    gridTemplateColumns="repeat(auto-fit, minmax(32rem, 1fr))"
+                >
+                    <fc:Card
+                        width="32rem"
+                        class="sapUiSmallMargin"
+                    >
+                        <fc:header>
+                            <card:Header
+                                title="Employee Allocation"
+                                subtitle="Current Employee Allocation"
+                                iconSrc="sap-icon://employee"
+                            />
+                        </fc:header>
+
+                        <fc:content>
+                            <viz:VizFrame
+                                id="employeeChartViz"
+                                vizType="stacked_column"
+                                width="100%"
+                                height="300px"
+                                uiConfig="{applicationSet:'fiori'}"
+                            >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset
+                                        data="{employeeChart>/data}"
+                                    >
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition
+                                                name="Group"
+                                                value="{employeeChart>Group}"
+                                            />
+                                        </viz.data:dimensions>
+
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition
+                                                name="0%"
+                                                value="{employeeChart>Bench}"
+                                            />
+
+                                            <viz.data:MeasureDefinition
+                                                name="100%"
+                                                value="{employeeChart>FullyAllocated}"
+                                            />
+
+                                            <viz.data:MeasureDefinition
+                                                name="1 and 99 %"
+                                                value="{employeeChart>UnderAllocated}"
+                                            />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem
+                                        uid="valueAxis"
+                                        type="Measure"
+                                        values="0%"
+                                    />
+
+                                    <viz.feeds:FeedItem
+                                        uid="valueAxis"
+                                        type="Measure"
+                                        values="100%"
+                                    />
+
+                                    <viz.feeds:FeedItem
+                                        uid="valueAxis"
+                                        type="Measure"
+                                        values="1 and 99 %"
+                                    />
+
+                                    <viz.feeds:FeedItem
+                                        uid="categoryAxis"
+                                        type="Dimension"
+                                        values="Group"
+                                    />
+                                </viz:feeds>
+                            </viz:VizFrame>
+                        </fc:content>
+                    </fc:Card>
+                    <fc:Card
+                        width="32rem"
+                        class="sapUiSmallMargin"
+                    >
+                        <fc:header>
+                            <card:Header
+                                title="Projects"
+                                subtitle="Projects by lifecycle"
+                                iconSrc="sap-icon://project-definition-triangle-2"
+                            />
+                        </fc:header>
+
+                        <fc:content>
+                            <viz:VizFrame
+                                id="projectChartViz"
+                                vizType="donut"
+                                width="100%"
+                                height="300px"
+                                uiConfig="{applicationSet:'fiori'}"
+                            >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset
+                                        data="{projectChart>/data}"
+                                    >
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition
+                                                name="Status"
+                                                value="{projectChart>Status}"
+                                            />
+                                        </viz.data:dimensions>
+
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition
+                                                name="Projects"
+                                                value="{projectChart>Count}"
+                                            />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem
+                                        uid="size"
+                                        type="Measure"
+                                        values="Projects"
+                                    />
+                                    <viz.feeds:FeedItem
+                                        uid="color"
+                                        type="Dimension"
+                                        values="Status"
+                                    />
+                                </viz:feeds>
+                            </viz:VizFrame>
+                        </fc:content>
+                    </fc:Card>
+                    <!-- Workforce availability -->
+                    <fc:Card
+                        width="32rem"
+                        class="sapUiSmallMargin"
+                    >
+                        <fc:header>
+                            <card:Header
+                                title="Resource Availability"
+                                subtitle="Current vs Next Month"
+                                iconSrc="sap-icon://line-chart"
+                            />
+                        </fc:header>
+
+                        <fc:content>
+                            <viz:VizFrame
+                                id="availabilityChartViz"
+                                vizType="column"
+                                width="100%"
+                                height="300px"
+                                uiConfig="{applicationSet:'fiori'}"
+                            >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset
+                                        data="{availabilityChart>/data}"
+                                    >
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition
+                                                name="Month"
+                                                value="{availabilityChart>Month}"
+                                            />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition
+                                                name="Available Employees"
+                                                value="{availabilityChart>Available}"
+                                            />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem
+                                        uid="valueAxis"
+                                        type="Measure"
+                                        values="Available Employees"
+                                    />
+
+                                    <viz.feeds:FeedItem
+                                        uid="categoryAxis"
+                                        type="Dimension"
+                                        values="Month"
+                                    />
+                                </viz:feeds>
+                            </viz:VizFrame>
+                        </fc:content>
+                    </fc:Card>
+
+                    <!-- SPOF risk -->
+                    <fc:Card
+                        width="32rem"
+                        height="24rem"
+                        class="sapUiSmallMargin"
+                    >
+                        <fc:header>
+                            <card:Header
+                                title="Single Point of Failure Risk"
+                                subtitle="Skills with only one qualified employee"
+                                iconSrc="sap-icon://alert"
+                            />
+                        </fc:header>
+
+                        <fc:content>
+                            <viz:VizFrame
+                                id="vizSpofRisk"
+                                vizType="donut"
+                                width="100%"
+                                height="300px"
+                                uiConfig="{applicationSet:'fiori'}"
+                                vizProperties='{
+        							"plotArea": {
+            							"colorPalette": [
+                							"#e52929",
+                							"#2b7d2b"
+            							]
+        							}
+   								}'
+                            >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset
+                                        data="{spofChart>/data}"
+                                    >
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition
+                                                name="Category"
+                                                value="{spofChart>Category}"
+                                            />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition
+                                                name="Skills"
+                                                value="{spofChart>Count}"
+                                            />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem
+                                        uid="size"
+                                        type="Measure"
+                                        values="Skills"
+                                    />
+                                    <viz.feeds:FeedItem
+                                        uid="color"
+                                        type="Dimension"
+                                        values="Category"
+                                    />
+                                </viz:feeds>
+                            </viz:VizFrame>
+                        </fc:content>
+                    </fc:Card>
+
+                    <!-- Leave requests breakdown -->
+                    <fc:Card
+                        width="32rem"
+                        height="24rem"
+                        class="sapUiSmallMargin"
+                    >
+                        <fc:header>
+                            <card:Header
+                                title="Leave Requests"
+                                subtitle="Breakdown by Status"
+                                iconSrc="sap-icon://calendar"
+                            />
+                        </fc:header>
+                        <fc:content>
+                            <viz:VizFrame
+                                id="leaveChartViz"
+                                vizType="donut"
+                                width="100%"
+                                height="300px"
+                                uiConfig="{applicationSet:'fiori'}"
+                            >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset
+                                        data="{leaveChart>/data}"
+                                    >
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition
+                                                name="Status"
+                                                value="{leaveChart>Status}"
+                                            />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition
+                                                name="Leaves"
+                                                value="{leaveChart>Count}"
+                                            />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem
+                                        uid="size"
+                                        type="Measure"
+                                        values="Leaves"
+                                    />
+                                    <viz.feeds:FeedItem
+                                        uid="color"
+                                        type="Dimension"
+                                        values="Status"
+                                    />
+                                </viz:feeds>
+                            </viz:VizFrame>
+                        </fc:content>
+                    </fc:Card>
+                </grid:CSSGrid>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

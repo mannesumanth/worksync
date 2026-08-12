@@ -19,7 +19,7 @@ sap.ui.define([
 ) {
     "use strict";
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Projects", {
+    return Controller.extend("com.amista.worksyncui.controller.Projects", {
         onInit: function () {
             //Project Model
             this.getView().setModel(new JSONModel({ skills: [] }), "projectModel");

@@ -1,5 +1,5 @@
 <mvc:View
-    controllerName="com.amista.worksyncui.controller.admin.AdminEmployeeDetail"
+    controllerName="com.amista.worksyncui.controller.AdminEmployeeDetail"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.ui.layout.form"

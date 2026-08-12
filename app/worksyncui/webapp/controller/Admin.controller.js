@@ -14,10 +14,12 @@ sap.ui.define([
         allocations: "allocationsView",
         leave: "leaveView",
         forecast: "forecastView",
-        spof: "spofView"
+        spof: "spofView",
+        graphs:"graphsView",
+        analytic : "analyticView"
     };
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Admin", {
+    return Controller.extend("com.amista.worksyncui.controller.Admin", {
         onInit: function () {
             //Nav to Employee detail
             this.getOwnerComponent().getRouter()

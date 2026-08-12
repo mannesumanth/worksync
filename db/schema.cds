@@ -1,11 +1,7 @@
 namespace worksync.db;
 using { managed } from '@sap/cds/common';
 
-  // ENUMS
-// type Role : String enum {
-//     ADMIN;
-//     EMPLOYEE;
-// }
+// ENUMS
 type EmployeeStatus : String enum {
     ACTIVE;
     ON_LEAVE;
@@ -66,7 +62,8 @@ entity EMPLOYEES : managed {
     JOINING_DATE            : Date @mandatory;
     designation            : Association to DESIGNATIONS @mandatory;
     EXPERIENCE              : Decimal(4,1) default 0;
-    // ROLE                    : Role default 'EMPLOYEE';
+    PROFILE_PHOTO           : LargeBinary @Core.MediaType: PROFILE_PHOTO_MIME_TYPE;
+    PROFILE_PHOTO_MIME_TYPE : String(100) @Core.IsMediaType: true;
     STATUS                  : EmployeeStatus default 'ACTIVE';
     skills                  : Composition of many EMPLOYEE_SKILLS
                               on skills.employee = $self;
@@ -122,6 +119,8 @@ entity EMPLOYEE_SKILLS : managed {
                               on requirements.project = $self;
     allocations             : Composition of many ALLOCATIONS
                               on allocations.project = $self;
+    allocationHistory       : Association to many ALLOCATION_HISTORY
+    on allocationHistory.project = $self;
     virtual TEAM_SIZE : Integer;
     virtual TOTAL_ALLOCATION : Decimal(7,2);
 }
@@ -152,6 +151,21 @@ entity ALLOCATIONS : managed {
     PROJECT_ROLE            : String(50);
     START_DATE              : Date @mandatory;
     END_DATE                : Date @mandatory;
+}
+    //Allocation History
+entity ALLOCATION_HISTORY{
+    key ID  : UUID;
+    ALLOC_HISTORY_ID    : String(20) @readonly @assert.unique;
+    //allocation  : Association to ALLOCATIONS @mandatory;
+    employee    : Association to EMPLOYEES @mandatory;
+    project                 : Association to PROJECTS @mandatory;
+    @assert.range:[0,100]
+    ALLOCATION_PERCENTAGE   : Decimal(5,2);
+    PROJECT_ROLE            : String(50);
+    START_DATE              : Date @mandatory;
+    END_DATE                : Date @mandatory;
+   
+       
 }
    //LEAVE CALENDAR
 entity LEAVE_CALENDAR : managed {

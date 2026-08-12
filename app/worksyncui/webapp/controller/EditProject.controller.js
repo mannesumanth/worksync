@@ -17,7 +17,7 @@
 // )  {
 //     "use strict";
 
-//     return Controller.extend("com.amista.worksyncui.controller.admin.EditProject", {
+//     return Controller.extend("com.amista.worksyncui.controller.EditProject", {
 
 //         onInit: function () {
 //             const oRouter = this.getOwnerComponent().getRouter();

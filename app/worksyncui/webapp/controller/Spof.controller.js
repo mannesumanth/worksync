@@ -5,7 +5,7 @@ sap.ui.define([
 ) {
     "use strict";
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Spof", {
+    return Controller.extend("com.amista.worksyncui.controller.Spof", {
         onInit: function () {
             this.getView().setModel(new sap.ui.model.json.JSONModel({ risks: [] }), "spof");
             this.onLoadSpofRisks();

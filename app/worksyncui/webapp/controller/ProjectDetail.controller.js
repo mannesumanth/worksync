@@ -210,6 +210,7 @@ sap.ui.define([
                         oModel.bindList("/ALLOCATIONS").create(oPayload);
                     await oContext.created();
                     MessageToast.show("Employee assigned successfully.");
+                    this.byId("allocationHistoryTable").getBinding("items").refresh();
                     sap.ui.getCore().getEventBus().publish(
                         "Employees",
                         "Refresh"

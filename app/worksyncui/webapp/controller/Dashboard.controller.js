@@ -9,7 +9,7 @@ sap.ui.define([
 ) {
     "use strict";
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Dashboard", {
+    return Controller.extend("com.amista.worksyncui.controller.Dashboard", {
 
         onInit: function () {
 

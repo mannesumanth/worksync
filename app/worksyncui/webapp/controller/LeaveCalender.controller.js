@@ -9,7 +9,7 @@ sap.ui.define([
     ) {
         "use strict";
 
-        return Controller.extend("com.amista.worksyncui.controller.admin.LeaveCalender", {
+        return Controller.extend("com.amista.worksyncui.controller.LeaveCalender", {
             onInit: function () {
                 sap.ui.getCore().getEventBus().subscribe(
                     "Leaves","Refresh", 

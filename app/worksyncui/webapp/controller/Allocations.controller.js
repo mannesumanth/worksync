@@ -4,7 +4,7 @@ sap.ui.define([
 ], function (Controller, Fragment) {
     "use strict";
 
-    return Controller.extend("com.amista.worksyncui.controller.admin.Allocations", {
+    return Controller.extend("com.amista.worksyncui.controller.Allocations", {
 
         onInit: function () {
             sap.ui.getCore().getEventBus().subscribe(

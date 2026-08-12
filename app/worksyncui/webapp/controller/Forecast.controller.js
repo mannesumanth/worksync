@@ -12,7 +12,7 @@ sap.ui.define([
     MessageToast
 ) {
     "use strict";
-    return Controller.extend("com.amista.worksyncui.controller.admin.Forecast", {
+    return Controller.extend("com.amista.worksyncui.controller.Forecast", {
         onInit: function () {
             this._searchValue = "";
             this._statusValue = "";

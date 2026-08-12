@@ -124,19 +124,14 @@
         "transition": "slide",
         "type": "View",
         "viewType": "XML",
-        "path": "com.amista.worksyncui.view.admin",
+        "path": "com.amista.worksyncui.view",
         "async": true,
         "viewPath": "com.amista.worksyncui.view"
       },
       "routes": [
         {
-          "name": "Home",
-          "pattern": "",
-          "target": "Home"
-        },
-        {
           "name": "Admin",
-          "pattern": "admin",
+          "pattern": "",
           "target": "Admin"
         },
         {
@@ -164,16 +159,11 @@
         }
       ],
       "targets": {
-        "Home": {
-          "id": "Home",
-          "name": "Home",
-          "viewName": "Home",
-          "controlAggregation": "beginColumnPages"
-        },
+
         "Admin": {
           "id": "Admin",
           "name": "Admin",
-          "viewName": "admin.Admin",
+          "viewName": "Admin",
           "controlAggregation": "beginColumnPages"
         },
         "Employee": {
@@ -184,8 +174,8 @@
         },
         "AdminEmployeeDetail": {
           "id": "AdminEmployeeDetail",
-          "name": "admin.AdminEmployeeDetail",
-          "viewName": "admin.AdminEmployeeDetail",
+          "name": "AdminEmployeeDetail",
+          "viewName": "AdminEmployeeDetail",
           "controlAggregation": "midColumnPages"
         },
         "Forecast": {

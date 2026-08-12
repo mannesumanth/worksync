@@ -30,6 +30,7 @@ module.exports = cds.service.impl(async function (srv) {
     const forecastHandler = require("./handlers/forecast-handler");
     const dashboardHandler = require("./handlers/dashboard-handler");
     const notificationHandler = require("./handlers/notification-handler");
+    const metricsHandler = require("./handlers/metrics-handler");
 
     employeeHandler.register(srv);
     projectHandler.register(srv);
@@ -40,6 +41,7 @@ module.exports = cds.service.impl(async function (srv) {
     forecastHandler.register(srv);
     dashboardHandler.register(srv);
     notificationHandler.register(srv);
+    metricsHandler.register(srv);
 
     srv.on("GetCurrentUser", (req) => {
         return {

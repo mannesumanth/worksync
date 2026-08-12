@@ -1,7 +1,7 @@
 <mvc:View
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    controllerName="com.amista.worksyncui.controller.admin.Allocations"
+    controllerName="com.amista.worksyncui.controller.Allocations"
     xmlns:core="sap.ui.core">
 <Page id="allocationsPage" title="Allocations">
                     <content>
