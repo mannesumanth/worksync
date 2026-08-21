@@ -9,7 +9,9 @@
     "build": "rimraf resources mta_archives && mbt build --mtar archive",
     "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
     "watch-project1": "cds watch --open project1/index.html?sap-ui-xx-viewCache=false --livereload false",
-    "watch-employeeui": "cds watch --open com.amista.employeeui/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "watch-employeeui": "cds watch --open com.amista.employeeui/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-worksyncsample": "cds watch --open com.amitsa.worksyncsample/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-rmaemployee": "cds watch --open com.amista.rmaemployee/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "dependencies": {
     "@sap/cds": "^9",
@@ -44,5 +46,8 @@
   },
   "workspaces": [
     "app/*"
+  ],
+  "sapux": [
+    "app/worksyncsample"
   ]
 }

@@ -105,13 +105,13 @@ service AdminService {
 
     function   GetEmployeeMetrics()    returns array of EmployeeMetrics;
 
-    function SearchEmployees(search: String,
-                             status: String,
-                             designation: String,
-                             minExp: Decimal(4, 1),
-                             maxExp: Decimal(4, 1),
-                             skip: Integer,
-                             top: Integer)               returns array of EMPLOYEES;
+    // function SearchEmployees(search: String,
+    //                          status: String,
+    //                          designation: String,
+    //                          minExp: Decimal(4, 1),
+    //                          maxExp: Decimal(4, 1),
+    //                          skip: Integer,
+    //                          top: Integer)               returns array of EMPLOYEES;
 
     type ProjectSkillInput {
         ID                 : UUID;

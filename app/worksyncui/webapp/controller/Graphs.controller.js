@@ -63,6 +63,7 @@ sap.ui.define([
             const aEmpIds = this.byId("baseEmpFilter").getSelectedKeys();
             const aRange = this.byId("baseAllocFilter").getRange();
 
+            this.byId("baseAllocValue").setText(aRange);
             const aFilters = [
                 new Filter("TOTAL_ALLOCATION", FilterOperator.BT, aRange[0], aRange[1])
             ];
@@ -180,9 +181,9 @@ sap.ui.define([
                 { label: "Project Count", field: "PROJECT_COUNT" }
             ]);
         },
-        
+
         // shared helpers (renamed so they can't be mistaken for anything in Dashboard.js)
-        
+
         _applyChartFilter: function (sChartId, aFilters) {
             const oBinding = this.byId(sChartId).getDataset().getBinding("data");
             oBinding.filter(aFilters.length ? new Filter({ filters: aFilters, and: true }) : []);

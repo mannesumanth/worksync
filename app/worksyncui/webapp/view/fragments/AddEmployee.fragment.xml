@@ -100,9 +100,6 @@
                     <core:Item
                         key="ACTIVE"
                         text="Active"/>
-                    <core:Item
-                        key="ONBOARDING"
-                        text="Onboarding"/>
                 </Select>
                 <Label
                     text="Designation"

@@ -22,15 +22,7 @@ sap.ui.define([
         "com.amista.worksyncui.controller.Employees",
         {
             onInit: function () {
-                //Model used to bind data in Employees View
-                this.getOwnerComponent().setModel(
-                    new JSONModel({
-                        EMPLOYEES: []
-                    }),
-                    "table"
-                );
                 this._loadDesignations();
-                this._loadEmployees();
                 //Event Bus to Refresh Employees page
                 sap.ui.getCore().getEventBus().subscribe(
                     "Employees",
@@ -48,27 +40,10 @@ sap.ui.define([
             },
             //Refresh Employees
             refreshEmployees: async function () {
-                await this._loadEmployees();
                 await this._loadDesignations();
                 console.log("Employees page refreshed");
             },
 
-            //Load Employees
-            _loadEmployees: async function () {
-                const oBinding = this.getOwnerComponent()
-                    .getModel()
-                    .bindList("/EMPLOYEES", undefined, undefined, undefined, {
-                        $expand: "designation"
-                    });
-                const aContexts = await oBinding.requestContexts(0, 100);
-                const aEmployees = aContexts.map(oContext => oContext.getObject());
-                this.getOwnerComponent()
-                    .getModel("table")
-                    .setProperty("/EMPLOYEES", aEmployees);
-                console.log(
-                    this.getOwnerComponent().getModel("table").getData()
-                );
-            },
 
             //Load Designations
             async _loadDesignations() {
@@ -147,10 +122,10 @@ sap.ui.define([
                 try {
                     const oEmpCtx = oModel.bindList("/EMPLOYEES").create(oPayload);
                     await oEmpCtx.created();
-                    const oTable = this.byId("employeesTable2");
-                    oTable.getBinding("items").refresh();
+                    const oTable1 = this.byId("employeesTable");
+                    oTable1.getBinding("items").refresh();
                     const sEmpId = oEmpCtx.getProperty("ID");
-                    await this._loadEmployees(); // Refresh the employee list after creation
+                    //await this._loadEmployees(); // Refresh the employee list after creation
                     MessageToast.show("Employee Created Successfully");
                     this._oEmployeeDialog.close();
                     this._clearEmployeeForm();
@@ -199,7 +174,7 @@ sap.ui.define([
             //View Employee Details
             onViewEmployee: function (oEvent) {
 
-                const oContext = oEvent.getSource().getBindingContext("table");
+                const oContext = oEvent.getSource().getBindingContext();
                 if (!oContext) {
                     sap.m.MessageToast.show("Unable to retrieve employee details.");
                     return;
@@ -211,313 +186,267 @@ sap.ui.define([
             },
 
             // EMPLOYEE SEARCH
-            onEmployeeFilterChange: async function () {
-                try {
-                    const sSearch = this.byId("employeeSearch").getValue().trim();
-                    const sStatus = this.byId("statusFilter1").getSelectedKey();
-                    const sDesignation = this.byId("designationFilter").getSelectedKey();
 
-                    const sMin = this.byId("experienceFilter").getValue();
-                    const sMax = this.byId("maxExperienceFilter").getValue();
+            onEmployeeFilterChange: function () {
+                const oTable = this.byId("employeesTable");
+                const oBinding = oTable.getBinding("items");
 
-                    const fMin = sMin ? parseFloat(sMin) : null;
-                    const fMax = sMax ? parseFloat(sMax) : null;
-                    if (fMin !== null && fMax !== null && fMin > fMax) {
-                        MessageBox.warning("Minimum experience cannot be greater than maximum experience."
+                // Guard against binding not being ready yet
+                if (!oBinding) {
+                    return;
+                }
+
+                const sSearch = this.byId("employeeSearch").getValue().trim();
+                const sStatus = this.byId("statusFilter1").getSelectedKey();
+                const sDesignation = this.byId("designationFilter").getSelectedKey();
+                const sMinExp = this.byId("experienceFilter").getValue().trim();
+                const sMaxExp = this.byId("maxExperienceFilter").getValue().trim();
+
+                const aFilters = [];
+
+                // EMP_ID OR NAME OR EMAIL
+                if (sSearch) {
+                    aFilters.push(
+                        new Filter({
+                            filters: [
+                                new Filter("EMP_ID", FilterOperator.Contains, sSearch),
+                                new Filter("NAME", FilterOperator.Contains, sSearch),
+                                new Filter("EMAIL", FilterOperator.Contains, sSearch)
+                            ],
+                            and: false
+                        })
+                    );
+                }
+
+                // Status
+                if (sStatus) {
+                    aFilters.push(new Filter("STATUS", FilterOperator.EQ, sStatus));
+                }
+
+                // Designation
+                if (sDesignation) {
+                    aFilters.push(new Filter("designation_ID", FilterOperator.EQ, sDesignation));
+                }
+
+                const fMinExp = sMinExp !== "" ? parseFloat(sMinExp) : null;
+                const fMaxExp = sMaxExp !== "" ? parseFloat(sMaxExp) : null;
+
+                // Min + Max
+                if (fMinExp !== null && !isNaN(fMinExp) && fMaxExp !== null && !isNaN(fMaxExp)) {
+                    if (fMinExp <= fMaxExp) {
+                        aFilters.push(new Filter("EXPERIENCE", FilterOperator.GE, fMinExp));
+                        aFilters.push(new Filter("EXPERIENCE", FilterOperator.LE, fMaxExp));
+                    } else {
+                        sap.m.MessageToast.show(
+                            "Minimum experience cannot be greater than maximum experience."
                         );
                         return;
                     }
-                    const bHasFilters =
-                        sSearch ||
-                        sStatus ||
-                        sDesignation ||
-                        sMin ||
-                        sMax;
-                    const sFilters = [];
-                    if (sSearch) {
-                        sFilters.push(new Filter({
-                            path: "NAME",
-                            operator: FilterOperator.Contains,
-                            value1: sSearch,
-                            caseSensitive: false
-                        }));
-                        if (sStatus) {
-                            sFilters.push(
-                                new Filter("STATUS", FilterOperator.EQ, sStatus)
-                            );
-                        }
-                        if (sDesignation) {
-                            sFilters.push(
-                                new Filter("DESIGNATION_ID", FilterOperator.EQ, sDesignation)
-                            );
-                        }
+                }
+                // Only Min
+                else if (fMinExp !== null && !isNaN(fMinExp)) {
+                    aFilters.push(new Filter("EXPERIENCE", FilterOperator.GE, fMinExp));
+                }
+                // Only Max
+                else if (fMaxExp !== null && !isNaN(fMaxExp)) {
+                    aFilters.push(new Filter("EXPERIENCE", FilterOperator.LE, fMaxExp));
+                }
 
-                        // Minimum experience
-                        if (fMin !== null) {
-                            sFilters.push(
-                                new Filter("EXPERIENCE", FilterOperator.GE, fMin)
-                            );
-                        }
+                // Apply all filters
+                oBinding.filter(aFilters);
+            },
+            //Clear filters
+            onClearFilters: function () {
+                const oTable = this.byId("employeesTable");
+                const oBinding = oTable.getBinding("items");
 
-                        // Maximum experience
-                        if (fMax !== null) {
-                            sFilters.push(
-                                new Filter("EXPERIENCE", FilterOperator.LE, fMax)
-                            );
-                        }
-                        this.byId("employeesTable").getBinding("items").filter(sFilters);
-                        this.byId("employeesTable").getBinding("items").refresh();
+                // Reset all filter controls
+                this.byId("employeeSearch").setValue("");
+                this.byId("statusFilter1").setSelectedKey("");
+                this.byId("designationFilter").setSelectedKey("");
+                this.byId("experienceFilter").setValue("");
+                this.byId("maxExperienceFilter").setValue("");
 
-                        const oTable = this.byId("employeesTable");
-                        oTable.getBinding("items").refresh();
-                        
+                // Clear the binding filter
+                if (oBinding) {
+                    oBinding.filter([]);
+                }
+            },
+            // Validate Employee Form
+            _validateEmployeeForm: function () {
+                let bValid = true;
 
-                        // No filters -> reload all employees
-                        // if (!bHasFilters) {
-                        //     await this._loadEmployees();
-                        //     return;
-                        // }
-                        // const oAction =
-                        //     this.getView()
-                        //         .getModel()
-                        //         .bindContext("/SearchEmployees(...)");
-                        // oAction.setParameter("search", sSearch);
-                        // oAction.setParameter("status", sStatus);
-                        // oAction.setParameter("designation", sDesignation);
-                        // oAction.setParameter(
-                        //     "minExp",
-                        //     fMin ? parseFloat(sMin) : null
-                        // );
-                        // oAction.setParameter(
-                        //     "maxExp",
-                        //     fMax ? parseFloat(sMax) : null
-                        // );
-                        // oAction.setParameter("skip", 0);
-                        // oAction.setParameter("top", 100);
-                        // await oAction.execute();
-                        // const aEmployees =
-                        //     oAction.getBoundContext().getObject().value || [];
-                        // this.getView()
-                        //     .getModel("table")
-                        //     .setProperty("/EMPLOYEES", aEmployees);
-                        // if (!aEmployees.length) {
-                        //     MessageToast.show("No employees found");
-                        // }
-                    }
-                    } catch (e) {
-                        console.error(e);
-                        MessageBox.error("Unable to search employees.");
-                    }
-                },
+                const aFields = [
+                    this.byId("empName"),
+                    this.byId("empEmail"),
+                    this.byId("empPhone"),
+                    this.byId("empDob"),
+                    this.byId("empJoiningDate"),
+                    this.byId("empExperience")
+                ];
 
-                //Clear Filters
-                onClearFilters: async function () {
-
-                    this.byId("employeeSearch").setValue("");
-                    this.byId("designationFilter").setSelectedKey("");
-                    this.byId("statusFilter1").setSelectedKey("");
-                    this.byId("experienceFilter").setValue("");
-                    this.byId("maxExperienceFilter").setValue("");
-                    this.byId("employeesTable").getBinding("items").refresh();
-                    await this._loadEmployees();
-                },
-                // Validate Employee Form
-                _validateEmployeeForm: function () {
-                    let bValid = true;
-
-                    const aFields = [
-                        this.byId("empName"),
-                        this.byId("empEmail"),
-                        this.byId("empPhone"),
-                        this.byId("empDob"),
-                        this.byId("empJoiningDate"),
-                        this.byId("empExperience")
-                    ];
-
-                    aFields.forEach(oField => {
-                        const sId = oField.getId();
-                        let bFieldValid = true;
-                        let sErrorText = "Required";
-
-                        if (oField.getValue) {
-                            const sValue = oField.getValue().trim();
-                            if (!sValue) {
-                                bFieldValid = false;
-                            }
-                            // Email
-                            else if (sId.includes("empEmail") &&
-                                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sValue)) {
-                                bFieldValid = false;
-                                sErrorText = "Enter a valid email";
-                            }
-
-                            // Phone
-                            else if (sId.includes("empPhone") &&
-                                !/^\d{10}$/.test(sValue)) {
-                                bFieldValid = false;
-                                sErrorText = "Enter a valid 10-digit phone number";
-                            }
-                            // Experience
-                            else if (sId.includes("empExperience")) {
-                                const fExp = parseFloat(sValue);
-                                if (isNaN(fExp) || fExp < 0) {
-                                    bFieldValid = false;
-                                    sErrorText = "Invalid experience";
-                                }
-                            }
-                        } else if (oField.getDateValue) {
-                            if (!oField.getDateValue()) {
-                                bFieldValid = false;
-                            }
-                        }
-                        if (!bFieldValid) {
-                            oField.setValueState("Error");
-                            oField.setValueStateText(sErrorText);
-                            bValid = false;
-                        } else {
-                            oField.setValueState("None");
-                            oField.setValueStateText("");
-                        }
-                    });
-
-                    // Gender
-                    const oGender = this.byId("empGender");
-                    if (!oGender.getSelectedKey()) {
-                        oGender.setValueState("Error");
-                        oGender.setValueStateText("Please select gender");
-                        bValid = false;
-                    } else {
-                        oGender.setValueState("None");
-                        oGender.setValueStateText("");
-                    }
-                    // Status
-                    const oStatus = this.byId("empStatus");
-                    if (oStatus.getSelectedKey() === "SELECT") {
-                        oStatus.setValueState("Error");
-                        oStatus.setValueStateText("Please select status");
-                        bValid = false;
-                    } else {
-                        oStatus.setValueState("None");
-                        oStatus.setValueStateText("");
-                    }
-                    // Designation
-                    const oDesignation = this.byId("empDesignation");
-                    if (!oDesignation.getSelectedKey()) {
-                        oDesignation.setValueState("Error");
-                        oDesignation.setValueStateText("Please select designation");
-                        bValid = false;
-                    } else {
-                        oDesignation.setValueState("None");
-                        oDesignation.setValueStateText("");
-                    }
-                    return bValid;
-                },
-                // Live Validation
-                onFieldChange: function (oEvent) {
-                    const oField = oEvent.getSource();
+                aFields.forEach(oField => {
                     const sId = oField.getId();
-                    oField.setValueState("None");
-                    oField.setValueStateText("");
-                    switch (true) {
-                        // Employee Name
-                        case sId.includes("empName"):
-                            if (!oField.getValue().trim()) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Name is required");
-                            }
-                            break;
+                    let bFieldValid = true;
+                    let sErrorText = "Required";
+
+                    if (oField.getValue) {
+                        const sValue = oField.getValue().trim();
+                        if (!sValue) {
+                            bFieldValid = false;
+                        }
                         // Email
-                        case sId.includes("empEmail"):
-                            const sEmail = oField.getValue().trim();
-                            if (!sEmail) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Email is required");
-                            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sEmail)) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Enter a valid email");
-                            }
-                            break;
+                        else if (sId.includes("empEmail") &&
+                            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sValue)) {
+                            bFieldValid = false;
+                            sErrorText = "Enter a valid email";
+                        }
+
                         // Phone
-                        case sId.includes("empPhone"):
-                            const sPhone = oField.getValue().trim();
-                            if (!sPhone) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Phone number is required");
-                            } else if (!/^\d{10}$/.test(sPhone)) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Enter a valid 10-digit phone number");
-                            }
-                            break;
+                        else if (sId.includes("empPhone") &&
+                            !/^\d{10}$/.test(sValue)) {
+                            bFieldValid = false;
+                            sErrorText = "Enter a valid 10-digit phone number";
+                        }
                         // Experience
-                        case sId.includes("empExperience"):
-                            const sExp = oField.getValue().trim();
-                            const fExp = parseFloat(sExp);
-                            if (!sExp) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Experience is required");
-                            } else if (isNaN(fExp) || fExp < 0) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Invalid experience");
+                        else if (sId.includes("empExperience")) {
+                            const fExp = parseFloat(sValue);
+                            if (isNaN(fExp) || fExp < 0) {
+                                bFieldValid = false;
+                                sErrorText = "Invalid experience";
                             }
-                            break;
-                        // Gender
-                        case sId.includes("empGender"):
-                            if (!oField.getSelectedKey()) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Please select gender");
-                            }
-                            break;
-                        // Status
-                        case sId.includes("empStatus"):
-                            if (oField.getSelectedKey() === "SELECT") {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Please select status");
-                            }
-                            break;
-                        // Designation
-                        case sId.includes("empDesignation"):
-                            if (!oField.getSelectedKey()) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Please select designation");
-                            }
-                            break;
-                        // Date of Birth
-                        case sId.includes("empDob"):
-                            if (!oField.getDateValue()) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Date of Birth is required");
-                            }
-                            break;
-                        // Joining Date
-                        case sId.includes("empJoiningDate"):
-                            if (!oField.getDateValue()) {
-                                oField.setValueState("Error");
-                                oField.setValueStateText("Joining Date is required");
-                            }
-                            break;
+                        }
+                    } else if (oField.getDateValue) {
+                        if (!oField.getDateValue()) {
+                            bFieldValid = false;
+                        }
                     }
-                },
-                onFilterChange1: function () {
-                    const sStatus = this.byId("statusFilterTest").getSelectedKey();
-                    const sSearch = this.byId("searchFieldTest").getValue();
-                    const bFilters = [];
-                    if (sSearch) {
-                        bFilters.push(new Filter({
-                            path: "NAME",
-                            operator: FilterOperator.Contains,
-                            value1: sSearch,
-                            caseSensitive: false
-                        }));
+                    if (!bFieldValid) {
+                        oField.setValueState("Error");
+                        oField.setValueStateText(sErrorText);
+                        bValid = false;
+                    } else {
+                        oField.setValueState("None");
+                        oField.setValueStateText("");
                     }
+                });
 
-                    if (sStatus) {
-                        bFilters.push(
-                            new Filter("STATUS", FilterOperator.EQ, sStatus)
-                        );
-                    }
-                    this.byId("employeesTable2").getBinding('items').filter(bFilters);
-
+                // Gender
+                const oGender = this.byId("empGender");
+                if (!oGender.getSelectedKey()) {
+                    oGender.setValueState("Error");
+                    oGender.setValueStateText("Please select gender");
+                    bValid = false;
+                } else {
+                    oGender.setValueState("None");
+                    oGender.setValueStateText("");
+                }
+                // Status
+                const oStatus = this.byId("empStatus");
+                if (oStatus.getSelectedKey() === "SELECT") {
+                    oStatus.setValueState("Error");
+                    oStatus.setValueStateText("Please select status");
+                    bValid = false;
+                } else {
+                    oStatus.setValueState("None");
+                    oStatus.setValueStateText("");
+                }
+                // Designation
+                const oDesignation = this.byId("empDesignation");
+                if (!oDesignation.getSelectedKey()) {
+                    oDesignation.setValueState("Error");
+                    oDesignation.setValueStateText("Please select designation");
+                    bValid = false;
+                } else {
+                    oDesignation.setValueState("None");
+                    oDesignation.setValueStateText("");
+                }
+                return bValid;
+            },
+            // Live Validation
+            onFieldChange: function (oEvent) {
+                const oField = oEvent.getSource();
+                const sId = oField.getId();
+                oField.setValueState("None");
+                oField.setValueStateText("");
+                switch (true) {
+                    // Employee Name
+                    case sId.includes("empName"):
+                        if (!oField.getValue().trim()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Name is required");
+                        }
+                        break;
+                    // Email
+                    case sId.includes("empEmail"):
+                        const sEmail = oField.getValue().trim();
+                        if (!sEmail) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Email is required");
+                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sEmail)) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Enter a valid email");
+                        }
+                        break;
+                    // Phone
+                    case sId.includes("empPhone"):
+                        const sPhone = oField.getValue().trim();
+                        if (!sPhone) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Phone number is required");
+                        } else if (!/^\d{10}$/.test(sPhone)) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Enter a valid 10-digit phone number");
+                        }
+                        break;
+                    // Experience
+                    case sId.includes("empExperience"):
+                        const sExp = oField.getValue().trim();
+                        const fExp = parseFloat(sExp);
+                        if (!sExp) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Experience is required");
+                        } else if (isNaN(fExp) || fExp < 0) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Invalid experience");
+                        }
+                        break;
+                    // Gender
+                    case sId.includes("empGender"):
+                        if (!oField.getSelectedKey()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select gender");
+                        }
+                        break;
+                    // Status
+                    case sId.includes("empStatus"):
+                        if (oField.getSelectedKey() === "SELECT") {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select status");
+                        }
+                        break;
+                    // Designation
+                    case sId.includes("empDesignation"):
+                        if (!oField.getSelectedKey()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Please select designation");
+                        }
+                        break;
+                    // Date of Birth
+                    case sId.includes("empDob"):
+                        if (!oField.getDateValue()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Date of Birth is required");
+                        }
+                        break;
+                    // Joining Date
+                    case sId.includes("empJoiningDate"):
+                        if (!oField.getDateValue()) {
+                            oField.setValueState("Error");
+                            oField.setValueStateText("Joining Date is required");
+                        }
+                        break;
                 }
             }
-    );
+        });
 });

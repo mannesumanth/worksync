@@ -28,6 +28,7 @@ type LeaveStatus : String enum {
     REJECTED;
     CANCELLED;
     WITHDRAWN;
+    WITHDRAW_REQUEST;
 }
 type LeaveType : String enum {
     CASUAL;
@@ -62,8 +63,8 @@ entity EMPLOYEES : managed {
     JOINING_DATE            : Date @mandatory;
     designation            : Association to DESIGNATIONS @mandatory;
     EXPERIENCE              : Decimal(4,1) default 0;
-    PROFILE_PHOTO           : LargeBinary @Core.MediaType: PROFILE_PHOTO_MIME_TYPE;
-    PROFILE_PHOTO_MIME_TYPE : String(100) @Core.IsMediaType: true;
+    //PROFILE_PHOTO           : LargeBinary @Core.MediaType: PROFILE_PHOTO_MIME_TYPE;
+    //PROFILE_PHOTO_MIME_TYPE : String(100) @Core.IsMediaType: true;
     STATUS                  : EmployeeStatus default 'ACTIVE';
     skills                  : Composition of many EMPLOYEE_SKILLS
                               on skills.employee = $self;
@@ -188,6 +189,7 @@ entity LEAVE_BALANCE : managed {
     CASUAL_USED             : Integer default 0;
     SICK_AVAILABLE          : Integer default 12;
     SICK_USED               : Integer default 0;
-    EARNED_AVAILABLE        : Integer default 18;
+    EARNED_AVAILABLE        : Integer default 12;
     EARNED_USED             : Integer default 0;
+    
 }

@@ -119,11 +119,6 @@
                             change=".onEditFieldChange"
                         >
                             <core:Item
-                                key="ONBOARDING"
-                                text="Onboarding"
-                            />
-
-                            <core:Item
                                 key="ACTIVE"
                                 text="Active"
                             />

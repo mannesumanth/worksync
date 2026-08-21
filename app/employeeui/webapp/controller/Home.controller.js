@@ -20,33 +20,33 @@ sap.ui.define([
 
 
             },
-            onToggleSideNavigation: function () {
-                const oSideNav = this.byId("toggleNavigation");
-                oSideNav.setExpanded(
-                    !oSideNav.getExpanded()
-                );
+            // onToggleSideNavigation: function () {
+            //     const oSideNav = this.byId("toggleNavigation");
+            //     oSideNav.setExpanded(
+            //         !oSideNav.getExpanded()
+            //     );
 
-            },
-            onMenuSelect: function (oEvent) {
-                const sKey = oEvent.getParameter("item").getKey();
-                const oNav = this.byId("employeeNavContainer");
-                switch (sKey) {
-                    case "profile":
-                        oNav.to(this.byId("profilePage"));
-                        break;
-                    case "projects":
-                        oNav.to(this.byId("projectsPage"));
-                        break;
-                    case "skills":
-                        oNav.to(this.byId("skillsPage"));
-                        break;
-                    case "leaves":
-                        oNav.to(this.byId("leavesPage"));
-                        break;
-                    default:
-                        oNav.to(this.byId("profilePage"));
-                }
-            },
+            // },
+            // onMenuSelect: function (oEvent) {
+            //     const sKey = oEvent.getParameter("item").getKey();
+            //     const oNav = this.byId("employeeNavContainer");
+            //     switch (sKey) {
+            //         case "profile":
+            //             oNav.to(this.byId("profilePage"));
+            //             break;
+            //         case "projects":
+            //             oNav.to(this.byId("projectsPage"));
+            //             break;
+            //         case "skills":
+            //             oNav.to(this.byId("skillsPage"));
+            //             break;
+            //         case "leaves":
+            //             oNav.to(this.byId("leavesPage"));
+            //             break;
+            //         default:
+            //             oNav.to(this.byId("profilePage"));
+            //     }
+            // },
             //Load Profile
             _loadProfile: async function () {
                 try {
@@ -105,52 +105,62 @@ sap.ui.define([
             _loadLeaves: async function () {
                 try {
                     const oModel = this.getOwnerComponent().getModel("employee");
-                    const aContexts = await oModel
-                        .bindList("/MyLeaves")
-                        .requestContexts();
+
+                    const aContexts = await oModel.bindList("/MyLeaves").requestContexts();
                     const aLeaves = aContexts.map(c => c.getObject());
+
+                    const iYear = new Date().getFullYear();
+                    const aBalanceContexts = await oModel
+                        .bindList("/MyLeaveBalance", undefined, undefined, [
+                            new sap.ui.model.Filter("YEAR", sap.ui.model.FilterOperator.EQ, iYear)
+                        ])
+                        .requestContexts();
+                    const oBalance = aBalanceContexts.length ? aBalanceContexts[0].getObject() : null;
+
                     this.getView().setModel(
-                        new sap.ui.model.json.JSONModel({
-                            value: aLeaves
-                        }),
+                        new sap.ui.model.json.JSONModel({ value: aLeaves }),
                         "leaves"
                     );
-                    this._calculateLeaveStats(aLeaves);
+
+                    this._calculateLeaveStats(aLeaves, oBalance);
                     this._loadLeaveCalendar(aLeaves);
                 } catch (err) {
                     console.error(err);
                 }
             },
+
             //Calculate Leave Stats
-            _calculateLeaveStats: function (aLeaves) {
+            _calculateLeaveStats: function (aLeaves, oBalance) {
+                const oDefaults = {
+                    CASUAL_AVAILABLE: 12, CASUAL_USED: 0,
+                    SICK_AVAILABLE: 12, SICK_USED: 0,
+                    EARNED_AVAILABLE: 12, EARNED_USED: 0
+                };
+                const b = oBalance || oDefaults;
 
-                let used = 0;
                 let pending = 0;
-                const TOTAL_LEAVES = 20;
                 aLeaves.forEach(function (oLeave) {
-
-                    const iLeaveDays = this._getWeekDays(
-                        oLeave.LEAVE_FROM,
-                        oLeave.LEAVE_TO
-                    );
-                    switch (oLeave.STATUS) {
-                        case "APPROVED":
-                            used += iLeaveDays;
-                            break;
-                        case "PENDING":
-                            pending += iLeaveDays;
-                            break;
+                    if (oLeave.STATUS === "PENDING") {
+                        pending += this._getWeekDays(oLeave.LEAVE_FROM, oLeave.LEAVE_TO);
                     }
                 }.bind(this));
+
                 const oStats = {
-                    available: TOTAL_LEAVES - used,
-                    used: used,
+                    casual: {
+                        available: b.CASUAL_AVAILABLE - b.CASUAL_USED,
+                        used: b.CASUAL_USED
+                    },
+                    sick: {
+                        available: b.SICK_AVAILABLE - b.SICK_USED,
+                        used: b.SICK_USED
+                    },
+                    earned: {
+                        available: b.EARNED_AVAILABLE - b.EARNED_USED,
+                        used: b.EARNED_USED
+                    },
                     pending: pending
                 };
-                this.getView().setModel(
-                    new JSONModel(oStats),
-                    "leaveStats"
-                );
+                this.getView().setModel(new JSONModel(oStats), "leaveStats");
             },
 
             //Leave Status Formatter
@@ -162,13 +172,15 @@ sap.ui.define([
                         return "Error";
                     case "PENDING":
                         return "Warning";
+                    case "WITHDRAWAL_REQUESTED":
+                        return "Warning";
                     default:
                         return "None";
                 }
             },
             //Apply Leave
             onApplyLeave: async function () {
-                const oPage = this.byId("leavesPage");
+                const oPage = this.byId("employeeToolPage");
 
                 try {
                     oPage.setBusy(true);
@@ -224,24 +236,33 @@ sap.ui.define([
 
                 }
             },
-            //Withdraw Leave
-            onWithdrawLeave: async function (oEvent) {
-                try {
+            //Withdraw Leave — submits a withdrawal request for admin approval
+            onWithdrawLeave: function (oEvent) {
+                const sLeaveId = oEvent.getSource()
+                    .getBindingContext("leaves")
+                    .getProperty("ID");
 
-                    const sLeaveId = oEvent.getSource()
-                        .getBindingContext("leaves")
-                        .getProperty("ID");
-
-                    const oModel = this.getOwnerComponent().getModel("employee");
-                    const oAction = oModel.bindContext("/WithdrawLeave(...)");
-                    oAction.setParameter("leaveId", sLeaveId);
-                    await oAction.execute();
-                    MessageToast.show("Leave withdrawn successfully");
-                    await this._loadLeaves();
-                } catch (err) {
-                    MessageBox.error(err.message);
-                }
-
+                MessageBox.confirm(
+                    "You are withdrawing an approved leave. This will send a withdrawal request to your admin for approval. Do you want to continue?",
+                    {
+                        title: "Request Leave Withdrawal",
+                        onClose: async (sAction) => {
+                            if (sAction !== MessageBox.Action.OK) {
+                                return;
+                            }
+                            try {
+                                const oModel = this.getOwnerComponent().getModel("employee");
+                                const oAction = oModel.bindContext("/WithdrawLeave(...)");
+                                oAction.setParameter("leaveId", sLeaveId);
+                                await oAction.execute();
+                                MessageToast.show("Withdrawal request submitted for admin approval");
+                                await this._loadLeaves();
+                            } catch (err) {
+                                MessageBox.error(err.message || "Unable to submit withdrawal request");
+                            }
+                        }
+                    }
+                );
             },
 
             //Load Leave Calendar
@@ -333,18 +354,18 @@ sap.ui.define([
                 }
             },
             // Theme Toggle
-            onThemeToggle1: function (oEvent) {
-                const bPressed = oEvent.getSource().getPressed();
-                if (bPressed) {
-                    Core.applyTheme("sap_horizon_dark");
-                    oEvent.getSource().setText("Light Mode");
-                    oEvent.getSource().setIcon("sap-icon://light-mode");
-                } else {
-                    Core.applyTheme("sap_horizon");
-                    oEvent.getSource().setText("Dark Mode");
-                    oEvent.getSource().setIcon("sap-icon://dark-mode");
-                }
-            },
+            // onThemeToggle1: function (oEvent) {
+            //     const bPressed = oEvent.getSource().getPressed();
+            //     if (bPressed) {
+            //         Core.applyTheme("sap_horizon_dark");
+            //         oEvent.getSource().setText("Light Mode");
+            //         oEvent.getSource().setIcon("sap-icon://light-mode");
+            //     } else {
+            //         Core.applyTheme("sap_horizon");
+            //         oEvent.getSource().setText("Dark Mode");
+            //         oEvent.getSource().setIcon("sap-icon://dark-mode");
+            //     }
+            // },
             // Calculate weekdays between two dates (inclusive)
             _getWeekDays: function (sFrom, sTo) {
 

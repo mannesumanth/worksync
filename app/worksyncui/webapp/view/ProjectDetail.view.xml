@@ -3,6 +3,7 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.ui.layout.form"
+    xmlns:l="sap.ui.layout"
     xmlns:core="sap.ui.core"
 >
     <Page
@@ -18,7 +19,7 @@
             />
         </headerContent>
         <content>
-            <!--  Project Header  -->
+            <!-- Project Header -->
             <ObjectHeader
                 title="{PROJECT_NAME}"
                 number="{PROJECT_ID}"
@@ -36,7 +37,8 @@
                     <ObjectAttribute text="End: {END_DATE}" />
                 </attributes>
             </ObjectHeader>
-            <!--  Project Information  -->
+
+            <!-- Project Information -->
             <Panel
                 headerText="Project Information"
                 expandable="true"
@@ -58,7 +60,8 @@
                     <Text text="{manager/NAME}" />
                 </f:SimpleForm>
             </Panel>
-            <!--  Required Skills  -->
+
+            <!-- Required Skills -->
             <Panel
                 headerText="Requirements &amp; Skills"
                 expandable="true"
@@ -68,9 +71,19 @@
                 <Table
                     noDataText="No requirements defined"
                     items="{requirements}"
+                    width="auto"
+                    growing="true"
+                    growingThreshold="10"
+                    growingScrollToLoad="true"
                 >
                     <columns>
-                        <Column />
+                        <Column
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        />
                     </columns>
                     <items>
                         <ColumnListItem>
@@ -80,18 +93,38 @@
                                     <Table
                                         noDataText="No skills"
                                         items="{requirementSkills}"
+                                        width="auto"
                                     >
                                         <columns>
-                                            <Column>
+                                            <Column
+                                                width="35%"
+                                                minScreenWidth="Tablet"
+                                                demandPopin="true"
+                                                popinDisplay="Inline"
+                                                hAlign="Left"
+                                                vAlign="Top"
+                                            >
                                                 <Text text="Skill" />
                                             </Column>
-                                            <Column>
+                                            <Column
+                                                width="35%"
+                                                minScreenWidth="Tablet"
+                                                demandPopin="true"
+                                                popinDisplay="Inline"
+                                                hAlign="Left"
+                                                vAlign="Top"
+                                            >
                                                 <Text text="Required Level" />
                                             </Column>
-                                            <Column>
-                                                <Text
-                                                    text="Required Resources"
-                                                />
+                                            <Column
+                                                width="30%"
+                                                minScreenWidth="Tablet"
+                                                demandPopin="true"
+                                                popinDisplay="Inline"
+                                                hAlign="Left"
+                                                vAlign="Top"
+                                            >
+                                                <Text text="Required Resources" />
                                             </Column>
                                         </columns>
                                         <items>
@@ -99,12 +132,15 @@
                                                 <cells>
                                                     <Text
                                                         text="{skill/SKILL_NAME}"
+                                                        class="sapMTableContentMargin"
                                                     />
                                                     <Text
                                                         text="{REQUIRED_LEVEL}"
+                                                        class="sapMTableContentMargin"
                                                     />
                                                     <Text
                                                         text="{REQUIRED_RESOURCES}"
+                                                        class="sapMTableContentMargin"
                                                     />
                                                 </cells>
                                             </ColumnListItem>
@@ -116,6 +152,7 @@
                     </items>
                 </Table>
             </Panel>
+
             <!-- Recommended Resources -->
             <Panel
                 headerText="Recommended Resources"
@@ -126,58 +163,92 @@
                 <Table
                     items="{recommend>/resources}"
                     noDataText="No matching resources found"
+                    width="auto"
+                    growing="true"
+                    growingThreshold="10"
+                    growingScrollToLoad="true"
                 >
                     <columns>
-                        <Column>
+                        <Column
+                            width="25%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Employee" />
                         </Column>
-                        <Column>
-                            <Text text="Employee ID" />
-                        </Column>
-                        <Column>
+                        <Column
+                            width="20%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Match Percent" />
                         </Column>
-                        <Column>
+                        <Column
+                            width="25%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Allocated" />
                         </Column>
-                        <Column>
+                        <Column
+                            width="30%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Available" />
                         </Column>
                     </columns>
                     <items>
                         <ColumnListItem>
                             <cells>
-                                <Text text="{recommend>NAME}" />
-                                <Text text="{recommend>EMP_ID}" />
+                                <ObjectIdentifier
+                                    class="sapMTableContentMargin"
+                                    title="{recommend>NAME}"
+                                    text="{recommend>EMP_ID}"
+                                />
                                 <ObjectNumber
                                     number="{recommend>MATCH_PERCENT}"
+                                    class="sapMTableContentMargin"
                                 />
                                 <ProgressIndicator
                                     percentValue="{recommend>ALLOCATION_PERCENT}"
                                     displayValue="{recommend>ALLOCATION_PERCENT}%"
+                                    class="sapMTableContentMargin"
                                 />
                                 <ProgressIndicator
                                     percentValue="{recommend>AVAILABLE_PERCENT}"
                                     displayValue="{recommend>AVAILABLE_PERCENT}%"
+                                    class="sapMTableContentMargin"
                                 />
                             </cells>
                         </ColumnListItem>
                     </items>
                 </Table>
             </Panel>
-            <!-- Allocations-->
+
+            <!-- Allocations -->
             <Panel
                 expandable="true"
                 expanded="true"
                 class="sapUiMarginTopBottom"
-				visible="{= ${path: 'STATUS', targetType: 'any'} !== 'COMPLETED' }"
+                visible="{= ${path: 'STATUS', targetType: 'any'} !== 'COMPLETED' }"
             >
                 <headerToolbar>
                     <Toolbar>
                         <Title text="Resource Allocations" />
-
                         <ToolbarSpacer />
-
                         <Button
                             text="Assign Employee"
                             icon="sap-icon://add"
@@ -187,37 +258,75 @@
                         />
                     </Toolbar>
                 </headerToolbar>
-
+               
                 <Table
                     id="allocationTable"
-                    width="100%"
+                    width="auto"
                     growing="true"
                     growingThreshold="5"
+                    growingScrollToLoad="true"
                     noDataText="No allocations yet"
                     items="{allocations}"
                 >
                     <columns>
-                        <Column>
+                        <Column
+                            width="20%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Employee" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Project Role" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="20%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Allocation" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Start Date" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="End Date" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Actions" />
                         </Column>
                     </columns>
@@ -226,32 +335,37 @@
                         <ColumnListItem>
                             <cells>
                                 <ObjectIdentifier
+                                    class="sapMTableContentMargin"
                                     title="{employee/NAME}"
                                     text="{employee/EMP_ID}"
                                 />
-
-                                <Text text="{PROJECT_ROLE}" />
-
+                                <Text
+                                    text="{PROJECT_ROLE}"
+                                    class="sapMTableContentMargin"
+                                />
                                 <ProgressIndicator
                                     percentValue="{ALLOCATION_PERCENTAGE}"
                                     displayValue="{ALLOCATION_PERCENTAGE}%"
+                                    class="sapMTableContentMargin"
                                 />
-
                                 <Text
                                     text="{
-                                    path:'START_DATE',
-                                    type:'sap.ui.model.odata.type.Date'
+                                        path:'START_DATE',
+                                        type:'sap.ui.model.odata.type.Date'
                                     }"
+                                    class="sapMTableContentMargin"
                                 />
-
                                 <Text
                                     text="{
-                                    path:'END_DATE',
-                                    type:'sap.ui.model.odata.type.Date'
-                                }"
+                                        path:'END_DATE',
+                                        type:'sap.ui.model.odata.type.Date'
+                                    }"
+                                    class="sapMTableContentMargin"
                                 />
-
-                                <HBox justifyContent="Start">
+                                <HBox
+                                    justifyContent="Start"
+                                    class="sapMTableContentMargin"
+                                >
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
@@ -281,48 +395,90 @@
                         <Title text="Allocations History" />
                     </Toolbar>
                 </headerToolbar>
+
                 <Table
                     id="allocationHistoryTable"
                     items="{
-        				path: '/AllocationHistory',
-						parameters: {
-           					$expand: 'employee($select=EMP_ID,NAME),project($select=PROJECT_ID,PROJECT_NAME)'
-        				}
-    				}"
+                        path: '/AllocationHistory',
+                        parameters: {
+                            $expand: 'employee($select=EMP_ID,NAME),project($select=PROJECT_ID,PROJECT_NAME)'
+                        }
+                    }"
+                    width="auto"
                     growing="true"
                     growingThreshold="20"
-                    mode="None">
-
+                    growingScrollToLoad="true"
+                    mode="None"
+                >
                     <columns>
-                        <Column>
+                        <Column
+                            width="10%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="History ID" />
                         </Column>
-
-                        <Column>
-                            <Text text="Employee ID" />
+                        <Column
+                            width="20%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
+                            <Text text="Employee" />
                         </Column>
-
-						<Column>
-							<Text text="NAME" />
-						</Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Project ID" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="12%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Allocation %" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="15%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Project Role" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="14%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="Start Date" />
                         </Column>
-
-                        <Column>
+                        <Column
+                            width="14%"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            popinDisplay="Inline"
+                            hAlign="Left"
+                            vAlign="Top"
+                        >
                             <Text text="End Date" />
                         </Column>
                     </columns>
@@ -330,24 +486,36 @@
                     <items>
                         <ColumnListItem>
                             <cells>
-                                <Text text="{ALLOC_HISTORY_ID}" />
-
-                                <Text text="{employee/EMP_ID}" />
-
-								<Text text = "{employee/NAME}"/>
-
-                                <Text text="{project/PROJECT_ID}" />
-
+                                <Text
+                                    text="{ALLOC_HISTORY_ID}"
+                                    class="sapMTableContentMargin"
+                                />
+                                <ObjectIdentifier
+                                    class="sapMTableContentMargin"
+                                    title="{employee/NAME}"
+                                    text="{employee/EMP_ID}"
+                                />
+                                <Text
+                                    text="{project/PROJECT_ID}"
+                                    class="sapMTableContentMargin"
+                                />
                                 <ObjectNumber
                                     number="{ALLOCATION_PERCENTAGE}"
                                     unit="%"
+                                    class="sapMTableContentMargin"
                                 />
-
-                                <Text text="{PROJECT_ROLE}" />
-
-                                <Text text="{START_DATE}" />
-
-                                <Text text="{END_DATE}" />
+                                <Text
+                                    text="{PROJECT_ROLE}"
+                                    class="sapMTableContentMargin"
+                                />
+                                <Text
+                                    text="{START_DATE}"
+                                    class="sapMTableContentMargin"
+                                />
+                                <Text
+                                    text="{END_DATE}"
+                                    class="sapMTableContentMargin"
+                                />
                             </cells>
                         </ColumnListItem>
                     </items>

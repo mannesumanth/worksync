@@ -25,11 +25,11 @@
                     level="H2"
                     class="sapUiTinyMarginBegin"/>
                 <ToolbarSpacer />
-                <ToggleButton
+                <!-- <ToggleButton
                     id="themeToggle"
                     text="Dark Mode"
                     icon="sap-icon://dark-mode"
-                    press="onThemeToggle"/>  
+                    press="onThemeToggle"/>   -->
             </OverflowToolbar>
         </tnt:header>
 

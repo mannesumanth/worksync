@@ -85,10 +85,6 @@
                         text="Bench"
                     />
                     <core:Item
-                        key="ONBOARDING"
-                        text="Onboarding"
-                    />
-                    <core:Item
                         key="ON_LEAVE"
                         text="On Leave"
                     />
@@ -156,14 +152,6 @@
                         }
                     }"
             >
-                <headerToolbar>
-                    <Toolbar>
-                        <Title
-                            text="{= ${EMPLOYEES}.length + ' Employees'}"
-                            level="H2"
-                        />
-                    </Toolbar>
-                </headerToolbar>
                 <columns>
                     <Column>
                         <Text text="EMP ID" />
@@ -227,68 +215,6 @@
                     </ColumnListItem>
                 </items>
             </Table>
-			<!-- Test Filter -->
-            <VBox>
-                <Toolbar>
-                <!-- Search Field -->
-                    <SearchField
-						id = "searchFieldTest"
-                        width="15rem"
-                        placeholder="Search by Name"
-                        liveChange=".onFilterChange1" >
-                        <layoutData>
-                        <OverflowToolbarLayoutData
-                            shrinkable="true"
-                            minWidth="12rem"
-                            priority="NeverOverflow"
-                        />
-                    </layoutData>
-                        </SearchField>
-                    <ToolbarSpacer />
-
-                    <Select
-                        id="statusFilterTest"
-                        width="10rem"
-                        change=".onFilterChange1"
-                    >
-                        <core:Item
-                            key=""
-                            text="All Status"
-                        />
-                        <core:Item
-                            key="ACTIVE"
-                            text="Active"
-                        />
-                        <core:Item
-                            key="INACTIVE"
-                            text="Inactive"
-                        />
-                    </Select>
-
-                </Toolbar>
-
-                <Table
-                    id="employeesTable2"
-                    items="{/EMPLOYEES}"
-                    noDataText="No employees found"
-                >
-                    <columns>
-                        <Column>
-                            <Text text="EMP ID" />
-                        </Column>
-                        <Column>
-                            <Text text="Name" />
-                        </Column>
-                    </columns>
-
-                    <ColumnListItem>
-                        <cells>
-                            <Text text="{EMP_ID}" />
-                            <Text text="{NAME}" />
-                        </cells>
-                    </ColumnListItem>
-                </Table>
-            </VBox>
         </content>
     </Page>
 </mvc:View>

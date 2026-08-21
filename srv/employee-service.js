@@ -9,9 +9,27 @@ module.exports = cds.service.impl(async function () {
         EMPLOYEE_SKILLS,
         ALLOCATIONS,
         LEAVE_CALENDAR,
+        LEAVE_BALANCE,
         SKILLS,
         PROJECTS
     } = cds.entities('worksync.db');
+
+    // Only these three leave types are governed by a numeric quota (they're
+    // the only ones with AVAILABLE/USED columns on LEAVE_BALANCE).
+    // MATERNITY / PATERNITY / UNPAID stay unlimited, same as before this change
+    // effectively treated every type the same way against one shared pool.
+    const LEAVE_TYPE_AVAILABLE_FIELD = {
+        CASUAL: 'CASUAL_AVAILABLE',
+        SICK: 'SICK_AVAILABLE',
+        EARNED: 'EARNED_AVAILABLE'
+    };
+
+    // Statuses that still "occupy" a leave-type's quota. APPROVED obviously
+    // does; WITHDRAWAL_REQUESTED also does, so the days stay reserved while
+    // the withdrawal is pending admin review — otherwise an employee could
+    // request a withdrawal and immediately re-book the same days before the
+    // admin has acted on the request.
+    const RESERVED_STATUSES = ['APPROVED', 'WITHDRAWAL_REQUESTED'];
 
     async function generateBusinessId(req, sequenceName, prefix) {
         const tx = cds.tx(req);
@@ -32,6 +50,74 @@ module.exports = cds.service.impl(async function () {
         console.log("Logged User:", req.user.id);
         console.log("Employee:", employee);
         return employee;
+    }
+
+    // Fetch this employee's LEAVE_BALANCE row for the given year, creating
+    // one with the default 12/12/12 quotas if it doesn't exist yet.
+    async function getOrCreateLeaveBalance(employeeId, year) {
+        let balance = await db.run(
+            SELECT.one.from(LEAVE_BALANCE)
+                .where({ employee_ID: employeeId, YEAR: year })
+        );
+        if (!balance) {
+            await db.run(
+                INSERT.into(LEAVE_BALANCE).entries({
+                    employee_ID: employeeId,
+                    YEAR: year,
+                    CASUAL_AVAILABLE: 12,
+                    CASUAL_USED: 0,
+                    SICK_AVAILABLE: 12,
+                    SICK_USED: 0,
+                    EARNED_AVAILABLE: 12,
+                    EARNED_USED: 0
+                })
+            );
+            balance = await db.run(
+                SELECT.one.from(LEAVE_BALANCE)
+                    .where({ employee_ID: employeeId, YEAR: year })
+            );
+        }
+        return balance;
+    }
+
+    // Helper to calculate weekdays (excluding Saturday & Sunday) — unchanged.
+    const getWeekDays = (from, to) => {
+        let days = 0;
+        let current = new Date(from);
+        const end = new Date(to);
+        while (current <= end) {
+            const day = current.getDay();
+            if (day !== 0 && day !== 6) {
+                days++;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+        return days;
+    };
+
+    // Sums reserved (APPROVED / WITHDRAWAL_REQUESTED) weekday-count for a given
+    // employee + leave type, counting ONLY leaves whose LEAVE_FROM falls in the
+    // given year. Without this year scoping, a LEAVE_BALANCE row correctly
+    // resets its AVAILABLE quota to 12 each new year, but USED would still
+    // include leaves from prior years since LEAVE_CALENDAR itself is never
+    // year-filtered — so this keeps both sides of the balance in sync.
+    async function getUsedDaysForYear(employeeId, leaveType, year) {
+        const rows = await db.run(
+            SELECT.from(LEAVE_CALENDAR)
+                .columns("LEAVE_FROM", "LEAVE_TO", "STATUS")
+                .where({
+                    employee_ID: employeeId,
+                    LEAVE_TYPE: leaveType
+                })
+        );
+        let usedDays = 0;
+        for (const leave of rows) {
+            const leaveYear = new Date(leave.LEAVE_FROM).getFullYear();
+            if (leaveYear === year && RESERVED_STATUSES.includes(leave.STATUS)) {
+                usedDays += getWeekDays(leave.LEAVE_FROM, leave.LEAVE_TO);
+            }
+        }
+        return usedDays;
     }
 
     this.on('READ', 'MyProfile', async req => {
@@ -129,6 +215,30 @@ module.exports = cds.service.impl(async function () {
         });
         return leaves;
     });
+
+    // Read My Leave Balance (available/used per leave type, for the current year)
+    this.on("READ", "MyLeaveBalance", async (req) => {
+        const employee = await getCurrentEmployee(req);
+        if (!employee) {
+            return [];
+        }
+        const year = new Date().getFullYear();
+        const balance = await getOrCreateLeaveBalance(employee.ID, year);
+
+        // USED is always recomputed live from reserved-status leaves within
+        // THIS year, same as the rest of this service does, rather than
+        // trusting a stored counter that could drift out of sync with
+        // LEAVE_CALENDAR — and rather than accidentally counting leaves from
+        // a prior year against this year's freshly-reset quota.
+        for (const [leaveType, availableField] of Object.entries(LEAVE_TYPE_AVAILABLE_FIELD)) {
+            const usedField = availableField.replace('_AVAILABLE', '_USED');
+            balance[usedField] = await getUsedDaysForYear(employee.ID, leaveType, year);
+        }
+
+        // OData V4 entity-set reads expect a collection back, not a bare object.
+        return [balance];
+    });
+
     // Apply Leave Action
     this.on('ApplyLeave', async req => {
         const db = await cds.connect.to('db');
@@ -140,53 +250,43 @@ module.exports = cds.service.impl(async function () {
                 "Leave From date cannot be greater than Leave To date."
             );
         }
-        // Helper to calculate weekdays (excluding Saturday & Sunday)
-        const getWeekDays = (from, to) => {
-            let days = 0;
-            let current = new Date(from);
-            const end = new Date(to);
-            while (current <= end) {
-                const day = current.getDay();
-                if (day !== 0 && day !== 6) {
-                    days++;
-                }
-                current.setDate(current.getDate() + 1);
-            }
-            return days;
-        };
+
         // Calculate requested leave days
         const requestedDays = getWeekDays(
             req.data.leaveFrom,
             req.data.leaveTo
         );
-        // Get all approved leaves
-        const approvedLeaves = await db.run(
-            SELECT.from(LEAVE_CALENDAR)
-                .columns("LEAVE_FROM", "LEAVE_TO")
-                .where({
-                    employee_ID: employee.ID,
-                    STATUS: "APPROVED"
-                })
-        );
-        // Calculate used leave days
-        let usedDays = 0;
-        for (const leave of approvedLeaves) {
-            usedDays += getWeekDays(
-                leave.LEAVE_FROM,
-                leave.LEAVE_TO
+
+        // Determine the quota field (if any) for this leave type.
+        // CASUAL / SICK / EARNED are checked against LEAVE_BALANCE;
+        // MATERNITY / PATERNITY / UNPAID are left unlimited.
+        const availableField = LEAVE_TYPE_AVAILABLE_FIELD[req.data.leaveType];
+
+        if (availableField) {
+            const requestYear = new Date(req.data.leaveFrom).getFullYear();
+            const balance = await getOrCreateLeaveBalance(employee.ID, requestYear);
+
+            // Only leaves within the SAME YEAR as the request count against
+            // that year's 12-day quota — matches how LEAVE_BALANCE itself
+            // resets per YEAR.
+            const usedDays = await getUsedDaysForYear(
+                employee.ID,
+                req.data.leaveType,
+                requestYear
             );
-        }
-        const TOTAL_LEAVES = 20;
-        const availableDays = TOTAL_LEAVES - usedDays;
-        // Check leave balance
-        if (requestedDays > availableDays) {
-            return req.reject(
-                400,
-                `You don't have enough leave balance. You have only ${availableDays} day(s) remaining, but you requested ${requestedDays} day(s).`
-            );
+
+            const availableDays = balance[availableField] - usedDays;
+
+            // Check leave balance
+            if (requestedDays > availableDays) {
+                return req.reject(
+                    400,
+                    `You don't have enough ${req.data.leaveType} leave balance. You have only ${availableDays} day(s) remaining, but you requested ${requestedDays} day(s).`
+                );
+            }
         }
 
-        // Check overlapping leave
+        // Check overlapping leave (unchanged — still checked across ALL leave types)
         const existingLeave = await db.run(
             SELECT.one
                 .from(LEAVE_CALENDAR)
@@ -271,13 +371,29 @@ module.exports = cds.service.impl(async function () {
         };
 
     });
-    // Withdraw Leave Action
+    // Withdraw Leave Action — no longer withdraws instantly. Instead this
+    // submits a withdrawal request that an admin must approve, mirroring how
+    // ApplyLeave itself needs admin approval. The leave's days stay reserved
+    // (see RESERVED_STATUSES) until the admin acts on the request.
     this.on('WithdrawLeave', async (req) => {
         const db = await cds.connect.to('db');
 
+        const oLeave = await db.run(
+            SELECT.one.from(LEAVE_CALENDAR).where({ ID: req.data.leaveId })
+        );
+        if (!oLeave) {
+            return req.reject(404, `Leave request not found`);
+        }
+        if (oLeave.STATUS === 'WITHDRAW_REQUEST') {
+            return req.reject(400, 'A withdrawal request for this leave is already pending admin approval.');
+        }
+        if (oLeave.STATUS !== 'APPROVED') {
+            return req.reject(400, 'Only approved leave requests can be withdrawn.');
+        }
+
         await db.run(UPDATE(LEAVE_CALENDAR)
             .set({
-                STATUS: "WITHDRAWN"
+                STATUS: "WITHDRAW_REQUEST"
             })
             .where({
                 ID: req.data.leaveId
@@ -285,7 +401,7 @@ module.exports = cds.service.impl(async function () {
         );
 
         return {
-            message: "Leave withdrawn successfully"
+            message: "Withdrawal request submitted. It will take effect once approved by an admin."
         };
     });
 });

@@ -28,11 +28,11 @@ module.exports = {
                 INSERT.into(LEAVE_BALANCE).entries({
                     employee_ID: employee.ID,
                     YEAR: new Date().getFullYear(),
-                    CASUAL_AVAILABLE: 1,
+                    CASUAL_AVAILABLE: 12,
                     CASUAL_USED: 0,
-                    SICK_AVAILABLE: 1,
+                    SICK_AVAILABLE: 12,
                     SICK_USED: 0,
-                    EARNED_AVAILABLE: 0,
+                    EARNED_AVAILABLE: 12,
                     EARNED_USED: 0
 
                 })
@@ -113,64 +113,64 @@ module.exports = {
     });
 
     // Search Employees
-    service.on("SearchEmployees", async (req) => {
-        // Extract search parameters from the request data
-        const { search, status, designation, minExp, maxExp, skip = 0, top = 20 } = req.data;
-        // Build the base query to select employees with optional filters
-        let query = SELECT.from(EMPLOYEES).columns(
-            "*",
-            {
-                ref: ["designation"],
-                expand: [{ ref: ["NAME"] }]
-            }
-        );
-        // Apply search filters based on the provided parameters
-        if (search) {
-            const pattern = `%${search.toLowerCase()}%`;
-            // Use a template literal to construct the WHERE clause for the search query
-            query.where`
-                    lower(NAME) LIKE ${pattern}
-                    OR lower(EMAIL) LIKE ${pattern}
-                    OR lower(EMP_ID) LIKE ${pattern}
-                `;
-        }
-        if (status) {
-            query.where({ STATUS: status });
-        }
-        if (designation) {
-            query.where({ designation_ID: designation });
-        }
-        if (minExp != null) {
-            query.where({
-                EXPERIENCE: {
-                    ">=": minExp
-                }
-            });
-        }
-        if (maxExp != null) {
-            query.where({
-                EXPERIENCE: {
-                    "<=": maxExp
-                }
-            });
-        }
-        query.limit(top, skip);
-        // Execute the query to fetch employees based on the constructed filters
-        const employees = await cds.run(query);
-        // Calculate the allocation percentage for each employee
-        for (const emp of employees) {
-            if (!emp.ID) continue;
-            const result = await cds.run(
-                SELECT.from(ALLOCATIONS)
-                    .columns("SUM(ALLOCATION_PERCENTAGE) as TOTAL")
-                    .where({
-                        employee_ID: emp.ID
-                    })
-            );
-            emp.ALLOCATION_PERCENT = parseFloat(result[0]?.TOTAL || 0);
-        }
-        return employees;
-    });
+    // service.on("SearchEmployees", async (req) => {
+    //     // Extract search parameters from the request data
+    //     const { search, status, designation, minExp, maxExp, skip = 0, top = 20 } = req.data;
+    //     // Build the base query to select employees with optional filters
+    //     let query = SELECT.from(EMPLOYEES).columns(
+    //         "*",
+    //         {
+    //             ref: ["designation"],
+    //             expand: [{ ref: ["NAME"] }]
+    //         }
+    //     );
+    //     // Apply search filters based on the provided parameters
+    //     if (search) {
+    //         const pattern = `%${search.toLowerCase()}%`;
+    //         // Use a template literal to construct the WHERE clause for the search query
+    //         query.where`
+    //                 lower(NAME) LIKE ${pattern}
+    //                 OR lower(EMAIL) LIKE ${pattern}
+    //                 OR lower(EMP_ID) LIKE ${pattern}
+    //             `;
+    //     }
+    //     if (status) {
+    //         query.where({ STATUS: status });
+    //     }
+    //     if (designation) {
+    //         query.where({ designation_ID: designation });
+    //     }
+    //     if (minExp != null) {
+    //         query.where({
+    //             EXPERIENCE: {
+    //                 ">=": minExp
+    //             }
+    //         });
+    //     }
+    //     if (maxExp != null) {
+    //         query.where({
+    //             EXPERIENCE: {
+    //                 "<=": maxExp
+    //             }
+    //         });
+    //     }
+    //     query.limit(top, skip);
+    //     // Execute the query to fetch employees based on the constructed filters
+    //     const employees = await cds.run(query);
+    //     // Calculate the allocation percentage for each employee
+    //     for (const emp of employees) {
+    //         if (!emp.ID) continue;
+    //         const result = await cds.run(
+    //             SELECT.from(ALLOCATIONS)
+    //                 .columns("SUM(ALLOCATION_PERCENTAGE) as TOTAL")
+    //                 .where({
+    //                     employee_ID: emp.ID
+    //                 })
+    //         );
+    //         emp.ALLOCATION_PERCENT = parseFloat(result[0]?.TOTAL || 0);
+    //     }
+    //     return employees;
+    // });
 
     // Current User
     service.on("currentUser", req => {

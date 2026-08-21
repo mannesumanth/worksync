@@ -8,6 +8,8 @@ service EmployeeService {
     entity MyProjects as projection on db.ALLOCATIONS { *,project };
     entity AllocationHistory as projection on db.ALLOCATION_HISTORY;
     entity MyLeaves   as projection on db.LEAVE_CALENDAR;
+    @readonly
+    entity MyLeaveBalance as projection on db.LEAVE_BALANCE;
     action ApplyLeave(leaveType: db.LeaveType,
                       leaveFrom: Date,
                       leaveTo: Date,
