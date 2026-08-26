@@ -1,0 +1,278 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+   <Dialog
+    id="projectDetailsDialog"
+    title="{projectDetails>/PROJECT_NAME}"
+    contentWidth="65rem"
+    contentHeight="70%"
+    resizable="true"
+    draggable="true"
+    initialFocus="projectDetailsDialog"
+>
+
+        <content>
+
+            <VBox
+                class="sapUiMediumMargin"
+            >
+
+                <!-- Project Information -->
+                <Panel>
+                    <content>
+                        <VBox>
+                            <!-- Project Basic Information -->
+                            <HBox
+                                wrap="Wrap"
+                                class="sapUiMediumMarginBottom"
+                            >
+
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd"
+                                >
+                                    <Label text="Project ID" />
+                                    <Text
+                                        text="{projectDetails>/PROJECT_ID}"
+                                    />
+                                </VBox>
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd "
+                                >
+                                    <Label text="Status" />
+                                    <Text
+                                        text="{projectDetails>/STATUS}"
+                                    />
+                                </VBox>
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd"
+                                >
+                                    <Label text="Priority" />
+                                    <Text
+                                        text="{projectDetails>/PRIORITY}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd "
+                                >
+                                    <Label text="Start Date" />
+                                    <Text
+                                        text="{projectDetails>/START_DATE}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd"
+                                >
+                                    <Label text="End Date" />
+                                    <Text
+                                        text="{projectDetails>/END_DATE}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="8rem"
+                                    class="sapUiSmallMarginEnd "
+                                >
+                                    <Label text="Team Size" />
+                                    <Text
+                                        text="{projectDetails>/TEAM_SIZE}"
+                                    />
+                                </VBox>
+
+                            </HBox>
+
+
+                            <!-- Description -->
+                            <VBox
+                                class="sapUiSmallMarginTop"
+                            >
+
+                                <Label
+                                    text="Description"
+                                />
+
+                                <Text
+                                    text="{projectDetails>/DESCRIPTION}"
+                                    wrapping="true"
+                                    class="sapUiSmallMarginTop"
+                                />
+
+                            </VBox>
+
+                        </VBox>
+
+                    </content>
+                </Panel>
+
+
+                <!-- My Allocation -->
+                <Panel
+                    headerText="My Allocation"
+                >
+                    <content>
+
+                        <HBox
+                            wrap="Wrap"
+                        >
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Project Role" />
+                                <Text
+                                    text="{projectDetails>/MY_ROLE}"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Allocation" />
+                                <ObjectNumber
+                                    number="{projectDetails>/MY_ALLOCATION}"
+                                    unit="%"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Start Date" />
+                                <Text
+                                    text="{projectDetails>/MY_START_DATE}"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="End Date" />
+                                <Text
+                                    text="{projectDetails>/MY_END_DATE}"
+                                />
+                            </VBox>
+
+                        </HBox>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Project Team -->
+                <Panel
+                    headerText="Current Project Team"
+                >
+                    <content>
+
+                        <Table
+                            id="projectTeamTable"
+                            items="{projectTeam>/}"
+                            growing="true"
+                            growingThreshold="5"
+                            noDataText="No team members found"
+                        >
+
+                            <columns>
+
+                                <Column>
+                                    <Text text="Employee ID" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Name" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Email" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Role" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Allocation" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Start Date" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="End Date" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem>
+
+                                    <cells>
+
+                                        <Text
+                                            text="{projectTeam>EMP_ID}"
+                                        />
+
+                                        <Text
+                                            text="{projectTeam>NAME}"
+                                        />
+
+                                        <Text
+                                            text="{projectTeam>EMAIL}"
+                                        />
+
+                                        <Text
+                                            text="{projectTeam>PROJECT_ROLE}"
+                                        />
+
+                                        <ObjectNumber
+                                            number="{projectTeam>ALLOCATION_PERCENTAGE}"
+                                            unit="%"
+                                        />
+
+                                        <Text
+                                            text="{projectTeam>START_DATE}"
+                                        />
+
+                                        <Text
+                                            text="{projectTeam>END_DATE}"
+                                        />
+
+                                    </cells>
+
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+            </VBox>
+
+        </content>
+
+        <beginButton>
+    <Button
+        text="Close"
+        type="Emphasized"
+        press=".onCloseCurrentProject"
+    />
+</beginButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

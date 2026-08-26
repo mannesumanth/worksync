@@ -1,15 +1,60 @@
 <mvc:View
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    controllerName="com.amista.worksyncui.controller.LeaveCalender"
     xmlns:core="sap.ui.core"
+    controllerName="com.amista.worksyncui.controller.LeaveCalender"
 >
     <Page
         id="leavePage"
         title="Leave Calendar"
     >
+
         <content>
+
             <VBox class="sapUiMediumMargin">
+                <!-- STATUS FILTERS                             -->
+
+                <IconTabHeader
+                    id="leaveStatusTabs"
+                    selectedKey="PENDING"
+                    select=".onStatusTabSelect"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <items>
+
+                        <IconTabFilter
+                            key="PENDING"
+                            text="Pending"
+                            icon="sap-icon://pending"
+                        />
+
+                        <IconTabFilter
+                            key="WITHDRAW_REQUEST"
+                            text="Withdrawal Requests"
+                            icon="sap-icon://undo"
+                        />
+
+                        <IconTabFilter
+                            key="APPROVED"
+                            text="Approved"
+                            icon="sap-icon://accept"
+                        />
+
+                        <IconTabFilter
+                            key="REJECTED"
+                            text="Rejected"
+                            icon="sap-icon://decline"
+                        />
+
+                    </items>
+
+                </IconTabHeader>
+
+
+                <!-- ========================================== -->
+                <!-- LEAVE TABLE                                -->
+                <!-- ========================================== -->
+
                 <Table
                     id="leaveTable"
                     inset="false"
@@ -19,41 +64,44 @@
                     growingScrollToLoad="true"
                     noDataText="No leave requests available"
                     items="{
-                    path: '/LEAVE_CALENDAR',
-                    parameters: {
-                        $expand: 'employee',
-                        $orderby: 'createdAt desc'
-                    }
-                }"
+                        path: '/LEAVE_CALENDAR',
+                        parameters: {
+                            $expand: 'employee',
+                            $orderby: 'createdAt desc'
+                        }
+                    }"
                 >
+
                     <headerToolbar>
+
                         <OverflowToolbar>
+
                             <Title
                                 text="Leave Requests"
                                 level="H3"
                             />
+
                             <ToolbarSpacer />
+
                             <SearchField
-                            id="leaveSearch"
-            width="18rem"
-            placeholder="Search Employee or Leave ID"
-            liveChange=".onSearch"
-            search=".onSearch"
-        />
-        <Select
-            id="lStatusFilter"
-            width="10rem"
-            change=".onStatusFilter">
-            <core:Item key="" text="All Status"/>
-            <core:Item key="PENDING" text="Pending"/>
-            <core:Item key="APPROVED" text="Approved"/>
-            <core:Item key="REJECTED" text="Rejected"/>
-            <core:Item key="CANCELLED" text="Cancelled"/>
-            <core:Item key="WITHDRAWN" text="Withdrawn"/>   
-        </Select>
+                                id="leaveSearch"
+                                width="18rem"
+                                placeholder="Search Employee or Leave ID"
+                                liveChange=".onSearch"
+                                search=".onSearch"
+                            />
+
                         </OverflowToolbar>
+
                     </headerToolbar>
+
+
+                    <!-- ====================================== -->
+                    <!-- COLUMNS                                -->
+                    <!-- ====================================== -->
+
                     <columns>
+
                         <Column>
                             <Text text="Leave ID" />
                         </Column>
@@ -69,6 +117,7 @@
                         <Column>
                             <Text text="From" />
                         </Column>
+
                         <Column>
                             <Text text="To" />
                         </Column>
@@ -80,16 +129,31 @@
                         <Column>
                             <Text text="Update Status" />
                         </Column>
+
                     </columns>
 
+
+                    <!-- ====================================== -->
+                    <!-- ROWS                                   -->
+                    <!-- ====================================== -->
+
                     <items>
+
                         <ColumnListItem>
+
                             <cells>
-                                <Text text="{LEAVE_ID}" />
 
-                                <Text text="{employee/NAME}" />
+                                <Text
+                                    text="{LEAVE_ID}"
+                                />
 
-                                <Text text="{LEAVE_TYPE}" />
+                                <Text
+                                    text="{employee/NAME}"
+                                />
+
+                                <Text
+                                    text="{LEAVE_TYPE}"
+                                />
 
                                 <Text
                                     text="{LEAVE_FROM}"
@@ -104,23 +168,33 @@
                                 <ObjectStatus
                                     text="{STATUS}"
                                     state="{=
-                                    ${STATUS} === 'APPROVED' ? 'Success' :
-                                    ${STATUS} === 'REJECTED' ? 'Error' :
-                                    ${STATUS} === 'PENDING' ? 'Warning' :
-                                    'None'
-                                }"
+                                        ${STATUS} === 'APPROVED'
+                                            ? 'Success'
+                                            :
+                                        ${STATUS} === 'REJECTED'
+                                            ? 'Error'
+                                            :
+                                        ${STATUS} === 'PENDING'
+                                            ? 'Warning'
+                                            :
+                                        ${STATUS} === 'WITHDRAW_REQUEST'
+                                            ? 'Information'
+                                            :
+                                        'None'
+                                    }"
                                 />
 
+                                <!-- Approve / Reject -->
                                 <HBox
                                     justifyContent="Center"
-                                    visible="{= %{STATUS} === 'PENDING'}"
                                     renderType="Bare"
+                                    visible="{=${STATUS} === 'PENDING'}"
                                 >
+
                                     <Button
                                         text="Approve"
                                         type="Accept"
                                         icon="sap-icon://accept"
-                                        
                                         press=".onApproveLeave"
                                     />
 
@@ -128,15 +202,23 @@
                                         text="Reject"
                                         type="Reject"
                                         icon="sap-icon://decline"
-                                        class="sapUiTinyMarginBegin" 
+                                        class="sapUiTinyMarginBegin"
                                         press=".onRejectLeave"
                                     />
+
                                 </HBox>
+
                             </cells>
+
                         </ColumnListItem>
+
                     </items>
+
                 </Table>
+
             </VBox>
+
         </content>
+
     </Page>
 </mvc:View>

@@ -35,6 +35,16 @@ sap.ui.define([
                     this
                 );
             },
+            formatProfilePhoto: function (sEmployeeId) {
+
+                if (!sEmployeeId) {
+                    return "";
+                }
+
+                return "/odata/v4/admin/EMPLOYEES(" +
+                    sEmployeeId +
+                    ")/PROFILE_PHOTO";
+            },
             _refreshSkillDropdown: function () {
 
                 const oCombo = this.byId("employeeSkillCombo");
@@ -165,112 +175,112 @@ sap.ui.define([
             },
 
             //Update Employee
-//Update Employee
-onUpdateEmployee: async function () {
-    if (!this._validateEditEmployeeForm()) {
-        MessageBox.error("Please correct the highlighted fields.");
-        return;
-    }
+            //Update Employee
+            onUpdateEmployee: async function () {
+                if (!this._validateEditEmployeeForm()) {
+                    MessageBox.error("Please correct the highlighted fields.");
+                    return;
+                }
 
-    const oEditData = this._oEditDialog.getModel("edit").getData();
-    const oOriginal = this._oOriginalEmployee;
+                const oEditData = this._oEditDialog.getModel("edit").getData();
+                const oOriginal = this._oOriginalEmployee;
 
-    const sNewStatus = String(oEditData.STATUS ?? "");
-    const sOldStatus = String(oOriginal.STATUS ?? "");
-    const aLockedStatuses = ["RESIGNED", "TERMINATED"];
+                const sNewStatus = String(oEditData.STATUS ?? "");
+                const sOldStatus = String(oOriginal.STATUS ?? "");
+                const aLockedStatuses = ["RESIGNED", "TERMINATED"];
 
-    // If the status is being changed TO Resigned/Terminated, warn the user
-    // that this is a one-way change before we let them proceed.
-    if (aLockedStatuses.includes(sNewStatus) && sNewStatus !== sOldStatus) {
-        const bConfirmed = await this._confirmIrreversibleStatusChange(sNewStatus);
-        if (!bConfirmed) {
-            return; // user backed out, don't save anything
-        }
-    }
+                // If the status is being changed TO Resigned/Terminated, warn the user
+                // that this is a one-way change before we let them proceed.
+                if (aLockedStatuses.includes(sNewStatus) && sNewStatus !== sOldStatus) {
+                    const bConfirmed = await this._confirmIrreversibleStatusChange(sNewStatus);
+                    if (!bConfirmed) {
+                        return; // user backed out, don't save anything
+                    }
+                }
 
-    await this._saveEmployeeChanges(oEditData, oOriginal);
-},
+                await this._saveEmployeeChanges(oEditData, oOriginal);
+            },
 
-// Shows a warning MessageBox and resolves true/false based on the user's choice
-_confirmIrreversibleStatusChange: function (sNewStatus) {
-    return new Promise((resolve) => {
-        MessageBox.warning(
-            `You are changing this employee's status to ${sNewStatus}. ` +
-            `This action cannot be undone. Do you want to continue?`,
-            {
-                title: "Confirm Status Change",
-                actions: [MessageBox.Action.YES, MessageBox.Action.NO],
-                emphasizedAction: MessageBox.Action.NO,
-                onClose: (sAction) => resolve(sAction === MessageBox.Action.YES)
-            }
-        );
-    });
-},
+            // Shows a warning MessageBox and resolves true/false based on the user's choice
+            _confirmIrreversibleStatusChange: function (sNewStatus) {
+                return new Promise((resolve) => {
+                    MessageBox.warning(
+                        `You are changing this employee's status to ${sNewStatus}. ` +
+                        `This action cannot be undone. Do you want to continue?`,
+                        {
+                            title: "Confirm Status Change",
+                            actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                            emphasizedAction: MessageBox.Action.NO,
+                            onClose: (sAction) => resolve(sAction === MessageBox.Action.YES)
+                        }
+                    );
+                });
+            },
 
-// The original save logic, unchanged, just extracted so it can be
-// called only after any required confirmation has passed.
-_saveEmployeeChanges: async function (oEditData, oOriginal) {
-    const oContext = this.getView().getBindingContext();
-    const oModel = this.getView().getModel();
+            // The original save logic, unchanged, just extracted so it can be
+            // called only after any required confirmation has passed.
+            _saveEmployeeChanges: async function (oEditData, oOriginal) {
+                const oContext = this.getView().getBindingContext();
+                const oModel = this.getView().getModel();
 
-    try {
-        let bChanged = false;
-        const aFields = [
-            "NAME",
-            "EMAIL",
-            "GENDER",
-            "PHONE_NUMBER",
-            "DATE_OF_BIRTH",
-            "JOINING_DATE",
-            "EXPERIENCE",
-            "STATUS"
-        ];
-        aFields.forEach((sField) => {
-            const vOld = String(oOriginal[sField] ?? "");
-            const vNew = String(oEditData[sField] ?? "");
-            if (vOld !== vNew) {
-                oContext.setProperty(sField, oEditData[sField]);
-                bChanged = true;
-            }
-        });
+                try {
+                    let bChanged = false;
+                    const aFields = [
+                        "NAME",
+                        "EMAIL",
+                        "GENDER",
+                        "PHONE_NUMBER",
+                        "DATE_OF_BIRTH",
+                        "JOINING_DATE",
+                        "EXPERIENCE",
+                        "STATUS"
+                    ];
+                    aFields.forEach((sField) => {
+                        const vOld = String(oOriginal[sField] ?? "");
+                        const vNew = String(oEditData[sField] ?? "");
+                        if (vOld !== vNew) {
+                            oContext.setProperty(sField, oEditData[sField]);
+                            bChanged = true;
+                        }
+                    });
 
-        // Handle Designation
-        if (oOriginal.designation_ID !== oEditData.designation_ID) {
-            oContext.setProperty("designation_ID", oEditData.designation_ID);
-            bChanged = true;
-        }
+                    // Handle Designation
+                    if (oOriginal.designation_ID !== oEditData.designation_ID) {
+                        oContext.setProperty("designation_ID", oEditData.designation_ID);
+                        bChanged = true;
+                    }
 
-        if (!bChanged) {
-            MessageToast.show("No changes to save.");
-            this._oEditDialog.close();
-            return;
-        }
+                    if (!bChanged) {
+                        MessageToast.show("No changes to save.");
+                        this._oEditDialog.close();
+                        return;
+                    }
 
-        await oModel.submitBatch("$auto");
+                    await oModel.submitBatch("$auto");
 
-        // Check if the PATCH operation failed
-        const aMessages = sap.ui.getCore()
-            .getMessageManager()
-            .getMessageModel()
-            .getData();
-        const oError = aMessages.find(m => m.type === "Error");
+                    // Check if the PATCH operation failed
+                    const aMessages = sap.ui.getCore()
+                        .getMessageManager()
+                        .getMessageModel()
+                        .getData();
+                    const oError = aMessages.find(m => m.type === "Error");
 
-        sap.ui.getCore().getEventBus().publish("Employees", "Refresh");
-        sap.ui.getCore().getEventBus().publish("Spof", "Refresh");
-        this.getView().getBindingContext().refresh();
+                    sap.ui.getCore().getEventBus().publish("Employees", "Refresh");
+                    sap.ui.getCore().getEventBus().publish("Spof", "Refresh");
+                    this.getView().getBindingContext().refresh();
 
-        if (oError) {
-            MessageBox.error(oError.message);
-            return;
-        }
+                    if (oError) {
+                        MessageBox.error(oError.message);
+                        return;
+                    }
 
-        MessageToast.show("Employee updated successfully.");
-        this._oEditDialog.close();
-    } catch (e) {
-        console.error(e);
-        MessageBox.error(e.message || "Unable to update employee.");
-    }
-},
+                    MessageToast.show("Employee updated successfully.");
+                    this._oEditDialog.close();
+                } catch (e) {
+                    console.error(e);
+                    MessageBox.error(e.message || "Unable to update employee.");
+                }
+            },
 
             //Cancel Employee Edit
             onCancelEmployee: function () {

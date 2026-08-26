@@ -39,6 +39,11 @@
       "uaa": {
         "kind": "xsuaa"
       },
+      "[development]": {
+            "auth": {
+                "kind": "mocked-auth"
+            }
+        },
       "[production]": {
         "auth": "xsuaa"
       }

@@ -43,6 +43,14 @@ sap.ui.define([
                 await this._loadDesignations();
                 console.log("Employees page refreshed");
             },
+            formatProfilePhoto: function (sEmployeeId) {
+                if (!sEmployeeId) {
+                    return "sap-icon://employee";
+                }
+                return "/odata/v4/admin/EMPLOYEES(" +
+                    sEmployeeId +
+                    ")/PROFILE_PHOTO";
+            },
 
 
             //Load Designations

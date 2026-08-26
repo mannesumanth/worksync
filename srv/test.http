@@ -1,0 +1,18 @@
+
+### Get current project details
+POST http://localhost:4004/odata/v4/employee/GetMyCurrentProjectDetails
+Content-Type: application/json
+
+{
+    "projectId": "e099b2cf-2822-455b-a6f1-928e026bca4b"
+}
+### Get project history details
+POST http://localhost:4004/odata/v4/employee/GetMyProjectHistoryDetails
+Content-Type: application/json
+
+{
+    "projectId": "e099b2cf-2822-455b-a6f1-928e026bca4b"
+}
+### My Projects
+GET http://localhost:4004/odata/v4/employee/MyProjects
+Accept: application/json

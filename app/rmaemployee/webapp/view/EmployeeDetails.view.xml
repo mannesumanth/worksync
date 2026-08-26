@@ -1,0 +1,203 @@
+<mvc:View
+    controllerName="com.amista.rmaemployee.controller.EmployeeDetails"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:unified="sap.ui.unified"
+>
+    <Page
+        id="employeeDetailsPage"
+        title="Employee Details"
+    >
+        <content>
+            <VBox class="sapUiMediumMargin">
+                <!-- Employee Information -->
+                <Panel
+                    id="employeeInformationPanel"
+                    headerText="Employee Information"
+                    class="sapUiMediumMarginBottom"
+                >
+                    <content>
+                        <HBox
+                            alignItems="Start"
+                            fitContainer="true"
+                            wrap="Wrap"
+                            class="sapUiMediumMargin"
+                        >
+                            <!-- Profile Photo -->
+                            <VBox
+                                alignItems="Center"
+                                justifyContent="Center"
+                                class="sapUiMediumMarginEnd sapUiMediumMarginBottom"
+                            >
+                                <!-- Employee Photo -->
+                                <Image
+                                    id="employeeProfilePhoto"
+                                    decorative="false"
+                                    alt="{employee>/NAME}"
+                                    densityAware="false"
+                                    visible="false"
+                                    height="110px"
+                                    width="100px"
+                                />
+
+                                <!-- Default SAP Employee Icon -->
+                                <core:Icon
+                                    id="employeeDefaultPhoto"
+                                    src="sap-icon://employee"
+                                    visible="true"
+                                    size="6rem"
+                                />
+
+                                <!-- Upload Photo Button -->
+                                <unified:FileUploader
+                                    id="profilePhotoUploader"
+                                    buttonOnly="true"
+                                    buttonText="Upload Photo"
+                                    icon="sap-icon://upload"
+                                    fileType="jpg,jpeg,png"
+                                    change=".onPhotoSelected"
+                                    sameFilenameAllowed="true"
+                                />
+                            </VBox>
+                            <!-- Employee Details -->
+                            <VBox
+                                fitContainer="true"
+                                class="sapUiMediumMarginBottom"
+                            >
+                                <HBox
+                                    fitContainer="true"
+                                    wrap="Wrap"
+                                >
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Employee ID" />
+                                        <Text text="{employee>/EMP_ID}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Name" />
+                                        <Text text="{employee>/NAME}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Email" />
+                                        <Text text="{employee>/EMAIL}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Gender" />
+                                        <Text text="{employee>/GENDER}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Phone Number" />
+                                        <Text text="{employee>/PHONE_NUMBER}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Date of Birth" />
+                                        <Text
+                                            text="{employee>/DATE_OF_BIRTH}"
+                                        />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Joining Date" />
+                                        <Text text="{employee>/JOINING_DATE}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Experience" />
+                                        <Text text="{employee>/EXPERIENCE}" />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Designation" />
+                                        <Text
+                                            text="{employee>/designation/NAME}"
+                                        />
+                                    </VBox>
+
+                                    <VBox
+                                        width="50%"
+                                        class="sapUiSmallMarginBottom"
+                                    >
+                                        <Label text="Status" />
+                                        <ObjectStatus
+                                            text="{employee>/STATUS}"
+                                        />
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </content>
+                </Panel>
+
+                <!-- Skills -->
+                <Panel
+                    id="employeeSkillsPanel"
+                    headerText="Skills"
+                >
+                    <content>
+                        <Table
+                            id="employeeSkillsTable"
+                            items="{skills>/}"
+                            growing="true"
+                            growingScrollToLoad="true"
+                            noDataText="No skills available"
+                        >
+                            <columns>
+                                <Column>
+                                    <Text text="Skill" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Proficiency Level" />
+                                </Column>
+                            </columns>
+
+                            <items>
+                                <ColumnListItem>
+                                    <cells>
+                                        <Text text="{skills>SKILL_NAME}" />
+
+                                        <Text
+                                            text="{skills>PROFICIENCY_LEVEL}"
+                                        />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </content>
+                </Panel>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

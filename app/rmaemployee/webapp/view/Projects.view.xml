@@ -1,0 +1,225 @@
+<mvc:View
+    controllerName="com.amista.rmaemployee.controller.Projects"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+>
+    <Page
+        id="projectsPage"
+        title="Projects"
+        class="sapUiResponsiveContentPadding"
+    >
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <!-- Current Projects -->
+                <Panel
+                    id="currentProjectsPanel"
+                    headerText="Current Projects"
+                    class="sapUiMediumMarginBottom"
+                >
+                    <content>
+
+                        <Table
+                            id="currentProjectsTable"
+                            items="{projects>/}"
+                            growing="true"
+                            growingScrollToLoad="true"
+                            noDataText="No current projects available"
+                        >
+                            <columns>
+
+                                <Column>
+                                    <Text text="Project ID" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Project Name" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Project Role" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Allocation" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Start Date" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="End Date" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Status" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Priority" />
+                                </Column>
+
+                                <Column
+                                    width="3rem"
+                                    hAlign="Center"
+                                >
+                                    <Text text="" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem
+                                    type="Active"
+                                    press=".onCurrentProjectPress"
+                                >
+                                    <cells>
+
+                                        <Text
+                                            text="{projects>PROJECT_ID}"
+                                        />
+
+                                        <Text
+                                            text="{projects>PROJECT_NAME}"
+                                        />
+
+                                        <Text
+                                            text="{projects>PROJECT_ROLE}"
+                                        />
+
+                                        <Text
+                                            text="{projects>ALLOCATION_PERCENTAGE}%"
+                                        />
+
+                                        <Text
+                                            text="{projects>PROJECT_START_DATE}"
+                                        />
+
+                                        <Text
+                                            text="{projects>PROJECT_END_DATE}"
+                                        />
+
+                                        <ObjectStatus
+                                            text="{projects>PROJECT_STATUS}"
+                                        />
+
+                                        <ObjectStatus
+                                            text="{projects>PROJECT_PRIORITY}"
+                                        />
+
+                                        <Button
+                                            icon="sap-icon://navigation-right-arrow"
+                                            type="Transparent"
+                                            tooltip="View Project Details"
+                                            press=".onCurrentProjectPress"
+                                        />
+
+                                    </cells>
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Project History -->
+                <Panel
+                    id="projectHistoryPanel"
+                    headerText="Project History"
+                >
+                    <content>
+
+                        <Table
+                            id="projectHistoryTable"
+                            items="{projectHistory>/}"
+                            growing="true"
+                            growingScrollToLoad="true"
+                            noDataText="No project history available"
+                        >
+                            <columns>
+
+                                <Column>
+                                    <Text text="Project ID" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Project Role" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Allocation" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Start Date" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="End Date" />
+                                </Column>
+
+                                <Column
+                                    width="3rem"
+                                    hAlign="Center"
+                                >
+                                    <Text text="" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem
+                                    type="Active"
+                                    press=".onProjectHistoryPress"
+                                >
+                                    <cells>
+
+                                        <Text
+                                            text="{projectHistory>PROJECT_ID}"
+                                        />
+
+                                        <Text
+                                            text="{projectHistory>PROJECT_ROLE}"
+                                        />
+
+                                        <Text
+                                            text="{projectHistory>ALLOCATION_PERCENTAGE}%"
+                                        />
+
+                                        <Text
+                                            text="{projectHistory>START_DATE}"
+                                        />
+
+                                        <Text
+                                            text="{projectHistory>END_DATE}"
+                                        />
+
+                                        <Button
+                                            icon="sap-icon://navigation-right-arrow"
+                                            type="Transparent"
+                                            tooltip="View Project Details"
+                                        />
+
+                                    </cells>
+
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+            </VBox>
+
+        </content>
+    </Page>
+</mvc:View>

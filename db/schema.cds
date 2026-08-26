@@ -63,8 +63,8 @@ entity EMPLOYEES : managed {
     JOINING_DATE            : Date @mandatory;
     designation            : Association to DESIGNATIONS @mandatory;
     EXPERIENCE              : Decimal(4,1) default 0;
-    //PROFILE_PHOTO           : LargeBinary @Core.MediaType: PROFILE_PHOTO_MIME_TYPE;
-    //PROFILE_PHOTO_MIME_TYPE : String(100) @Core.IsMediaType: true;
+    PROFILE_PHOTO           : LargeBinary @Core.MediaType: PROFILE_PHOTO_MIME_TYPE;
+    PROFILE_PHOTO_MIME_TYPE : String(100) @Core.IsMediaType: true;
     STATUS                  : EmployeeStatus default 'ACTIVE';
     skills                  : Composition of many EMPLOYEE_SKILLS
                               on skills.employee = $self;
@@ -72,8 +72,21 @@ entity EMPLOYEES : managed {
                               on allocations.employee = $self;
     leaves                  : Composition of many LEAVE_CALENDAR
                               on leaves.employee = $self;
+    resume                  : Composition of one EMPLOYEE_RESUMES
+                              on resume.employee = $self;
     virtual ALLOCATION_PERCENT : Decimal(5,2);
     virtual CURRENT_UTILIZATION : Decimal(5,2);
+}
+
+entity EMPLOYEE_RESUMES : managed {
+    key ID : UUID;
+    employee : Association to EMPLOYEES @mandatory;
+    RESUME : LargeBinary
+                @Core.MediaType: RESUME_MIME_TYPE;
+    RESUME_MIME_TYPE : String(100)
+                        @Core.IsMediaType: true;
+    RESUME_FILE_NAME : String(255) @mandatory;
+
 }
 
 //DESIGNATIONS
@@ -154,7 +167,7 @@ entity ALLOCATIONS : managed {
     END_DATE                : Date @mandatory;
 }
     //Allocation History
-entity ALLOCATION_HISTORY{
+entity ALLOCATION_HISTORY : managed{
     key ID  : UUID;
     ALLOC_HISTORY_ID    : String(20) @readonly @assert.unique;
     //allocation  : Association to ALLOCATIONS @mandatory;
@@ -191,5 +204,6 @@ entity LEAVE_BALANCE : managed {
     SICK_USED               : Integer default 0;
     EARNED_AVAILABLE        : Integer default 12;
     EARNED_USED             : Integer default 0;
+    UNPAID_USED              : Integer default 0;
     
 }

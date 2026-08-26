@@ -1,6 +1,56 @@
-<mvc:View controllerName="com.amista.rmaemployee.controller.Home"
+<mvc:View
+    controllerName="com.amista.rmaemployee.controller.Home"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
-    <Page id="page" title="{i18n>title}">
-    </Page>
+    xmlns="sap.m"
+    xmlns:tnt="sap.tnt"
+>
+    <tnt:ToolPage id="employeeToolPage">
+
+        <tnt:header>
+            <Toolbar>
+                <Title
+                    text="{i18n>title}"
+                />
+            </Toolbar>
+        </tnt:header>
+
+        <tnt:sideContent>
+            <tnt:SideNavigation
+                id="employeeSideNavigation"
+                selectedKey="employeeDetails"
+            >
+                <tnt:NavigationList
+                    id="employeeNavigationList"
+                    itemSelect=".onNavigationSelect"
+                >
+
+                    <tnt:NavigationListItem
+                        key="employeeDetails"
+                        text="Employee Details"
+                        icon="sap-icon://employee"
+                    />
+
+                    <tnt:NavigationListItem
+                        key="projects"
+                        text="Projects"
+                        icon="sap-icon://project-definition-triangle"
+                    />
+
+                    <tnt:NavigationListItem
+                        key="leave"
+                        text="Leave"
+                        icon="sap-icon://calendar"
+                    />
+
+                </tnt:NavigationList>
+            </tnt:SideNavigation>
+        </tnt:sideContent>
+
+        <tnt:mainContents>
+            <NavContainer
+                id="employeeNavContainer"
+            />
+        </tnt:mainContents>
+
+    </tnt:ToolPage>
 </mvc:View>

@@ -153,6 +153,9 @@
                     }"
             >
                 <columns>
+                    <Column width="5rem">
+                        <Text text="Photo" />
+                    </Column>
                     <Column>
                         <Text text="EMP ID" />
                     </Column>
@@ -182,6 +185,15 @@
                     <!-- On View Employee -->
                     <ColumnListItem type="Active">
                         <cells>
+                        <Image
+                            src="{path: 'ID', formatter: '.formatProfilePhoto'}"
+                            width="40px"
+                            height="40px"
+                            densityAware="false"
+                            decorative="false"
+                            alt="{NAME}"
+                            class="sapUiTinyMargin"
+                        />
                             <Text text="{EMP_ID}" />
                             <Text text="{NAME}" />
                             <Text text="{EMAIL}" />

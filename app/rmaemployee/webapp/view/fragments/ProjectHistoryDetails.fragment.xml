@@ -1,0 +1,179 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="projectHistoryDetailsDialog"
+        title="{projectDetails>/PROJECT_NAME}"
+        contentWidth="65rem"
+        contentHeight="70%"
+        resizable="true"
+        draggable="true"
+    >
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <!-- Project Information -->
+                <Panel
+                    headerText="Project Information"
+                    class="sapUiMediumMarginBottom"
+                >
+                    <content>
+
+                        <VBox >
+
+                            <!-- Project Header -->
+
+                            <!-- Project Details -->
+                            <HBox
+                                wrap="Wrap"
+                                class=" sapUiMediumMarginBottom"
+                            >
+                             <VBox
+                                    width="10rem"
+                                    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                                >
+                                    <Label text="Project ID" />
+                                    <Text
+                                        text="{projectDetails>/PROJECT_ID}"
+                                    />
+                                </VBox>
+                                 <VBox
+                                    width="10rem"
+                                    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                                >
+                                    <Label text="STATUS" />
+                                    <Text
+                                        text="{projectDetails>/STATUS}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="10rem"
+                                    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                                >
+                                    <Label text="Priority" />
+                                    <Text
+                                        text="{projectDetails>/PRIORITY}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="10rem"
+                                    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                                >
+                                    <Label text="Start Date" />
+                                    <Text
+                                        text="{projectDetails>/START_DATE}"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="10rem"
+                                    class="sapUiSmallMarginEnd"
+                                >
+                                    <Label text="End Date" />
+                                    <Text
+                                        text="{projectDetails>/END_DATE}"
+                                    />
+                                </VBox>
+
+                            </HBox>
+
+                            <!-- Description -->
+                            <VBox >
+
+                                <Label text="Description" />
+
+                                <Text
+                                    text="{projectDetails>/DESCRIPTION}"
+                                    wrapping="true"
+                                />
+
+                            </VBox>
+
+                        </VBox>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Previous Allocation -->
+                <Panel
+                    headerText="My Previous Allocation"
+                >
+                    <content>
+
+                        <HBox
+                            wrap="Wrap"
+                            
+                        >
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Project Role" />
+
+                                <Text
+                                    text="{projectDetails>/MY_ROLE}"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Allocation" />
+
+                                <ObjectNumber
+                                    number="{projectDetails>/MY_ALLOCATION}"
+                                    unit="%"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="Start Date" />
+
+                                <Text
+                                    text="{projectDetails>/MY_START_DATE}"
+                                />
+                            </VBox>
+
+                            <VBox
+                                width="12rem"
+                                class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
+                            >
+                                <Label text="End Date" />
+
+                                <Text
+                                    text="{projectDetails>/MY_END_DATE}"
+                                />
+                            </VBox>
+
+                        </HBox>
+
+                    </content>
+                </Panel>
+
+            </VBox>
+
+        </content>
+
+        <beginButton>
+
+            <Button
+                text="Close"
+                type="Emphasized"
+                press=".onCloseProjectHistory"
+            />
+
+        </beginButton>
+
+    </Dialog>
+</core:FragmentDefinition>
