@@ -15,28 +15,12 @@ module.exports = function (service) {
             return req.reject(404, "Employee not found.");
         }
         const year = new Date().getFullYear();
-        const balance = await getOrCreateLeaveBalance(
-            employee.ID,
-            year
-        );
-        const casualUsed = await getUsedDaysForYear(
-            employee.ID,
-            "CASUAL",
-            year
-        );
-        const sickUsed = await getUsedDaysForYear(
-            employee.ID,
-            "SICK",
-            year
-        );
-        const earnedUsed = await getUsedDaysForYear(
-            employee.ID,
-            "EARNED",
-            year
-        );
+        const balance = await getOrCreateLeaveBalance( employee.ID, year);
+        const casualUsed = await getUsedDaysForYear( employee.ID, "CASUAL", year );
+        const sickUsed = await getUsedDaysForYear( employee.ID, "SICK", year );
+        const earnedUsed = await getUsedDaysForYear( employee.ID, "EARNED", year);
         return [{
             ...balance,
-
             CASUAL_AVAILABLE: balance.CASUAL_AVAILABLE,
             CASUAL_USED: casualUsed,
 

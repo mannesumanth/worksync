@@ -1,0 +1,389 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="forecastDetailsDialog"
+        title="Employee Forecast Details"
+        contentWidth="70rem"
+        contentHeight="80%"
+        resizable="true"
+        draggable="true"
+    >
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <!-- Employee Information -->
+                <Panel
+                    headerText="Employee Information"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <content>
+                        <VBox class="sapUiSmallMargin">
+
+                            <HBox
+                                wrap="Wrap"
+                                justifyContent="SpaceBetween"
+                            >
+
+                                <VBox class="sapUiSmallMarginEnd">
+                                    <Label text="Employee" />
+                                    <Title
+                                        text="{forecastDetails>/NAME}"
+                                        level="H4"
+                                    />
+                                </VBox>
+
+                                <VBox class="sapUiSmallMarginEnd">
+                                    <Label text="Employee ID" />
+                                    <Text text="{forecastDetails>/EMP_ID}" />
+                                </VBox>
+
+                                <VBox class="sapUiSmallMarginEnd">
+                                    <Label text="Designation" />
+                                    <Text text="{forecastDetails>/DESIGNATION}" />
+                                </VBox>
+
+                            </HBox>
+
+                            <HBox
+                                wrap="Wrap"
+                                class="sapUiSmallMarginTop"
+                            >
+
+                                <VBox
+                                    width="12rem"
+                                    class="sapUiSmallMarginEnd"
+                                >
+                                    <Label text="Current Allocation" />
+
+                                    <ProgressIndicator
+                                        percentValue="{forecastDetails>/CURRENT_ALLOCATION}"
+                                        displayValue="{forecastDetails>/CURRENT_ALLOCATION}%"
+                                        state="{= ${forecastDetails>/CURRENT_ALLOCATION} >= 100 ? 'Error' : ${forecastDetails>/CURRENT_ALLOCATION} >= 80 ? 'Warning' : 'Success' }"
+                                    />
+                                </VBox>
+
+                                <VBox
+                                    width="12rem"
+                                >
+                                    <Label text="Current Availability" />
+
+                                    <ProgressIndicator
+                                        percentValue="{forecastDetails>/CURRENT_AVAILABLE}"
+                                        displayValue="{forecastDetails>/CURRENT_AVAILABLE}%"
+                                        state="Success"
+                                    />
+                                </VBox>
+
+                            </HBox>
+
+                        </VBox>
+                    </content>
+                </Panel>
+
+
+                <!-- Projects -->
+                <Panel
+                    headerText="Projects"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <content>
+
+                        <Table
+                            inset="false"
+                            items="{forecastDetails>/PROJECTS}"
+                            noDataText="No project allocations found"
+                        >
+
+                            <columns>
+
+                                <Column>
+                                    <Text text="Project" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Role" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Allocation" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Start Date" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="End Date" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem>
+
+                                    <cells>
+
+                                        <Text
+                                            text="{forecastDetails>PROJECT_NAME}"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>PROJECT_ROLE}"
+                                        />
+
+                                        <ObjectNumber
+                                            number="{forecastDetails>ALLOCATION_PERCENTAGE}"
+                                            unit="%"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>START_DATE}"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>END_DATE}"
+                                        />
+
+                                    </cells>
+
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Availability Timeline -->
+                <Panel
+                    headerText="Availability Timeline"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <content>
+
+                        <Table
+                            inset="false"
+                            items="{forecastDetails>/AVAILABILITY_TIMELINE}"
+                            noDataText="No availability timeline available"
+                        >
+
+                            <columns>
+
+                                <Column>
+                                    <Text text="Date" />
+                                </Column>
+
+                                <Column>
+                                    <Text text="Project Completed" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Released Allocation" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Remaining Allocation" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Available" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Fully Available" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem>
+
+                                    <cells>
+
+                                        <Text
+                                            text="{forecastDetails>DATE}"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>PROJECT_NAME}"
+                                        />
+
+                                        <ObjectNumber
+                                            number="{forecastDetails>ENDED_ALLOCATION}"
+                                            unit="%"
+                                        />
+
+                                        <ObjectNumber
+                                            number="{forecastDetails>REMAINING_ALLOCATION}"
+                                            unit="%"
+                                        />
+
+                                        <ObjectNumber
+                                            number="{forecastDetails>AVAILABLE_PERCENT}"
+                                            unit="%"
+                                        />
+
+                                        <ObjectStatus
+                                            text="{= ${forecastDetails>FULLY_AVAILABLE} ? 'Yes' : 'No' }"
+                                            state="{= ${forecastDetails>FULLY_AVAILABLE} ? 'Success' : 'None' }"
+                                            icon="{= ${forecastDetails>FULLY_AVAILABLE} ? 'sap-icon://accept' : '' }"
+                                        />
+
+                                    </cells>
+
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Leaves -->
+                <Panel
+                    headerText="Approved Leaves"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <content>
+
+                        <Table
+                            inset="false"
+                            items="{forecastDetails>/LEAVES}"
+                            noDataText="No approved leaves found"
+                        >
+
+                            <columns>
+
+                                <Column>
+                                    <Text text="Leave Type" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="From" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="To" />
+                                </Column>
+
+                                <Column
+                                    hAlign="Center"
+                                >
+                                    <Text text="Status" />
+                                </Column>
+
+                            </columns>
+
+                            <items>
+
+                                <ColumnListItem>
+
+                                    <cells>
+
+                                        <Text
+                                            text="{forecastDetails>LEAVE_TYPE}"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>LEAVE_FROM}"
+                                        />
+
+                                        <Text
+                                            text="{forecastDetails>LEAVE_TO}"
+                                        />
+
+                                        <ObjectStatus
+                                            text="{forecastDetails>STATUS}"
+                                            state="Success"
+                                        />
+
+                                    </cells>
+
+                                </ColumnListItem>
+
+                            </items>
+
+                        </Table>
+
+                    </content>
+                </Panel>
+
+
+                <!-- Fully Available -->
+                <Panel
+                    headerText="Final Availability"
+                >
+                    <content>
+
+                        <HBox
+                            alignItems="Center"
+                            class="sapUiSmallMargin"
+                        >
+
+                            <core:Icon
+                                src="sap-icon://calendar"
+                                size="2rem"
+                                class="sapUiSmallMarginEnd"
+                            />
+
+                            <VBox>
+
+                                <Label text="Fully Available Date" />
+
+                               <ObjectStatus
+    text="{= ${forecastDetails>/PROJECTS}.length === 0
+        ? 'Available All the Time'
+        : ${forecastDetails>/FULLY_AVAILABLE_DATE} }"
+    state="Success"
+    icon="sap-icon://accept"
+/>
+
+                            </VBox>
+
+                        </HBox>
+
+                    </content>
+                </Panel>
+
+            </VBox>
+
+        </content>
+
+        <beginButton>
+            <Button
+                text="Close"
+                press=".onCloseForecastDetails"
+            />
+        </beginButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

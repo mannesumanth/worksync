@@ -16,82 +16,56 @@ module.exports = {
             ADVANCED: 3,
             EXPERT: 4
         };
-
         service.on('RecommendResources', async (req) => {
-
             const db = await cds.connect.to('db');
-
             const { projectId } = req.data;
-
             console.log("Project ID:", projectId);
-
             // Get project requirements
             const requirements = await db.run(
                 SELECT.from(PROJECT_REQUIREMENTS)
                     .where({ project_ID: projectId })
             );
-
             console.log("Requirements:", requirements.length);
-
             if (!requirements.length) {
                 return [];
             }
-
             const requirementIds = requirements.map(r => r.ID);
-
             const requirementSkills = await db.run(
                 SELECT.from(REQUIREMENT_SKILLS)
                     .where({
                         requirement_ID: { in: requirementIds }
                     })
             );
-            console.log(
-                "Requirement Skills:",
-                requirementSkills.length
-            );
-
+            console.log( "Requirement Skills:", requirementSkills.length );
             if (!requirementSkills.length) {
                 return [];
             }
-
             const employees = await db.run(
                 SELECT.from(EMPLOYEES)
                     .where({ STATUS: 'ACTIVE' })
             );
-
             const recommendations = [];
-
             for (const emp of employees) {
-
                 const employeeSkills = await db.run(
                     SELECT.from(EMPLOYEE_SKILLS)
                         .where({
                             employee_ID: emp.ID
                         })
                 );
-
                 let matchedSkills = 0;
-
                 for (const reqSkill of requirementSkills) {
-
                     const match = employeeSkills.find(es => {
-
-                        const employeeLevel =
-                            proficiencyRank[es.PROFICIENCY_LEVEL];
-
-                        const requiredLevel =
-                            proficiencyRank[reqSkill.REQUIRED_LEVEL];
+                        const employeeLevel = proficiencyRank[es.PROFICIENCY_LEVEL];
+                        const requiredLevel = proficiencyRank[reqSkill.REQUIRED_LEVEL];
                         return (
                             es.skill_ID === reqSkill.skill_ID &&
                             employeeLevel >= requiredLevel
                         );
                     });
-
                     if (match) {
                         matchedSkills++;
                     }
                 }
-
                 if (matchedSkills > 0) {
                     const today = new Date().toISOString().split("T")[0];
                     const allocations = await db.run(
@@ -128,7 +102,6 @@ module.exports = {
                     });
                 }
             }
-
             return recommendations.sort(
                 (a, b) =>
                     b.MATCH_PERCENT - a.MATCH_PERCENT ||

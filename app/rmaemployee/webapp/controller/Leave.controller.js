@@ -160,41 +160,69 @@ sap.ui.define([
 
             // Leave Calendar
             _loadLeaveCalendar: function (aLeaves) {
+
                 const oCalendar = this.byId("leaveCalendar");
+
                 if (!oCalendar) {
                     return;
                 }
+
                 oCalendar.destroySpecialDates();
+
                 aLeaves.forEach(function (oLeave) {
+
                     if (
                         !oLeave.LEAVE_FROM ||
                         !oLeave.LEAVE_TO
                     ) {
                         return;
                     }
+
                     const oStartDate =
-                        this._createDate(
-                            oLeave.LEAVE_FROM
-                        );
+                        this._createDate(oLeave.LEAVE_FROM);
+
                     const oEndDate =
-                        this._createDate(
-                            oLeave.LEAVE_TO
-                        );
+                        this._createDate(oLeave.LEAVE_TO);
+
                     const sType =
-                        this._getLeaveDateType(
-                            oLeave.STATUS
+                        this._getLeaveDateType(oLeave.STATUS);
+
+                    const oCurrentDate =
+                        new Date(oStartDate);
+
+                    while (oCurrentDate <= oEndDate) {
+
+                        const iDay =
+                            oCurrentDate.getDay();
+
+                        // Skip Saturday and Sunday
+                        if (iDay !== 0 && iDay !== 6) {
+
+                            const oDate =
+                                UI5Date.getInstance(
+                                    oCurrentDate.getFullYear(),
+                                    oCurrentDate.getMonth(),
+                                    oCurrentDate.getDate()
+                                );
+
+                            oCalendar.addSpecialDate(
+                                new DateTypeRange({
+                                    startDate: oDate,
+                                    endDate: oDate,
+                                    type: sType,
+                                    tooltip:
+                                        oLeave.LEAVE_TYPE +
+                                        " - " +
+                                        oLeave.STATUS
+                                })
+                            );
+                        }
+
+                        oCurrentDate.setDate(
+                            oCurrentDate.getDate() + 1
                         );
-                    oCalendar.addSpecialDate(
-                        new DateTypeRange({
-                            startDate: oStartDate,
-                            endDate: oEndDate,
-                            type: sType,
-                            tooltip:
-                                oLeave.LEAVE_TYPE +
-                                " - " +
-                                oLeave.STATUS
-                        })
-                    );
+                    }
+
                 }, this);
             },
             _getLeaveDateType: function (sStatus) {

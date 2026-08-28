@@ -98,43 +98,116 @@
                     </IconTabFilter>
 
                     <!-- 3. LEAVES -->
-                    <IconTabFilter key="leaves" icon="sap-icon://area-chart" text="Leaves">
-                        <content>
-                            <Panel headerText="Leaves by Employee (Used vs Available)">
-                                <content>
-                                    <Toolbar>
-                                        <Label text="Min Used Leaves" class="sapUiTinyMarginEnd"/>
-                                        <StepInput id="usedLeavesFilter" value="0" min="0" max="20" change="onLeavesFilterChange" width="7rem"/>
+                    <!-- 3. LEAVES -->
+<IconTabFilter
+    key="leaves"
+    icon="sap-icon://area-chart"
+    text="Leaves">
 
-                                        <Label text="Min Available Leaves" class="sapUiSmallMarginBegin sapUiTinyMarginEnd"/>
-                                        <StepInput id="availLeavesFilter" value="0" min="0" max="20" change="onLeavesFilterChange" width="7rem"/>
+    <content>
 
-                                        <ToolbarSpacer/>
-                                        <Button text="Reset" press="onResetLeavesFilter"/>
-                                    </Toolbar>
+        <Panel headerText="Leave Requests by Employee">
 
-                                    <viz:VizFrame id="leavesChart" uiConfig="{applicationSet:'fiori'}" height="480px" width="100%"
-                                        vizType="stacked_column" selectData="onLeavesChartSelect">
-                                        <viz:dataset>
-                                            <viz.data:FlattenedDataset data="{graphEmployees>/value}">
-                                                <viz.data:dimensions>
-                                                    <viz.data:DimensionDefinition name="Employee" value="{EMP_ID}"/>
-                                                </viz.data:dimensions>
-                                                <viz.data:measures>
-                                                    <viz.data:MeasureDefinition name="Used Leaves" value="{USED_LEAVES_TOTAL}"/>
-                                                    <viz.data:MeasureDefinition name="Available Leaves" value="{AVAILABLE_LEAVES_TOTAL}"/>
-                                                </viz.data:measures>
-                                            </viz.data:FlattenedDataset>
-                                        </viz:dataset>
-                                        <viz:feeds>
-                                            <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Used Leaves,Available Leaves"/>
-                                            <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Employee"/>
-                                        </viz:feeds>
-                                    </viz:VizFrame>
-                                </content>
-                            </Panel>
-                        </content>
-                    </IconTabFilter>
+            <content>
+
+                <Toolbar>
+
+                    <Label
+                        text="Min Total Requests"
+                        class="sapUiTinyMarginEnd"/>
+
+                    <StepInput
+                        id="usedLeavesFilter"
+                        value="0"
+                        min="0"
+                        max="50"
+                        change="onLeavesFilterChange"
+                        width="7rem"/>
+
+                    <ToolbarSpacer/>
+
+                    <Button
+                        text="Reset"
+                        press="onResetLeavesFilter"/>
+
+                </Toolbar>
+
+
+               <viz:VizFrame
+    id="leavesChart"
+    uiConfig="{applicationSet:'fiori'}"
+    height="480px"
+    width="100%"
+    vizType="stacked_column"
+    selectData="onLeavesChartSelect">
+
+    <viz:dataset>
+
+        <viz.data:FlattenedDataset
+            data="{graphEmployees>/value}">
+
+            <viz.data:dimensions>
+
+                <viz.data:DimensionDefinition
+                    name="Employee"
+                    value="{EMP_ID}" />
+
+            </viz.data:dimensions>
+
+            <viz.data:measures>
+
+                <viz.data:MeasureDefinition
+                    name="Pending"
+                    value="{PENDING_LEAVES}" />
+
+                <viz.data:MeasureDefinition
+                    name="Approved"
+                    value="{APPROVED_LEAVES}" />
+
+                <viz.data:MeasureDefinition
+                    name="Rejected"
+                    value="{REJECTED_LEAVES}" />
+
+                <viz.data:MeasureDefinition
+                    name="Cancelled"
+                    value="{CANCELLED_LEAVES}" />
+
+                <viz.data:MeasureDefinition
+                    name="Withdrawn"
+                    value="{WITHDRAWN_LEAVES}" />
+
+                <viz.data:MeasureDefinition
+                    name="Withdrawal Request"
+                    value="{WITHDRAWAL_REQUEST_LEAVES}" />
+
+            </viz.data:measures>
+
+        </viz.data:FlattenedDataset>
+
+    </viz:dataset>
+
+    <viz:feeds>
+
+        <viz.feeds:FeedItem
+            uid="valueAxis"
+            type="Measure"
+            values="Pending,Approved,Rejected,Cancelled,Withdrawn,Withdrawal Request" />
+
+        <viz.feeds:FeedItem
+            uid="categoryAxis"
+            type="Dimension"
+            values="Employee" />
+
+    </viz:feeds>
+
+</viz:VizFrame>
+            </content>
+
+        </Panel>
+
+    </content>
+
+</IconTabFilter>
 
                     <!-- 4. PROJECTS -->
                     <IconTabFilter key="projects" icon="sap-icon://project-definition-triangle" text="Projects">

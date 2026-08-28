@@ -131,10 +131,6 @@ sap.ui.define([
                                 "Designation deleted successfully."
                             );
                             sap.ui.getCore().getEventBus().publish(
-                                "Employees",
-                                "Refresh"
-                            );
-                            sap.ui.getCore().getEventBus().publish(
                                 "Designations",
                                 "Refresh"
                             );

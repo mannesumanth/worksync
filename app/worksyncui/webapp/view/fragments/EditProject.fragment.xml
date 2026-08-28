@@ -23,6 +23,7 @@
                     id="editProjectName"
                     value="{editProject>/PROJECT_NAME}"
                     width="100%"
+                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                     placeholder="Enter project name"/>
 
                 <!-- Description -->
@@ -35,6 +36,7 @@
                     value="{editProject>/DESCRIPTION}"
                     rows="4"
                     width="100%"
+                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                     placeholder="Enter project description"/>
 
                 <!-- Dates -->
@@ -51,6 +53,7 @@
                         <DatePicker
                             id="editProjectStartDate"
                             width="100%"
+                            enabled="{= !${editProject>/IS_ON_HOLD} }"
                             value="{editProject>/START_DATE}"/>
 
                     </VBox>
@@ -64,6 +67,7 @@
                         <DatePicker
                             id="editProjectEndDate"
                             width="100%"
+                            enabled="{= !${editProject>/IS_ON_HOLD} }"
                             value="{editProject>/END_DATE}"/>
 
                     </VBox>
@@ -81,9 +85,12 @@
                             text="Project Status"
                             required="true"/>
 
+                        <!-- Status stays editable even when ON_HOLD.
+                             Only locked once already COMPLETED (irreversible). -->
                         <Select
                             id="editProjectStatus"
                             width="100%"
+                            enabled="{= !${editProject>/IS_COMPLETED} }"
                             selectedKey="{editProject>/STATUS}">
 
                             <items>
@@ -118,6 +125,7 @@
                         <Select
                             id="editProjectManager"
                             width="100%"
+                            enabled="{= !${editProject>/IS_ON_HOLD} }"
                             selectedKey="{editProject>/manager_ID}"
                             items="{/EMPLOYEES}">
 
@@ -143,6 +151,7 @@
                         text="Add Skill"
                         icon="sap-icon://add"
                         type="Emphasized"
+                        enabled="{= !${editProject>/IS_ON_HOLD} }"
                         press=".onAddEditRequiredSkill"/>
 
                 </Toolbar>
@@ -179,6 +188,7 @@
 
                                 <Select
                                     width="100%"
+                                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                                     selectedKey="{editProject>skill_ID}"
                                     items="{/SKILLS}">
 
@@ -190,6 +200,7 @@
 
                                 <Select
                                     width="100%"
+                                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                                     selectedKey="{editProject>REQUIRED_LEVEL}">
 
                                     <items>
@@ -218,12 +229,14 @@
                                     width="100%"
                                     min="1"
                                     max="10"
+                                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                                     value="{editProject>REQUIRED_RESOURCES}"/>
 
                                 <Button
                                     icon="sap-icon://delete"
                                     type="Transparent"
                                     tooltip="Remove Skill"
+                                    enabled="{= !${editProject>/IS_ON_HOLD} }"
                                     press=".onDeleteEditRequiredSkill"/>
 
                             </cells>

@@ -21,7 +21,7 @@
                     size="1.5rem"/>
 
                 <Title
-                    text="WorkSync"
+                    text="WORKSYNC "
                     level="H2"
                     class="sapUiTinyMarginBegin"/>
                 <ToolbarSpacer />
@@ -104,10 +104,6 @@
                             key="graphs"
                             text="GRAPHS"
                             icon="sap-icon://alert" />
-                        <tnt:NavigationListItem
-                            key="analytic"
-                            text="Analytics Dashboard"
-                            icon="sap-icon://business-objects-experience"/>
                     </tnt:NavigationListItem>
                 </tnt:NavigationList>
             </tnt:SideNavigation>
@@ -166,9 +162,6 @@
                 <mvc:XMLView 
                     id = "graphsView"
                     viewName = "com.amista.worksyncui.view.Graphs"/>
-                <mvc:XMLView
-                    id="analyticView"
-                    viewName="com.amista.worksyncui.view.Analytic"/>
             </NavContainer>
         </tnt:mainContents>
     </tnt:ToolPage>

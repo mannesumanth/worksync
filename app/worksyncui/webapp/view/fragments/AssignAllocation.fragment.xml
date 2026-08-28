@@ -7,71 +7,112 @@
         title="Assign Employee"
         contentWidth="450px"
     >
-        <VBox class="sapUiMediumMargin">
-            <Label
-                text="Employee"
-                required="true"
-            />
 
-            <ComboBox
-                id="allocationEmployee"
-                width="100%"
-                items="{
-        path: '/EMPLOYEES'
-    }"
-            >
-                <core:Item
-                    key="{ID}"
-                    text="{NAME}"
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <!-- Project Information -->
+                <Panel
+                    headerText="Project Duration" 
+                    class="sapUiSmallMarginBottom" >
+                    <content>
+                        <HBox
+                            wrap="Wrap"
+                            class="sapUiSmallMargin" >
+                            <VBox width="50%" >
+                                <Label text="Project Start Date" />
+
+                                <Text id="assignProjectStartDate" />
+                            </VBox>
+
+                            <VBox width="50%" >
+                                <Label text="Project End Date"/>
+                                <Text id="assignProjectEndDate"/>
+                            </VBox>
+                        </HBox>
+                    </content>
+                </Panel>
+
+
+                <!-- Employee -->
+                <Label
+                    text="Employee"
+                    required="true"
                 />
-            </ComboBox>
-            <Label
-                text="Project Role"
-                required="true"
-                class="sapUiSmallMarginTop"
-            />
 
-            <Input
-                id="allocationRole"
-                placeholder="Backend Developer"
-            />
+                <ComboBox
+                    id="allocationEmployee"
+                    width="100%"
+                    items="{
+                        path: '/EMPLOYEES'
+                    }"
+                >
+                    <core:Item
+                        key="{ID}"
+                        text="{NAME}"
+                    />
+                </ComboBox>
 
-            <Label
-                text="Allocation Percentage"
-                required="true"
-                class="sapUiSmallMarginTop"
-            />
 
-            <StepInput
-                id="allocationPercent"
-                value="25"
-                min="1"
-                max="100"
-                step="5"
-            />
+                <!-- Project Role -->
+                <Label
+                    text="Project Role"
+                    required="true"
+                    class="sapUiSmallMarginTop"
+                />
 
-            <Label
-                text="Start Date"
-                required="true"
-                class="sapUiSmallMarginTop"
-            />
+                <Input
+                    id="allocationRole"
+                    placeholder="Backend Developer"
+                />
 
-            <DatePicker
-                id="allocationStartDate"
-                width="100%"
-            />
 
-            <Label
-                text="End Date"
-                required="true"
-                class="sapUiSmallMarginTop"
-            />
+                <!-- Allocation Percentage -->
+                <Label
+                    text="Allocation Percentage"
+                    required="true"
+                    class="sapUiSmallMarginTop"
+                />
 
-            <DatePicker
-                id="allocationEndDate"
-                width="100%"
-            />
-        </VBox>
+                <StepInput
+                    id="allocationPercent"
+                    value="25"
+                    min="1"
+                    max="100"
+                    step="5"
+                />
+
+
+                <!-- Allocation Start Date -->
+                <Label
+                    text="Start Date"
+                    required="true"
+                    class="sapUiSmallMarginTop"
+                />
+
+                <DatePicker
+                    id="allocationStartDate"
+                    width="100%"
+                />
+
+
+                <!-- Allocation End Date -->
+                <Label
+                    text="End Date"
+                    required="true"
+                    class="sapUiSmallMarginTop"
+                />
+
+                <DatePicker
+                    id="allocationEndDate"
+                    width="100%"
+                />
+
+            </VBox>
+
+        </content>
+
 
         <beginButton>
             <Button
@@ -81,11 +122,13 @@
             />
         </beginButton>
 
+
         <endButton>
             <Button
                 text="Cancel"
                 press=".onCloseAssignAllocation"
             />
         </endButton>
+
     </Dialog>
 </core:FragmentDefinition>

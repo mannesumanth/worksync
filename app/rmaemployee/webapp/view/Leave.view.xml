@@ -295,6 +295,10 @@
         >
 
             <columns>
+                <Column>
+                    <Text text="Leave ID" />
+                </Column>
+
 
                 <Column>
                     <Text text="Leave Type" />
@@ -333,6 +337,9 @@
                 <ColumnListItem>
 
                     <cells>
+                        <Text
+                            text="{leaves>LEAVE_ID}"
+                        />
 
                         <Text
                             text="{leaves>LEAVE_TYPE}"

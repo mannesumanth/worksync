@@ -22,8 +22,7 @@ service AdminService {
 
     entity LEAVE_BALANCE        as projection on db.LEAVE_BALANCE;
 
-    entity AllocationHistory as projection on db.ALLOCATION_HISTORY;
-
+    entity AllocationHistory    as projection on db.ALLOCATION_HISTORY;
     type ResourceForecast {
 
         ID                    : UUID;
@@ -44,6 +43,21 @@ service AdminService {
         ALLOCATION_END_DATE   : Date;
     }
 
+
+    type AllocationHistoryEntry {
+        ID                    : UUID;
+        ALLOC_HISTORY_ID      : String(20);
+        EMP_ID                : String(20);
+        EMPLOYEE_NAME         : String(100);
+        PROJECT_ID            : String(20);
+        PROJECT_NAME          : String(100);
+        ALLOCATION_PERCENTAGE : Decimal(5, 2);
+        PROJECT_ROLE          : String(50);
+        START_DATE            : Date;
+        END_DATE              : Date;
+    }
+
+
     type NotificationType : String enum {
         LEAVE;
         PROJECT;
@@ -59,7 +73,8 @@ service AdminService {
         TYPE       : NotificationType;
         CREATED_AT : Timestamp;
     }
-    // type graphStats 
+
+    // type graphStats
     type EmployeeMetrics {
         // Employee
         ID                      : UUID;
@@ -79,9 +94,12 @@ service AdminService {
         COMPLETED_PROJECT_COUNT : Integer;
 
         // Leave
-        PENDING_LEAVES          : Integer;
-        APPROVED_LEAVES         : Integer;
-        REJECTED_LEAVES         : Integer;
+        PENDING_LEAVES             : Integer;
+        APPROVED_LEAVES            : Integer;
+        REJECTED_LEAVES            : Integer;
+        CANCELLED_LEAVES           : Integer;
+        WITHDRAWN_LEAVES           : Integer;
+        WITHDRAWAL_REQUEST_LEAVES  : Integer;
 
         CASUAL_AVAILABLE        : Integer;
         CASUAL_USED             : Integer;
@@ -103,16 +121,47 @@ service AdminService {
         IS_OVER_ALLOCATED       : Boolean;
     }
 
-    function   GetEmployeeMetrics()    returns array of EmployeeMetrics;
+    type EmployeeForecastProject {
+        ID                    : UUID;
+        PROJECT_ID            : UUID;
+        PROJECT_NAME          : String(100);
+        PROJECT_ROLE          : String(50);
+        ALLOCATION_PERCENTAGE : Decimal(5, 2);
+        START_DATE            : Date;
+                END_DATE              : Date;
+    }
 
-    // function SearchEmployees(search: String,
-    //                          status: String,
-    //                          designation: String,
-    //                          minExp: Decimal(4, 1),
-    //                          maxExp: Decimal(4, 1),
-    //                          skip: Integer,
-    //                          top: Integer)               returns array of EMPLOYEES;
+    type EmployeeForecastLeave {
+        ID         : UUID;
+        LEAVE_TYPE : db.LeaveType;
+        LEAVE_FROM : Date;
+        LEAVE_TO   : Date;
+        STATUS     : db.LeaveStatus;
+            }
 
+    type EmployeeForecastAvailability {
+        DATE              : Date;
+        PROJECT_ID        : UUID;
+        PROJECT_NAME      : String(100);
+        ENDED_ALLOCATION  : Decimal(5, 2);
+        REMAINING_ALLOCATION : Decimal(5, 2);
+        AVAILABLE_PERCENT : Decimal(5, 2);
+        FULLY_AVAILABLE   : Boolean;
+    }
+
+    type ResourceForecastDetails {
+        EMPLOYEE_ID        : UUID;
+        EMP_ID             : String(20);
+        NAME               : String(100);
+        DESIGNATION        : String(100);   
+        CURRENT_ALLOCATION : Decimal(5, 2);
+        CURRENT_AVAILABLE  : Decimal(5, 2);
+        PROJECTS           : many EmployeeForecastProject;
+        LEAVES             : many EmployeeForecastLeave;
+        AVAILABILITY_TIMELINE : many EmployeeForecastAvailability;
+        FULLY_AVAILABLE_DATE : Date;
+    }
+    function GetEmployeeMetrics()                        returns array of EmployeeMetrics;
     type ProjectSkillInput {
         ID                 : UUID;
         skill_ID           : UUID;
@@ -129,6 +178,8 @@ service AdminService {
         manager_ID   : UUID;
         skills       : many ProjectSkillInput;
     }
+    function GetProjectAllocationHistory(projectId : UUID)
+    returns array of AllocationHistoryEntry;
 
     action   ApproveLeave(leaveId: UUID, status: String) returns {
         message : String
@@ -164,7 +215,6 @@ service AdminService {
     };
 
     function GetResourceForecast()                       returns array of ResourceForecast;
-
     function GetCurrentUser()                            returns {
         id         : String;
         isAdmin    : Boolean;
@@ -222,5 +272,8 @@ service AdminService {
                            project: ProjectUpdateInput)  returns {
         message : String;
     };
+
+    function GetEmployeeForecastDetails(employeeId: UUID)
+    returns ResourceForecastDetails;
 
 }

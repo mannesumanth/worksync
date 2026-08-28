@@ -23,13 +23,10 @@ sap.ui.define([
         {
             onInit: function () {
                 this._loadDesignations();
-                //Event Bus to Refresh Employees page
-                sap.ui.getCore().getEventBus().subscribe(
-                    "Employees",
-                    "Refresh",
-                    this.refreshEmployees,
-                    this
-                );
+                this.getOwnerComponent()
+                    .getRouter()
+                    .getRoute("Admin")          // the route name for this Employees list view
+                    .attachPatternMatched(this._onEmployeesRouteMatched, this);
                 sap.ui.getCore().getEventBus().subscribe(
                     "Designations",
                     "Refresh",
@@ -37,21 +34,50 @@ sap.ui.define([
                     this
                 );
 
-            },
-            //Refresh Employees
-            refreshEmployees: async function () {
-                await this._loadDesignations();
-                console.log("Employees page refreshed");
-            },
-            formatProfilePhoto: function (sEmployeeId) {
-                if (!sEmployeeId) {
-                    return "sap-icon://employee";
+            }, _onEmployeesRouteMatched: function () {
+                this._loadDesignations();
+
+                const oTable = this.byId("employeesTable");
+                const oBinding = oTable && oTable.getBinding("items");
+
+                if (oBinding) {
+                    oBinding.refresh();
                 }
-                return "/odata/v4/admin/EMPLOYEES(" +
-                    sEmployeeId +
-                    ")/PROFILE_PHOTO";
             },
 
+            onExit: function () {
+                this.getOwnerComponent()
+                    .getRouter()
+                    .getRoute("Admin")
+                    .detachPatternMatched(this._onEmployeesRouteMatched, this);
+            },
+            formatProfilePhoto: function (sEmployeeId) {
+
+    if (!sEmployeeId) {
+        return "";
+    }
+
+    const oModel = this.getOwnerComponent().getModel();
+    const sServiceUrl = oModel.getServiceUrl();
+
+    return sServiceUrl +
+        "EMPLOYEES(" +
+        sEmployeeId +
+        ")/PROFILE_PHOTO";
+},
+            onProfileImageError: function (oEvent) {
+
+                const oImage = oEvent.getSource();
+                const oHBox = oImage.getParent();
+
+                oImage.setVisible(false);
+
+                const oIcon = oHBox.getItems()[1];
+
+                if (oIcon) {
+                    oIcon.setVisible(true);
+                }
+            },
 
             //Load Designations
             async _loadDesignations() {

@@ -46,15 +46,7 @@
                                         text="{projectDetails>/STATUS}"
                                     />
                                 </VBox>
-                                <VBox
-                                    width="8rem"
-                                    class="sapUiSmallMarginEnd"
-                                >
-                                    <Label text="Priority" />
-                                    <Text
-                                        text="{projectDetails>/PRIORITY}"
-                                    />
-                                </VBox>
+                               
 
                                 <VBox
                                     width="8rem"

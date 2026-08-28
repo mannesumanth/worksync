@@ -35,13 +35,28 @@ sap.ui.define([
                     this
                 );
             },
+            onEmployeeSectionChange: function (oEvent) {
+
+                const sKey =
+                    oEvent.getParameter("item").getKey();
+
+                this.byId("skillsSection")
+                    .setVisible(sKey === "skills");
+
+                this.byId("allocationsSection")
+                    .setVisible(sKey === "allocations");
+            },
             formatProfilePhoto: function (sEmployeeId) {
 
                 if (!sEmployeeId) {
                     return "";
                 }
 
-                return "/odata/v4/admin/EMPLOYEES(" +
+                const oModel = this.getOwnerComponent().getModel();
+                const sServiceUrl = oModel.getServiceUrl();
+
+                return sServiceUrl +
+                    "EMPLOYEES(" +
                     sEmployeeId +
                     ")/PROFILE_PHOTO";
             },
@@ -265,7 +280,6 @@ sap.ui.define([
                         .getData();
                     const oError = aMessages.find(m => m.type === "Error");
 
-                    sap.ui.getCore().getEventBus().publish("Employees", "Refresh");
                     sap.ui.getCore().getEventBus().publish("Spof", "Refresh");
                     this.getView().getBindingContext().refresh();
 

@@ -185,15 +185,30 @@
                     <!-- On View Employee -->
                     <ColumnListItem type="Active">
                         <cells>
-                        <Image
-                            src="{path: 'ID', formatter: '.formatProfilePhoto'}"
-                            width="40px"
-                            height="40px"
-                            densityAware="false"
-                            decorative="false"
-                            alt="{NAME}"
-                            class="sapUiTinyMargin"
-                        />
+                        <HBox
+    alignItems="Center"
+    justifyContent="Center"
+    width="3rem"
+    height="3rem"
+>
+    <Image
+        src="{path: 'ID', formatter: '.formatProfilePhoto'}"
+        width="40px"
+        height="40px"
+        densityAware="false"
+        decorative="false"
+        alt="{NAME}"
+        class="sapUiTinyMargin"
+        error=".onProfileImageError"
+    />
+
+    <core:Icon
+        src="sap-icon://employee"
+        size="2.5rem"
+        visible="false"
+        class="sapUiTinyMargin"
+    />
+</HBox>
                             <Text text="{EMP_ID}" />
                             <Text text="{NAME}" />
                             <Text text="{EMAIL}" />

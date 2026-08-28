@@ -4,8 +4,19 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
     "sap/ui/core/Fragment",
-    "sap/ui/core/format/DateFormat"
-], function (Controller, MessageToast, MessageBox, JSONModel, Fragment, DateFormat) {
+    "sap/ui/core/format/DateFormat",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
+], function (
+    Controller,
+    MessageToast,
+    MessageBox,
+    JSONModel,
+    Fragment,
+    DateFormat,
+    Filter,
+    FilterOperator
+)  {
     "use strict";
 
     return Controller.extend(
@@ -24,12 +35,44 @@ sap.ui.define([
                     }),
                     "ui"
                 );
+                this.getView().setModel(
+        new JSONModel({ history: [] }),
+        "allocationHistory"
+    );
+                 this.getOwnerComponent()
+        .getRouter()
+        .getRoute("ProjectDetail")
+        .attachPatternMatched(this._onProjectMatched, this);
             },
+        _onProjectMatched: function (oEvent) {
+    const sProjectId = oEvent.getParameter("arguments").projectId;
+    this._loadAllocationHistory(sProjectId);
+},
+_loadAllocationHistory: async function (sProjectId) {
+    if (!sProjectId) {
+        return;
+    }
+    const oModel = this.getView().getModel();
+    try {
+        const oAction = oModel.bindContext(
+            "/GetProjectAllocationHistory(...)"
+        );
+        oAction.setParameter("projectId", sProjectId);
+        await oAction.execute();
+        const oResult = oAction.getBoundContext().getObject();
+        this.getView()
+            .getModel("allocationHistory")
+            .setProperty("/history", oResult.value || []);
+    } catch (e) {
+        MessageBox.error(e.message || "Unable to load allocation history.");
+    }
+},
             // NAVIGATION — Back button
             onNavBack: function () {
                 this.getOwnerComponent().getRouter().navTo("Admin");
                 sap.ui.getCore().getEventBus().publish("Admin", "BackToProjects");
             },
+            
             // EDIT Project Status
             onProjectStatusChange: async function (oEvent) {
                 try {
@@ -56,6 +99,18 @@ sap.ui.define([
                     MessageBox.error(e.message);
                 }
             },
+            _formatDisplayDate: function (sDate) {
+
+                if (!sDate) {
+                    return "";
+                }
+                const oDate = new Date(sDate);
+                return DateFormat
+                    .getDateInstance({
+                        style: "medium"
+                    })
+                    .format(oDate);
+            },
             onAssignEmployee: async function () {
                 if (!this._oAssignAllocationDialog) {
                     this._oAssignAllocationDialog = await sap.ui.core.Fragment.load({
@@ -66,7 +121,23 @@ sap.ui.define([
 
                     this.getView().addDependent(this._oAssignAllocationDialog);
                 }
+
+
                 const oProject = this.getView().getBindingContext().getObject();
+                const dProjectStart =
+                    new Date(oProject.START_DATE);
+
+                const dProjectEnd =
+                    new Date(oProject.END_DATE);
+                this.byId("assignProjectStartDate")
+                    .setText(
+                        this._formatDisplayDate(oProject.START_DATE)
+                    );
+
+                this.byId("assignProjectEndDate")
+                    .setText(
+                        this._formatDisplayDate(oProject.END_DATE)
+                    );
                 this.byId("allocationStartDate")
                     .setDateValue(new Date(oProject.START_DATE));
                 this.byId("allocationEndDate")
@@ -210,7 +281,7 @@ sap.ui.define([
                         oModel.bindList("/ALLOCATIONS").create(oPayload);
                     await oContext.created();
                     MessageToast.show("Employee assigned successfully.");
-                    this.byId("allocationHistoryTable").getBinding("items").refresh();
+                    await this._loadAllocationHistory(oProject.ID);
                     sap.ui.getCore().getEventBus().publish(
                         "Employees",
                         "Refresh"
@@ -238,22 +309,64 @@ sap.ui.define([
             },
             // Edit Allocation Dialog
             onEditAllocation: async function (oEvent) {
-                const oAllocationContext = oEvent.getSource().getBindingContext();
+
+                const oAllocationContext =
+                    oEvent.getSource().getBindingContext();
+
                 if (!this._oEditAllocationDialog) {
+
                     this._oEditAllocationDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.amista.worksyncui.view.fragments.EditAllocation",
                         controller: this
                     });
-                    this.getView().addDependent(this._oEditAllocationDialog);
+
+                    this.getView()
+                        .addDependent(this._oEditAllocationDialog);
                 }
+
                 // Keep the OData context for saving later
-                this._oCurrentAllocationContext = oAllocationContext;
+                this._oCurrentAllocationContext =
+                    oAllocationContext;
+
                 // Create a copy of the allocation data
-                const oAllocationData = structuredClone(oAllocationContext.getObject());
+                const oAllocationData =
+                    structuredClone(
+                        oAllocationContext.getObject()
+                    );
+
                 // JSON model for editing
-                const oEditModel = new sap.ui.model.json.JSONModel(oAllocationData);
-                this._oEditAllocationDialog.setModel(oEditModel, "editAllocation");
+                const oEditModel =
+                    new sap.ui.model.json.JSONModel(
+                        oAllocationData
+                    );
+
+                this._oEditAllocationDialog.setModel(
+                    oEditModel,
+                    "editAllocation"
+                );
+
+                // Get current project details
+                const oProject =
+                    this.getView()
+                        .getBindingContext()
+                        .getObject();
+
+                // Display project dates
+                this.byId("editAllocationProjectStartDate")
+                    .setText(
+                        this._formatDisplayDate(
+                            oProject.START_DATE
+                        )
+                    );
+
+                this.byId("editAllocationProjectEndDate")
+                    .setText(
+                        this._formatDisplayDate(
+                            oProject.END_DATE
+                        )
+                    );
+
                 this._oEditAllocationDialog.open();
             },
             // Save Edited Allocation
@@ -297,10 +410,9 @@ sap.ui.define([
                         return;
                     }
                     MessageToast.show("Allocation updated successfully.");
-                    sap.ui.getCore().getEventBus().publish(
-                        "Employees",
-                        "Refresh"
-                    );
+                    const sProjectId = this.getView().getBindingContext().getProperty("ID");
+                    await this._loadAllocationHistory(sProjectId);
+                    await this._loadRecommendedResources(sProjectId); 
                     sap.ui.getCore().getEventBus().publish(
                         "Forecast",
                         "Refresh"
@@ -343,6 +455,7 @@ sap.ui.define([
                                 MessageToast.show(
                                     "Allocation removed."
                                 );
+                                await this._loadAllocationHistory(sProjectId);
                                 this.getView()
                                     .getBindingContext()
                                     .refresh();
@@ -360,48 +473,45 @@ sap.ui.define([
             },
             //Edit Project Dialog
             onEditProjectPress: async function () {
-                if (!this._oEditProjectDialog) {
-                    this._oEditProjectDialog = await Fragment.load({
-                        id: this.getView().getId(),
-                        name: "com.amista.worksyncui.view.fragments.EditProject",
-                        controller: this
-                    });
-                    this.getView().addDependent(this._oEditProjectDialog);
-                }
-                const oProject = this.getView()
-                    .getBindingContext()
-                    .getObject();
-                const aSkills = [];
-                console.log("Project:", oProject);
-                console.log("Manager:", oProject.manager);
-                console.log("Requirements:", oProject.requirements);
-                (oProject.requirements || []).forEach(function (oRequirement) {
-                    (oRequirement.requirementSkills || []).forEach(function (oSkill) {
-                        console.log("Requirement Skill:", oSkill);
-                        aSkills.push({
-                            ID: oSkill.ID,
-                            skill_ID: oSkill.skill.ID,
-                            REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
-                            REQUIRED_RESOURCES: oSkill.REQUIRED_RESOURCES
-                        });
-                    });
-                });
-                console.log("Skills:", aSkills);
-                const oEditModel = new sap.ui.model.json.JSONModel({
-                    ID: oProject.ID,
-                    PROJECT_NAME: oProject.PROJECT_NAME,
-                    DESCRIPTION: oProject.DESCRIPTION,
-                    START_DATE: oProject.START_DATE,
-                    END_DATE: oProject.END_DATE,
-                    STATUS: oProject.STATUS,
-                    manager_ID: oProject.manager.ID,
-                    skills: aSkills
+    if (!this._oEditProjectDialog) {
+        this._oEditProjectDialog = await Fragment.load({
+            id: this.getView().getId(),
+            name: "com.amista.worksyncui.view.fragments.EditProject",
+            controller: this
+        });
+        this.getView().addDependent(this._oEditProjectDialog);
+    }
+    const oProject = this.getView()
+        .getBindingContext()
+        .getObject();
+    const aSkills = [];
+    (oProject.requirements || []).forEach(function (oRequirement) {
+        (oRequirement.requirementSkills || []).forEach(function (oSkill) {
+            aSkills.push({
+                ID: oSkill.ID,
+                skill_ID: oSkill.skill.ID,
+                REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                REQUIRED_RESOURCES: oSkill.REQUIRED_RESOURCES
+            });
+        });
+    });
 
-                });
+    const oEditModel = new sap.ui.model.json.JSONModel({
+        ID: oProject.ID,
+        PROJECT_NAME: oProject.PROJECT_NAME,
+        DESCRIPTION: oProject.DESCRIPTION,
+        START_DATE: oProject.START_DATE,
+        END_DATE: oProject.END_DATE,
+        STATUS: oProject.STATUS,
+        manager_ID: oProject.manager.ID,
+        skills: aSkills,
+        IS_ON_HOLD: oProject.STATUS === "ON_HOLD",
+        IS_COMPLETED: oProject.STATUS === "COMPLETED"
+    });
 
-                this.getView().setModel(oEditModel, "editProject");
-                this._oEditProjectDialog.open();
-            },
+    this.getView().setModel(oEditModel, "editProject");
+    this._oEditProjectDialog.open();
+},
             onAddEditRequiredSkill: function () {
                 const oModel = this.getView().getModel("editProject");
                 const aSkills = oModel.getProperty("/skills") || [];
@@ -459,107 +569,109 @@ sap.ui.define([
             },
             //Update Project    
             onUpdateProject: async function () {
-                const oView = this.getView();
-                const oModel = oView.getModel();
-                const oProject = oView
-                    .getBindingContext()
-                    .getObject();
-                const oEdit = oView
-                    .getModel("editProject")
-                    .getData();
-                //this._oOriginalProject = JSON.parse(JSON.stringify(editProject));
-                const oDateFormat = DateFormat.getDateInstance({
-                    pattern: "yyyy-MM-dd"
-                });
-                const dStart = new Date(oEdit.START_DATE);
-                const dEnd = new Date(oEdit.END_DATE);
-                // Validation
-                if (!oEdit.PROJECT_NAME) {
-                    MessageBox.error("Project Name is required.");
-                    return;
-                }
-                if (!oEdit.START_DATE || !oEdit.END_DATE) {
-                    MessageBox.error("Start Date and End Date are required.");
-                    return;
-                }
-                if (dStart > dEnd) {
-                    MessageBox.error("End Date cannot be before Start Date.");
-                    return;
-                }
-                if (!oEdit.manager_ID) {
-                    MessageBox.error("Please select a Project Manager.");
-                    return;
-                }
-                if (!oEdit.skills.length) {
-                    MessageBox.error("Please add at least one required skill.");
-                    return;
-                }
-                // Duplicate Skill Validation
-                const aSkillIds = oEdit.skills.map(s => s.skill_ID);
-                if (new Set(aSkillIds).size !== aSkillIds.length) {
-                    MessageBox.error("Duplicate skills are not allowed.");
-                    return;
-                }
+    const oView = this.getView();
+    const oModel = oView.getModel();
+    const oProject = oView
+        .getBindingContext()
+        .getObject();
+    const oEdit = oView
+        .getModel("editProject")
+        .getData();
+    const oDateFormat = DateFormat.getDateInstance({
+        pattern: "yyyy-MM-dd"
+    });
+    const dStart = new Date(oEdit.START_DATE);
+    const dEnd = new Date(oEdit.END_DATE);
 
-                this._oEditProjectDialog.setBusy(true);
-                try {
-                    const oAction = oModel.bindContext("/UpdateProject(...)");
-                    oAction.setParameter("projectId", oProject.ID);
-                    oAction.setParameter("project", {
-                        PROJECT_NAME: oEdit.PROJECT_NAME,
-                        DESCRIPTION: oEdit.DESCRIPTION,
-                        START_DATE: oDateFormat.format(dStart),
-                        END_DATE: oDateFormat.format(dEnd),
-                        STATUS: oEdit.STATUS,
-                        manager_ID: oEdit.manager_ID,
-                        skills: oEdit.skills.map(function (oSkill) {
-                            return {
-                                ID: oSkill.ID,
-                                skill_ID: oSkill.skill_ID,
-                                REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
-                                REQUIRED_RESOURCES: Number(oSkill.REQUIRED_RESOURCES)
-                            };
-                        })
-                    });
-                    console.log("Skills being sent:", oEdit.skills);
-                    await oAction.execute();
-                    sap.ui.getCore().getEventBus().publish(
-                        "Project",
-                        "Rebind",
-                        {
-                            projectId: oProject.ID
-                        }
-                    );
-                    sap.ui.getCore().getEventBus().publish(
-                        "Project",
-                        "ProjectUpdated"
-                    );
-                    MessageToast.show("Project updated successfully.");
-                    this._oEditProjectDialog.close();
-                    // Refresh Project Detail
-                    await oView.getElementBinding().refresh();
-                    // Refresh Allocations
-                    if (this._loadAllocations) {
-                        await this._loadAllocations();
-                    }
-                    // Refresh Projects List
-                    sap.ui.getCore()
-                        .getEventBus()
-                        .publish("Projects", "Refresh");
+    // Validation
+    if (!oEdit.PROJECT_NAME) {
+        MessageBox.error("Project Name is required.");
+        return;
+    }
+    if (!oEdit.START_DATE || !oEdit.END_DATE) {
+        MessageBox.error("Start Date and End Date are required.");
+        return;
+    }
+    if (dStart > dEnd) {
+        MessageBox.error("End Date cannot be before Start Date.");
+        return;
+    }
+    if (!oEdit.manager_ID) {
+        MessageBox.error("Please select a Project Manager.");
+        return;
+    }
+    if (!oEdit.skills.length) {
+        MessageBox.error("Please add at least one required skill.");
+        return;
+    }
+    const aSkillIds = oEdit.skills.map(s => s.skill_ID);
+    if (new Set(aSkillIds).size !== aSkillIds.length) {
+        MessageBox.error("Duplicate skills are not allowed.");
+        return;
+    }
 
-                } catch (oError) {
-                    console.error(oError);
-                    MessageBox.error(
-                        oError.message || "Failed to update project."
-                    );
-                } finally {
+    // Warn before an irreversible COMPLETED transition
+    if (oEdit.STATUS === "COMPLETED" && oProject.STATUS !== "COMPLETED") {
+        const bConfirmed = await this._confirmCompleteProject();
+        if (!bConfirmed) {
+            return;
+        }
+    }
 
-                    this._oEditProjectDialog.setBusy(false);
+    this._oEditProjectDialog.setBusy(true);
+    try {
+        const oAction = oModel.bindContext("/UpdateProject(...)");
+        oAction.setParameter("projectId", oProject.ID);
+        oAction.setParameter("project", {
+            PROJECT_NAME: oEdit.PROJECT_NAME,
+            DESCRIPTION: oEdit.DESCRIPTION,
+            START_DATE: oDateFormat.format(dStart),
+            END_DATE: oDateFormat.format(dEnd),
+            STATUS: oEdit.STATUS,
+            manager_ID: oEdit.manager_ID,
+            skills: oEdit.skills.map(function (oSkill) {
+                return {
+                    ID: oSkill.ID,
+                    skill_ID: oSkill.skill_ID,
+                    REQUIRED_LEVEL: oSkill.REQUIRED_LEVEL,
+                    REQUIRED_RESOURCES: Number(oSkill.REQUIRED_RESOURCES)
+                };
+            })
+        });
+        await oAction.execute();
+        sap.ui.getCore().getEventBus().publish("Project", "Rebind", { projectId: oProject.ID });
+        sap.ui.getCore().getEventBus().publish("Project", "ProjectUpdated");
+        MessageToast.show("Project updated successfully.");
+        this._oEditProjectDialog.close();
+        await oView.getElementBinding().refresh();
+        if (this._loadAllocations) {
+            await this._loadAllocations();
+        }
+        sap.ui.getCore().getEventBus().publish("Projects", "Refresh");
+    } catch (oError) {
+        console.error(oError);
+        MessageBox.error(oError.message || "Failed to update project.");
+    } finally {
+        this._oEditProjectDialog.setBusy(false);
+    }
+},
 
-                }
-
-            },
-
+_confirmCompleteProject: function () {
+    return new Promise((resolve) => {
+        MessageBox.warning(
+            "Setting this project to COMPLETED will remove all current " +
+            "resource allocations for this project. This action cannot " +
+            "be undone — the status cannot be changed back afterward. " +
+            "Do you want to continue?",
+            {
+                title: "Confirm Project Completion",
+                actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                emphasizedAction: MessageBox.Action.NO,
+                onClose: (sAction) => resolve(sAction === MessageBox.Action.YES)
+            }
+        );
+    });
+},
             onViewProject: function (oEvent) {
                 const sId = oEvent.getSource()
                     .getBindingContext()

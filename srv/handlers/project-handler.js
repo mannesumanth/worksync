@@ -34,7 +34,7 @@ module.exports = {
             req.data.DESIGNATION_ID = await generateBusinessId(req, 'DESIGNATION_SEQ', 'DES');
             console.log('Generated DESIGNATION_ID:', req.data.DESIGNATION_ID);
         });
-       service.before('CREATE', SKILL_CATEGORIES, async (req) => {
+        service.before('CREATE', SKILL_CATEGORIES, async (req) => {
             req.data.CAT_ID = await generateBusinessId(req, 'CATEGORY_SEQ', 'CAT');
         });
 
@@ -72,14 +72,12 @@ module.exports = {
                     })
             );
             if (["COMPLETED", "ON_HOLD", "UPCOMING"].includes(project.STATUS)) {
-
                 await tx.run(
                     DELETE.from(ALLOCATIONS)
                         .where({
                             project_ID: projectId
                         })
                 );
-
             }
             // Get Requirement
             const oRequirement = await tx.run(
@@ -94,7 +92,6 @@ module.exports = {
                     message: "Project updated successfully."
                 };
             }
-
             // Existing Requirement Skills
             const aExistingSkills = await tx.run(
                 SELECT
@@ -132,7 +129,6 @@ module.exports = {
             for (const oExisting of aExistingSkills) {
                 const bExists = project.skills.some(function (oSkill) {
                     return oSkill.ID === oExisting.ID;
-
                 });
                 if (!bExists) {
                     await tx.run(
@@ -146,8 +142,6 @@ module.exports = {
             return {
                 message: "Project updated successfully."
             };
-
         });
-
     }
 }

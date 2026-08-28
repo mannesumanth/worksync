@@ -48,7 +48,6 @@
                                     visible="true"
                                     size="6rem"
                                 />
-
                                 <!-- Upload Photo Button -->
                                 <unified:FileUploader
                                     id="profilePhotoUploader"

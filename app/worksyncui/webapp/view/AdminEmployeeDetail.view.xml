@@ -30,506 +30,463 @@
 
         <content>
             <!-- EMPLOYEE PROFILE HEADER                           -->
-            <Panel
-                class="sapUiSmallMarginBottom"
+<Panel
+    id="employeeInformationPanel"
+    headerText="Employee Information"
+    class="sapUiSmallMarginBottom"
+>
+    <content>
+
+        <HBox
+            alignItems="Start"
+            fitContainer="true"
+            wrap="Wrap"
+            class="sapUiMediumMargin"
+        >
+
+            <!-- Profile Photo -->
+   <VBox
+   class = "sapUiMediumMarginBottom sapUiMediumMarginEnd">
+    <Image
+        id="employeeProfileImage"
+        src="{path: 'ID', formatter: '.formatProfilePhoto'}"
+        width="120px"
+        height="140px"
+        densityAware="false"
+        decorative="false"
+        alt="{NAME}"
+        visible="true"
+        error=".onProfileImageError"
+    />
+    </VBox>
+
+            <!-- Employee Details -->
+            <VBox
+                fitContainer="true"
+                class="sapUiMediumMarginBottom"
             >
-                <content>
-                    <HBox
-                         fitContainer="true"
-                        alignItems="Center"
-                        class="sapUiMediumMargin"
+
+                <HBox
+                    fitContainer="true"
+                    wrap="Wrap"
+                >
+
+                    <!-- Employee ID -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
                     >
-                        <!-- Profile Photo -->
-                    <Image
-                        src="{path: 'ID', formatter: '.formatProfilePhoto'}"
-                        width="120px"
-                        height="120px"
-                        densityAware="false"
-                        decorative="false"
-                        alt="{NAME}"
-                        class="sapUiMediumMarginEnd"
-                    />
-                        <!-- Employee Summary -->
-                        <VBox
-                            width="100%"
-                        >
-                            <!-- Name -->
-                            <Title
-                                text="{NAME}"
-                                level="H2"
-                                class="sapUiTinyMarginBottom"
-                            />
+                        <Label text="Employee ID" />
+
+                        <Text
+                            text="{EMP_ID}"
+                        />
+                    </VBox>
 
 
-                            <!-- Employee ID + Designation -->
+                    <!-- Name -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Name" />
 
-                            <HBox
-                                wrap="Wrap"
-                                alignItems="Center"
-                                class="sapUiTinyMarginBottom"
-                            >
-
-                                <ObjectStatus
-                                    text="{EMP_ID}"
-                                    icon="sap-icon://employee"
-                                    class="sapUiTinyMarginEnd"
-                                />
-
-                                <Text
-                                    text="•"
-                                    class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
-                                />
-
-                                <Text
-                                    text="{designation/NAME}"
-                                />
-
-                            </HBox>
+                        <Text
+                            text="{NAME}"
+                        />
+                    </VBox>
 
 
-                            <!-- Status -->
+                    <!-- Email -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Email" />
 
-                            <ObjectStatus
-                                text="{STATUS}"
-                                state="{=
-                                    ${STATUS} === 'ACTIVE'
-                                        ? 'Success'
-                                        :
-                                    ${STATUS} === 'ON_LEAVE'
-                                        ? 'Warning'
-                                        :
-                                    ${STATUS} === 'BENCH'
-                                        ? 'Information'
-                                        :
-                                    'Error'
-                                }"
-                                class="sapUiTinyMarginBottom"
-                            />
+                        <Text
+                            text="{EMAIL}"
+                        />
+                    </VBox>
 
 
-                            <!-- Contact Information -->
+                    <!-- Gender -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Gender" />
 
-                            <HBox
-                                wrap="Wrap"
-                                alignItems="Center"
-                                class="sapUiSmallMarginTop"
-                            >
-
-                                <HBox
-                                    alignItems="Center"
-                                    class="sapUiMediumMarginEnd"
-                                >
-
-                                    <core:Icon
-                                        src="sap-icon://email"
-                                        class="sapUiTinyMarginEnd"
-                                    />
-
-                                    <Text
-                                        text="{EMAIL}"
-                                    />
-
-                                </HBox>
+                        <Text
+                            text="{GENDER}"
+                        />
+                    </VBox>
 
 
-                                <HBox
-                                    alignItems="Center"
-                                    class="sapUiMediumMarginEnd"
-                                >
+                    <!-- Phone Number -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Phone Number" />
 
-                                    <core:Icon
-                                        src="sap-icon://call"
-                                        class="sapUiTinyMarginEnd"
-                                    />
-
-                                    <Text
-                                        text="{PHONE_NUMBER}"
-                                    />
-
-                                </HBox>
+                        <Text
+                            text="{PHONE_NUMBER}"
+                        />
+                    </VBox>
 
 
-                                <HBox
-                                    alignItems="Center"
-                                >
+                    <!-- Date of Birth -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Date of Birth" />
 
-                                    <core:Icon
-                                        src="sap-icon://history"
-                                        class="sapUiTinyMarginEnd"
-                                    />
+                        <Text
+                            text="{DATE_OF_BIRTH}"
+                        />
+                    </VBox>
 
-                                    <Text
-                                        text="{EXPERIENCE} Years Experience"
-                                    />
 
-                                </HBox>
+                    <!-- Joining Date -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Joining Date" />
 
-                            </HBox>
+                        <Text
+                            text="{JOINING_DATE}"
+                        />
+                    </VBox>
 
-                        </VBox>
 
-                    </HBox>
+                    <!-- Experience -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Experience" />
 
-                </content>
+                        <Text
+                            text="{EXPERIENCE}"
+                        />
+                    </VBox>
 
-            </Panel>
 
+                    <!-- Designation -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Designation" />
+
+                        <Text
+                            text="{designation/NAME}"
+                        />
+                    </VBox>
+
+
+                    <!-- Status -->
+                    <VBox
+                        width="50%"
+                        class="sapUiSmallMarginBottom"
+                    >
+                        <Label text="Status" />
+
+                        <ObjectStatus
+                            text="{STATUS}"
+                            state="{=
+                                ${STATUS} === 'ACTIVE'
+                                    ? 'Success'
+                                    :
+                                ${STATUS} === 'ON_LEAVE'
+                                    ? 'Warning'
+                                    :
+                                ${STATUS} === 'BENCH'
+                                    ? 'Information'
+                                    :
+                                'Error'
+                            }"
+                        />
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+
+        </HBox>
+
+    </content>
+</Panel>
 
             <!-- ================================================= -->
             <!-- EMPLOYEE DETAILS TABS                            -->
             <!-- ================================================= -->
 
-            <IconTabBar
-                id="employeeDetailTabBar"
-                expandable="false"
-                class="sapUiResponsiveContentPadding"
-            >
-
-                <items>
+            <VBox
+    id="employeeDetailsSections"
+    class="sapUiResponsiveContentPadding"
+>
+
+    <SegmentedButton
+        id="employeeDetailSegmentedButton"
+        selectedKey="skills"
+        selectionChange=".onEmployeeSectionChange"
+        width="100%"
+    >
+        <items>
+
+            <SegmentedButtonItem
+                key="skills"
+                text="Skills"
+                icon="sap-icon://competitor"
+            />
+
+            <SegmentedButtonItem
+                key="allocations"
+                text="Allocations"
+                icon="sap-icon://project-definition-triangle"
+            />
+
+        </items>
+    </SegmentedButton>
+
+
+    <!-- Skills -->
+
+    <VBox
+        id="skillsSection"
+        visible="true"
+        class="sapUiMediumMarginTop"
+    >
+
+        <Toolbar>
+
+            <Title
+                text="Employee Skills"
+                level="H3"
+            />
+
+            <ToolbarSpacer />
+
+            <Button
+                text="Add Skill"
+                icon="sap-icon://add"
+                type="Emphasized"
+                press=".onAddEmployeeSkill"
+                visible="{=
+                    ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
+                    &amp;&amp;
+                    ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
+                }"
+            />
+
+        </Toolbar>
+
+        <Table
+            growing="true"
+            growingThreshold="5"
+            items="{skills}"
+            noDataText="No skills available"
+        >
+
+            <columns>
+
+                <Column width="40%">
+                    <Text text="Skill" />
+                </Column>
+
+                <Column width="30%">
+                    <Text text="Proficiency" />
+                </Column>
+
+                <Column
+                    width="15%"
+                    hAlign="Center"
+                    visible="{=
+                        ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
+                        &amp;&amp;
+                        ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
+                    }"
+                >
+                    <Text text="Edit" />
+                </Column>
+
+                <Column
+                    width="15%"
+                    hAlign="Center"
+                    visible="{=
+                        ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
+                        &amp;&amp;
+                        ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
+                    }"
+                >
+                    <Text text="Delete" />
+                </Column>
+
+            </columns>
 
+            <items>
 
-                    <!-- ========================================= -->
-                    <!-- OVERVIEW                                  -->
-                    <!-- ========================================= -->
+                <ColumnListItem>
 
-                    <IconTabFilter
-                        key="overview"
-                        icon="sap-icon://detail-view"
-                        text="Overview"
-                    >
+                    <cells>
 
-                        <content>
+                        <Text
+                            text="{skill/SKILL_NAME}"
+                        />
 
-                            <Panel
-                                headerText="Employee Information"
-                                class="sapUiSmallMarginBottom"
-                            >
+                        <ObjectStatus
+                            text="{PROFICIENCY_LEVEL}"
+                            state="{=
+                                ${PROFICIENCY_LEVEL} === 'EXPERT'
+                                    ? 'Success'
+                                    :
+                                ${PROFICIENCY_LEVEL} === 'ADVANCED'
+                                    ? 'Information'
+                                    :
+                                ${PROFICIENCY_LEVEL} === 'INTERMEDIATE'
+                                    ? 'Warning'
+                                    :
+                                'None'
+                            }"
+                        />
 
-                                <content>
+                        <Button
+                            icon="sap-icon://edit"
+                            type="Transparent"
+                            tooltip="Edit Skill"
+                            press=".onEditEmployeeSkill"
+                        />
 
-                                    <f:SimpleForm
-                                        editable="false"
-                                        layout="ResponsiveGridLayout"
-                                        labelSpanXL="3"
-                                        labelSpanL="3"
-                                        labelSpanM="4"
-                                        labelSpanS="12"
-                                        adjustLabelSpan="false"
-                                        emptySpanXL="1"
-                                        emptySpanL="1"
-                                        emptySpanM="0"
-                                        emptySpanS="0"
-                                        columnsXL="2"
-                                        columnsL="2"
-                                        columnsM="2"
-                                        singleContainerFullSize="false"
-                                    >
-
-                                        <Label text="Employee ID" />
-                                        <Text text="{EMP_ID}" />
+                        <Button
+                            icon="sap-icon://delete"
+                            type="Transparent"
+                            tooltip="Delete Skill"
+                            press=".onDeleteEmployeeSkill"
+                        />
 
-                                        <Label text="Name" />
-                                        <Text text="{NAME}" />
+                    </cells>
 
-                                        <Label text="Email" />
-                                        <Text text="{EMAIL}" />
-
-                                        <Label text="Gender" />
-                                        <Text text="{GENDER}" />
-
-                                        <Label text="Phone" />
-                                        <Text text="{PHONE_NUMBER}" />
-
-                                        <Label text="Date of Birth" />
-                                        <Text text="{DATE_OF_BIRTH}" />
-
-                                        <Label text="Joining Date" />
-                                        <Text text="{JOINING_DATE}" />
-
-                                        <Label text="Designation" />
-                                        <Text text="{designation/NAME}" />
-
-                                        <Label text="Experience" />
-                                        <Text text="{EXPERIENCE} Years" />
-
-                                        <Label text="Status" />
-
-                                        <ObjectStatus
-                                            text="{STATUS}"
-                                            state="{=
-                                                ${STATUS} === 'ACTIVE'
-                                                    ? 'Success'
-                                                    :
-                                                ${STATUS} === 'ON_LEAVE'
-                                                    ? 'Warning'
-                                                    :
-                                                ${STATUS} === 'BENCH'
-                                                    ? 'Information'
-                                                    :
-                                                'Error'
-                                            }"
-                                        />
-
-                                    </f:SimpleForm>
-
-                                </content>
-
-                            </Panel>
-
-                        </content>
-
-                    </IconTabFilter>
-
+                </ColumnListItem>
 
-                    <!-- ========================================= -->
-                    <!-- SKILLS                                    -->
-                    <!-- ========================================= -->
-
-                    <IconTabFilter
-                        key="skills"
-                        icon="sap-icon://competitor"
-                        text="Skills"
-                    >
-
-                        <content>
-
-                            <Toolbar>
-
-                                <Title
-                                    text="Employee Skills"
-                                    level="H3"
-                                />
-
-                                <ToolbarSpacer />
-
-                                <Button
-                                    text="Add Skill"
-                                    icon="sap-icon://add"
-                                    type="Emphasized"
-                                    press=".onAddEmployeeSkill"
-                                    visible="{=
-                                        ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
-                                        &amp;&amp;
-                                        ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
-                                    }"
-                                />
-
-                            </Toolbar>
-
-
-                            <Table
-                                growing="true"
-                                growingThreshold="5"
-                                items="{skills}"
-                                noDataText="No skills available"
-                            >
-
-                                <columns>
-
-                                    <Column width="40%">
-                                        <Text text="Skill" />
-                                    </Column>
-
-                                    <Column width="30%">
-                                        <Text text="Proficiency" />
-                                    </Column>
-
-                                    <Column
-                                        width="15%"
-                                        hAlign="Center"
-                                        visible="{=
-                                            ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
-                                            &amp;&amp;
-                                            ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
-                                        }"
-                                    >
-                                        <Text text="Edit" />
-                                    </Column>
-
-                                    <Column
-                                        width="15%"
-                                        hAlign="Center"
-                                        visible="{=
-                                            ${path: 'STATUS', targetType: 'any'} !== 'TERMINATED'
-                                            &amp;&amp;
-                                            ${path: 'STATUS', targetType: 'any'} !== 'RESIGNED'
-                                        }"
-                                    >
-                                        <Text text="Delete" />
-                                    </Column>
-
-                                </columns>
+            </items>
 
-
-                                <items>
-
-                                    <ColumnListItem>
-
-                                        <cells>
-
-                                            <Text
-                                                text="{skill/SKILL_NAME}"
-                                            />
-
-                                            <ObjectStatus
-                                                text="{PROFICIENCY_LEVEL}"
-                                                state="{=
-                                                    ${PROFICIENCY_LEVEL} === 'EXPERT'
-                                                        ? 'Success'
-                                                        :
-                                                    ${PROFICIENCY_LEVEL} === 'ADVANCED'
-                                                        ? 'Information'
-                                                        :
-                                                    ${PROFICIENCY_LEVEL} === 'INTERMEDIATE'
-                                                        ? 'Warning'
-                                                        :
-                                                    'None'
-                                                }"
-                                            />
+        </Table>
 
-                                            <Button
-                                                icon="sap-icon://edit"
-                                                type="Transparent"
-                                                tooltip="Edit Skill"
-                                                press=".onEditEmployeeSkill"
-                                            />
+    </VBox>
 
-                                            <Button
-                                                icon="sap-icon://delete"
-                                                type="Transparent"
-                                                tooltip="Delete Skill"
-                                                press=".onDeleteEmployeeSkill"
-                                            />
 
-                                        </cells>
+    <!-- Allocations -->
 
-                                    </ColumnListItem>
-
-                                </items>
-
-                            </Table>
-
-                        </content>
-
-                    </IconTabFilter>
-
-
-                    <!-- ========================================= -->
-                    <!-- ALLOCATIONS                                -->
-                    <!-- ========================================= -->
+    <VBox
+        id="allocationsSection"
+        visible="false"
+        class="sapUiMediumMarginTop"
+    >
 
-                    <IconTabFilter
-                        key="allocations"
-                        icon="sap-icon://project-definition-triangle"
-                        text="Allocations"
-                    >
+        <Toolbar>
 
-                        <content>
+            <Title
+                text="Project Allocations"
+                level="H3"
+            />
 
-                            <Toolbar>
+            <ToolbarSpacer />
 
-                                <Title
-                                    text="Project Allocations"
-                                    level="H3"
-                                />
+        </Toolbar>
 
-                            </Toolbar>
+        <Table
+            id="tblAllocations"
+            width="100%"
+            growing="true"
+            growingThreshold="5"
+            items="{allocations}"
+            noDataText="No project allocations available"
+        >
 
+            <columns>
 
-                            <Table
-                                id="tblAllocations"
-                                width="100%"
-                                growing="true"
-                                growingThreshold="5"
-                                items="{allocations}"
-                                noDataText="No project allocations available"
-                            >
+                <Column>
+                    <Text text="Project ID" />
+                </Column>
 
-                                <columns>
+                <Column>
+                    <Text text="Project Name" />
+                </Column>
 
-                                    <Column>
-                                        <Text text="Project ID" />
-                                    </Column>
+                <Column>
+                    <Text text="Project Role" />
+                </Column>
 
-                                    <Column>
-                                        <Text text="Project Name" />
-                                    </Column>
+                <Column>
+                    <Text text="Allocation" />
+                </Column>
 
-                                    <Column>
-                                        <Text text="Project Role" />
-                                    </Column>
+                <Column>
+                    <Text text="Start Date" />
+                </Column>
 
-                                    <Column>
-                                        <Text text="Allocation" />
-                                    </Column>
+                <Column>
+                    <Text text="End Date" />
+                </Column>
 
-                                    <Column>
-                                        <Text text="Start Date" />
-                                    </Column>
+            </columns>
 
-                                    <Column>
-                                        <Text text="End Date" />
-                                    </Column>
+            <items>
 
-                                </columns>
+                <ColumnListItem>
 
+                    <cells>
 
-                                <items>
+                        <Text
+                            text="{project/PROJECT_ID}"
+                        />
 
-                                    <ColumnListItem>
+                        <Text
+                            text="{project/PROJECT_NAME}"
+                        />
 
-                                        <cells>
+                        <Text
+                            text="{PROJECT_ROLE}"
+                        />
 
-                                            <Text
-                                                text="{project/PROJECT_ID}"
-                                            />
+                        <ProgressIndicator
+                            percentValue="{ALLOCATION_PERCENTAGE}"
+                            displayValue="{ALLOCATION_PERCENTAGE}%"
+                            state="{=
+                                ${ALLOCATION_PERCENTAGE} >= 100
+                                    ? 'Error'
+                                    :
+                                ${ALLOCATION_PERCENTAGE} >= 80
+                                    ? 'Warning'
+                                    :
+                                'Success'
+                            }"
+                            width="100%"
+                        />
 
-                                            <Text
-                                                text="{project/PROJECT_NAME}"
-                                            />
+                        <Text
+                            text="{START_DATE}"
+                        />
 
-                                            <Text
-                                                text="{PROJECT_ROLE}"
-                                            />
+                        <Text
+                            text="{END_DATE}"
+                        />
 
-                                            <ProgressIndicator
-                                                percentValue="{ALLOCATION_PERCENTAGE}"
-                                                displayValue="{ALLOCATION_PERCENTAGE}%"
-                                                state="{=
-                                                    ${ALLOCATION_PERCENTAGE} >= 100
-                                                        ? 'Error'
-                                                        :
-                                                    ${ALLOCATION_PERCENTAGE} >= 80
-                                                        ? 'Warning'
-                                                        :
-                                                    'Success'
-                                                }"
-                                                width="100%"
-                                            />
+                    </cells>
 
-                                            <Text
-                                                text="{START_DATE}"
-                                            />
+                </ColumnListItem>
 
-                                            <Text
-                                                text="{END_DATE}"
-                                            />
+            </items>
 
-                                        </cells>
+        </Table>
 
-                                    </ColumnListItem>
+    </VBox>
 
-                                </items>
-
-                            </Table>
-
-                        </content>
-
-                    </IconTabFilter>
-
-                </items>
-
-            </IconTabBar>
+</VBox>
 
         </content>
 

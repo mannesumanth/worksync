@@ -1,79 +1,120 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
-    xmlns:f="sap.ui.layout.form">
-
+    xmlns:f="sap.ui.layout.form"
+>
     <Dialog
         id="editAllocationDialog"
         title="Edit Allocation"
-        contentWidth="500px">
-
+        contentWidth="500px"
+    >
         <content>
 
-            <f:SimpleForm
-                editable="true"
-                layout="ResponsiveGridLayout">
+            <VBox class="sapUiMediumMargin">
 
-                <Label text="Employee"/>
+                <!-- Project Information -->
+                <Panel
+                    headerText="Project Information"
+                    class="sapUiSmallMarginBottom"
+                >
+                    <content>
 
-                <Input
-                    value="{editAllocation>/employee/NAME}"
-                    editable="false"/>
+                        <HBox
+                            wrap="Wrap"
+                            class="sapUiSmallMargin"
+                        >
 
-                <Label text="Project Role"/>
+                            <VBox width="50%">
+                                <Label text="Project Start Date" />
 
-                <Input
-                    value="{editAllocation>/PROJECT_ROLE}"/>
+                                <Text
+                                    id="editAllocationProjectStartDate"
+                                />
+                            </VBox>
 
-                <Label text="Allocation Percentage"/>
+                            <VBox width="50%">
+                                <Label text="Project End Date" />
 
-                <StepInput
-                    value="{editAllocation>/ALLOCATION_PERCENTAGE}"
-                    min="1"
-                    max="100"
-                    step="5"/>
+                                <Text
+                                    id="editAllocationProjectEndDate"
+                                />
+                            </VBox>
 
-                <Label text="Start Date"/>
+                        </HBox>
 
-                <DatePicker
-                    value="{
-                        path:'editAllocation>/START_DATE',
-                        type:'sap.ui.model.odata.type.Date'
-                    }"
-                    valueFormat="yyyy-MM-dd"
-                    displayFormat="dd MMM yyyy"/>
+                    </content>
+                </Panel>
 
-                <Label text="End Date"/>
 
-                <DatePicker
-                    value="{
-                        path:'editAllocation>/END_DATE',
-                        type:'sap.ui.model.odata.type.Date'
-                    }"
-                    valueFormat="yyyy-MM-dd"
-                    displayFormat="dd MMM yyyy"/>
+                <f:SimpleForm
+                    editable="true"
+                    layout="ResponsiveGridLayout"
+                >
 
-            </f:SimpleForm>
+                    <Label text="Employee"/>
+
+                    <Input
+                        value="{editAllocation>/employee/NAME}"
+                        editable="false"
+                    />
+
+                    <Label text="Project Role"/>
+
+                    <Input
+                        value="{editAllocation>/PROJECT_ROLE}"
+                    />
+
+                    <Label text="Allocation Percentage"/>
+
+                    <StepInput
+                        value="{editAllocation>/ALLOCATION_PERCENTAGE}"
+                        min="1"
+                        max="100"
+                        step="5"
+                    />
+
+                    <Label text="Start Date"/>
+
+                    <DatePicker
+                        value="{
+                            path:'editAllocation>/START_DATE',
+                            type:'sap.ui.model.odata.type.Date'
+                        }"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd MMM yyyy"
+                    />
+
+                    <Label text="End Date"/>
+
+                    <DatePicker
+                        value="{
+                            path:'editAllocation>/END_DATE',
+                            type:'sap.ui.model.odata.type.Date'
+                        }"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd MMM yyyy"
+                    />
+
+                </f:SimpleForm>
+
+            </VBox>
 
         </content>
 
         <beginButton>
-
             <Button
                 text="Update"
                 type="Emphasized"
-                press=".onUpdateAllocation"/>
-
+                press=".onUpdateAllocation"
+            />
         </beginButton>
 
         <endButton>
-
             <Button
                 text="Cancel"
-                press=".onCancelEditAllocation"/>
-
+                press=".onCancelEditAllocation"
+            />
         </endButton>
 
     </Dialog>
-
 </core:FragmentDefinition>

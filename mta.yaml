@@ -70,40 +70,12 @@ modules:
       name: comamistaworksyncui
       target-path: resources/
     - artifacts:
-      - comamistaemployeeui.zip
-      name: comamistaemployeeui
-      target-path: resources/
-    - artifacts:
-      - comamitsaworksyncsample.zip
-      name: comamitsaworksyncsample
-      target-path: resources/
-    - artifacts:
       - comamistarmaemployee.zip
       name: comamistarmaemployee
       target-path: resources/
 - name: comamistaworksyncui
   type: html5
   path: app/worksyncui
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
-- name: comamistaemployeeui
-  type: html5
-  path: app/employeeui
-  build-parameters:
-    build-result: dist
-    builder: custom
-    commands:
-    - npm install
-    - npm run build:cf
-    supported-platforms: []
-- name: comamitsaworksyncsample
-  type: html5
-  path: app/worksyncsample
   build-parameters:
     build-result: dist
     builder: custom

@@ -3,12 +3,14 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
+    "sap/ui/core/Fragment",
     "sap/m/MessageToast"
 ], function (
     Controller,
     JSONModel,
     Filter,
     FilterOperator,
+    Fragment,
     MessageToast
 ) {
     "use strict";
@@ -40,7 +42,72 @@ sap.ui.define([
                 this
             );
             this._loadForecast();
+            this.getView().setModel(
+    new JSONModel({}),
+    "forecastDetails"
+);
         },
+        onForecastPress: async function (oEvent) {
+    const oContext = oEvent.getSource()
+        .getBindingContext("forecast");
+
+    if (!oContext) {
+        return;
+    }
+
+    const oData = oContext.getObject();
+
+    try {
+        const oModel = this.getOwnerComponent().getModel();
+
+        const oAction = oModel.bindContext(
+            "/GetEmployeeForecastDetails(...)"
+        );
+
+        oAction.setParameter(
+            "employeeId",
+            oData.ID
+        );
+
+        await oAction.invoke();
+
+        const oDetails =
+            oAction.getBoundContext().getObject();
+
+        this.getView()
+            .getModel("forecastDetails")
+            .setData(oDetails);
+
+        if (!this._oForecastDetailsDialog) {
+            this._oForecastDetailsDialog =
+                await Fragment.load({
+                    name: "com.amista.worksyncui.view.fragments.ForecastDetails",
+                    controller: this
+                });
+
+            this.getView().addDependent(
+                this._oForecastDetailsDialog
+            );
+        }
+
+        this._oForecastDetailsDialog.open();
+
+    } catch (oError) {
+        console.error(
+            "Unable to load employee forecast details:",
+            oError
+        );
+
+        MessageToast.show(
+            "Unable to load employee forecast details."
+        );
+    }
+},
+onCloseForecastDetails: function () {
+    if (this._oForecastDetailsDialog) {
+        this._oForecastDetailsDialog.close();
+    }
+},
 
         onRefreshForecast: async function () {
             await this._loadForecast();
@@ -147,16 +214,5 @@ sap.ui.define([
             this._statusValue = oEvent.getSource().getSelectedKey();
             this._applyFilters();
         },
-
-        onForecastPress: function (oEvent) {
-            const oContext = oEvent.getSource().getBindingContext("forecast");
-            if (!oContext) {
-                return;
-            }
-            const oData = oContext.getObject();
-            MessageToast.show(
-                "Employee : " + oData.NAME
-            );
-        }
     });
 });

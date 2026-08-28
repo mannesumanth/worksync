@@ -158,16 +158,35 @@ module.exports = {
                 let pending = 0;
                 let approved = 0;
                 let rejected = 0;
+                let cancelled = 0;
+                let withdrawn = 0;
+                let withdrawalRequest = 0;
+
                 empLeaves.forEach(leave => {
                     switch (leave.STATUS) {
+
                         case "PENDING":
                             pending++;
                             break;
+
                         case "APPROVED":
                             approved++;
                             break;
+
                         case "REJECTED":
                             rejected++;
+                            break;
+
+                        case "CANCELLED":
+                            cancelled++;
+                            break;
+
+                        case "WITHDRAWN":
+                            withdrawn++;
+                            break;
+
+                        case "WITHDRAW_REQUEST":
+                            withdrawalRequest++;
                             break;
                     }
                 });
@@ -183,28 +202,22 @@ module.exports = {
                     EXPERIENCE: emp.EXPERIENCE,
                     JOINING_DATE: emp.JOINING_DATE,
                     TOTAL_ALLOCATION: totalAllocation,
-                    AVAILABLE_PERCENT: Math.max(
-                        0,
-                        100 - totalAllocation
-                    ),
+                    AVAILABLE_PERCENT: Math.max( 0, 100 - totalAllocation ),
                     PROJECT_COUNT: empAllocations.length,
                     ACTIVE_PROJECT_COUNT: activeProjects,
                     COMPLETED_PROJECT_COUNT: completedProjects,
                     PENDING_LEAVES: pending,
                     APPROVED_LEAVES: approved,
                     REJECTED_LEAVES: rejected,
-                    CASUAL_AVAILABLE:
-                        balance?.CASUAL_AVAILABLE ?? 0,
-                    CASUAL_USED:
-                        balance?.CASUAL_USED ?? 0,
-                    SICK_AVAILABLE:
-                        balance?.SICK_AVAILABLE ?? 0,
-                    SICK_USED:
-                        balance?.SICK_USED ?? 0,
-                    EARNED_AVAILABLE:
-                        balance?.EARNED_AVAILABLE ?? 0,
-                    EARNED_USED:
-                        balance?.EARNED_USED ?? 0,
+                    CANCELLED_LEAVES: cancelled,
+                    WITHDRAWN_LEAVES: withdrawn,
+                    WITHDRAWAL_REQUEST_LEAVES: withdrawalRequest,
+                    CASUAL_AVAILABLE: balance?.CASUAL_AVAILABLE ?? 0,
+                    CASUAL_USED: balance?.CASUAL_USED ?? 0,
+                    SICK_AVAILABLE: balance?.SICK_AVAILABLE ?? 0,
+                    SICK_USED: balance?.SICK_USED ?? 0,
+                    EARNED_AVAILABLE: balance?.EARNED_AVAILABLE ?? 0,
+                    EARNED_USED: balance?.EARNED_USED ?? 0,
                     TOTAL_SKILLS: empSkills.length,
                     BEGINNER_SKILLS: beginner,
                     INTERMEDIATE_SKILLS: intermediate,

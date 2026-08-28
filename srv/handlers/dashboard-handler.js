@@ -21,12 +21,12 @@ module.exports = {
                 skills,
                 designations
             ] = await Promise.all([
-                cds.run( SELECT.from(EMPLOYEES).columns("ID")),
-                cds.run( SELECT.from(PROJECTS).columns("STATUS")),
-                cds.run( SELECT.from(ALLOCATIONS).columns("employee_ID", "ALLOCATION_PERCENTAGE" )),
-                cds.run( SELECT.from(LEAVE_CALENDAR).columns("STATUS")),
+                cds.run(SELECT.from(EMPLOYEES).columns("ID")),
+                cds.run(SELECT.from(PROJECTS).columns("STATUS")),
+                cds.run(SELECT.from(ALLOCATIONS).columns("employee_ID", "ALLOCATION_PERCENTAGE")),
+                cds.run(SELECT.from(LEAVE_CALENDAR).columns("STATUS")),
                 cds.run(SELECT.from(SKILLS).columns("ID")),
-                cds.run( SELECT.from(DESIGNATIONS).columns("ID"))
+                cds.run(SELECT.from(DESIGNATIONS).columns("ID"))
             ]);
             // Employee KPIs
             const totalEmployees = employees.length;
@@ -51,18 +51,18 @@ module.exports = {
             employees.forEach(employee => {
                 const allocation =
                     employeeAllocation.get(employee.ID) || 0;
-                if (allocation === 0) { benchEmployees++;}
-                if (allocation < 100) {availableEmployees++; }
+                if (allocation === 0) { benchEmployees++; }
+                if (allocation < 100) { availableEmployees++; }
                 if (allocation > 0 && allocation < 100) { underAllocatedEmployees++; }
                 if (allocation === 100) { fullyAllocatedEmployees++; }
-                if (allocation > 100) {overAllocatedEmployees++;}
+                if (allocation > 100) { overAllocatedEmployees++; }
             });
             // Project KPIs
             const totalProjects = projects.length;
-            const activeProjects = projects.filter( project => project.STATUS === "ACTIVE").length;
-            const upcomingProjects = projects.filter(project => project.STATUS === "UPCOMING" ).length;
+            const activeProjects = projects.filter(project => project.STATUS === "ACTIVE").length;
+            const upcomingProjects = projects.filter(project => project.STATUS === "UPCOMING").length;
             const completedProjects = projects.filter(project => project.STATUS === "COMPLETED").length;
-            const onHoldProjects =projects.filter(project => project.STATUS === "ON_HOLD").length;
+            const onHoldProjects = projects.filter(project => project.STATUS === "ON_HOLD").length;
 
             // Allocation KPIs
             const totalAllocations = allocations.length;
@@ -74,7 +74,7 @@ module.exports = {
                         Number(allocation.ALLOCATION_PERCENTAGE || 0),
                     0
                 );
-                // Calculate the average utilization across all employees
+            // Calculate the average utilization across all employees
             const averageUtilization =
                 totalEmployees > 0
                     ? Number(
@@ -86,9 +86,12 @@ module.exports = {
                     : 0;
             // Leave KPIs
             const totalLeaves = leaves.length;
-            const pendingLeaves = leaves.filter( leave => leave.STATUS === "PENDING").length;
-            const approvedLeaves =leaves.filter(leave => leave.STATUS === "APPROVED" ).length;
-            const rejectedLeaves =leaves.filter(leave => leave.STATUS === "REJECTED" ).length;
+            const pendingLeaves = leaves.filter(leave => leave.STATUS === "PENDING").length;
+            const approvedLeaves = leaves.filter(leave => leave.STATUS === "APPROVED").length;
+            const rejectedLeaves = leaves.filter(leave => leave.STATUS === "REJECTED").length;
+            const withdrawnLeaves = leaves.filter(leave => leave.STATUS === "WITHDRAWN").length;
+            const withdrawalRequestLeaves = leaves.filter(leave => leave.STATUS === "WITHDRAW_REQUEST").length;
+            const cancelledLeaves = leaves.filter(leave => leave.STATUS === "CANCELLED").length;
             // Master Data KPIs
             const totalSkills = skills.length;
             const totalDesignations = designations.length;
@@ -118,6 +121,9 @@ module.exports = {
                 pendingLeaves,
                 approvedLeaves,
                 rejectedLeaves,
+                cancelledLeaves,
+                withdrawnLeaves,
+                withdrawalRequestLeaves,
 
                 // Master Data KPIs
                 totalSkills,

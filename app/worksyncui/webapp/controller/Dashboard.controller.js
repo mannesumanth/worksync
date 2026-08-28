@@ -175,6 +175,7 @@ sap.ui.define([
                     });
 
                 // Leave Chart
+                // Leave Chart
                 this.getView().getModel("leaveChart").setData({
                     data: [
                         {
@@ -188,6 +189,18 @@ sap.ui.define([
                         {
                             Status: "Rejected",
                             Count: oStats.rejectedLeaves
+                        },
+                        {
+                            Status: "Cancelled",
+                            Count: oStats.cancelledLeaves
+                        },
+                        {
+                            Status: "Withdrawn",
+                            Count: oStats.withdrawnLeaves
+                        },
+                        {
+                            Status: "Withdrawal Request",
+                            Count: oStats.withdrawalRequestLeaves
                         }
                     ]
                 });
@@ -301,7 +314,10 @@ sap.ui.define([
                     colorPalette: [
                         "#f67a1c", // Pending
                         "#107E3E", // Approved
-                        "#BB0000"  // Rejected
+                        "#BB0000", // Rejected
+                        "#6A6D70", // Cancelled
+                        "#5E35B1", // Withdrawn
+                        "#0A6ED1"  // Withdrawal Request
                     ]
                 }
             });

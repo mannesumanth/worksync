@@ -15,8 +15,7 @@ sap.ui.define([
         leave: "leaveView",
         forecast: "forecastView",
         spof: "spofView",
-        graphs:"graphsView",
-        analytic : "analyticView"
+        graphs:"graphsView"
     };
 
     return Controller.extend("com.amista.worksyncui.controller.Admin", {
@@ -136,9 +135,6 @@ sap.ui.define([
             }
             //Refresh Pages on Navigation
             this.byId("adminNavContainer").to(this.byId(sViewId));
-            if (sKey === "employees") {
-                sap.ui.getCore().getEventBus().publish("Employees", "Refresh");
-            }
             if (sKey === "spof") {
                 sap.ui.getCore().getEventBus().publish("Spof", "Refresh");
             }

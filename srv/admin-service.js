@@ -3,16 +3,13 @@ const cds = require("@sap/cds");
 module.exports = cds.service.impl(async function (srv) {
 
     const { SKILL_CATEGORIES, SKILLS } = srv.entities;
-
     srv.before("DELETE", SKILL_CATEGORIES, async (req) => {
         const { ID } = req.data;
-
         const aSkills = await cds.run(
             SELECT.from(SKILLS).where({
                 category_ID: ID
             })
         );
-
         if (aSkills.length > 0) {
             req.reject(
                 400,

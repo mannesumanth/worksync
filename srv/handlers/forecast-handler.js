@@ -2,7 +2,7 @@ const cds = require("@sap/cds");
 
 module.exports = {
     register(service) {
-        const { ALLOCATIONS, EMPLOYEES, LEAVE_CALENDAR,} = service.entities;
+        const { ALLOCATIONS, EMPLOYEES, LEAVE_CALENDAR, } = service.entities;
         service.on('GetAvailabilityForecast', async () => {
             // Fetch all active employees
             const activeEmployees = await cds.run(
@@ -140,7 +140,7 @@ module.exports = {
                     new Date(a.END_DATE) > new Date(obj.allocationEnd)) {
                     obj.allocationEnd = a.END_DATE;
                 }
-                
+
                 const start = new Date(a.START_DATE);
                 const end = new Date(a.END_DATE);
                 // Check if the allocation overlaps with the current month
@@ -179,14 +179,14 @@ module.exports = {
                 // Calculate the available percentage based on allocation
                 const availablePercent =
                     Math.max(0, 100 - allocation);
-                    // Calculate the current and next project counts and names
+                // Calculate the current and next project counts and names
                 const currentProjectCount =
                     alloc?.currentProjects || 0;
                 const nextProjectCount =
                     alloc?.nextProjects || 0;
                 const currentProjectName =
                     alloc?.currentProjectName || "";
-                    // Determine the next available date based on allocation end and leave end dates
+                // Determine the next available date based on allocation end and leave end dates
                 let nextAvailableDate = null;
                 if (allocationEnd) {
                     nextAvailableDate = allocationEnd;
@@ -288,7 +288,200 @@ module.exports = {
                 }
                 return a.CURRENT_ALLOCATION - b.CURRENT_ALLOCATION;
             });
-            return result;  
+            return result;
+        });
+        service.on("GetEmployeeForecastDetails", async (req) => {
+            const { employeeId } = req.data;
+            if (!employeeId) {
+                return req.reject(400, "Employee ID is required.");
+            }
+            const {
+                EMPLOYEES,
+                ALLOCATIONS,
+                LEAVE_CALENDAR
+            } = service.entities;
+            // EMPLOYEE
+            const employee = await cds.run(
+                SELECT.one
+                    .from(EMPLOYEES)
+                    .columns(
+                        "ID",
+                        "EMP_ID",
+                        "NAME",
+                        "designation.NAME as DESIGNATION"
+                    )
+                    .where({
+                        ID: employeeId
+                    })
+            );
+            if (!employee) {
+                return req.reject(404, "Employee not found.");
+            }
+            // ALLOCATIONS / PROJECTS
+            const allocations = await cds.run(
+                SELECT.from(ALLOCATIONS)
+                    .columns(
+                        "ID",
+                        "project_ID",
+                        "project.PROJECT_ID as PROJECT_CODE",
+                        "project.PROJECT_NAME as PROJECT_NAME",
+                        "PROJECT_ROLE",
+                        "ALLOCATION_PERCENTAGE",
+                        "START_DATE",
+                        "END_DATE"
+                    )
+                    .where({
+                        employee_ID: employeeId
+                    })
+            );
+            // APPROVED LEAVES
+            const leaves = await cds.run(
+                SELECT.from(LEAVE_CALENDAR)
+                    .columns(
+                        "ID",
+                        "LEAVE_TYPE",
+                        "LEAVE_FROM",
+                        "LEAVE_TO",
+                        "STATUS"
+                    )
+                    .where({
+                        employee_ID: employeeId,
+                        STATUS: "APPROVED"
+                    })
+            );
+            // CURRENT DATE
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            // PROJECT DETAILS
+            const projects = allocations
+                .map(project => ({
+                    ID: project.ID,
+                    PROJECT_ID: project.project_ID,
+                    PROJECT_NAME: project.PROJECT_NAME,
+                    PROJECT_ROLE: project.PROJECT_ROLE,
+                    ALLOCATION_PERCENTAGE:
+                        Number(project.ALLOCATION_PERCENTAGE || 0),
+                    START_DATE: project.START_DATE,
+                    END_DATE: project.END_DATE
+                }))
+                .sort(
+                    (a, b) =>
+                        new Date(a.END_DATE) -
+                        new Date(b.END_DATE)
+                );
+            // CURRENT ALLOCATION
+            const currentAllocation = projects
+                .filter(project => {
+                    const start = new Date(project.START_DATE);
+                    const end = new Date(project.END_DATE);
+                    start.setHours(0, 0, 0, 0);
+                    end.setHours(0, 0, 0, 0);
+                    return start <= today && end >= today;
+                })
+                .reduce((sum, project) => sum + project.ALLOCATION_PERCENTAGE,0);
+            const currentAvailable = Math.max(0, 100 - currentAllocation);
+            // AVAILABILITY TIMELINE
+            const availabilityTimeline = [];
+            projects.forEach(project => {
+                const projectEnd = new Date(project.END_DATE);
+                projectEnd.setHours(0, 0, 0, 0);
+                /*
+                 * Find all projects which are still active
+                 * after this project ends.
+                 */
+                const remainingProjects =
+                    projects.filter(otherProject => {
+                        const otherEnd = new Date(otherProject.END_DATE);
+                        otherEnd.setHours(0, 0, 0, 0);
+                        return otherEnd > projectEnd;
+                    });
+
+                const remainingAllocation =
+                    remainingProjects.reduce(
+                        (sum, remainingProject) =>
+                            sum +
+                            remainingProject.ALLOCATION_PERCENTAGE,
+                        0
+                    );
+                const availablePercent =
+                    Math.max(
+                        0,
+                        100 - remainingAllocation
+                    );
+                availabilityTimeline.push({
+                    DATE: project.END_DATE,
+                    PROJECT_ID: project.PROJECT_ID,
+                    PROJECT_NAME: project.PROJECT_NAME,
+                    ENDED_ALLOCATION: project.ALLOCATION_PERCENTAGE,
+                    REMAINING_ALLOCATION: remainingAllocation,
+                    AVAILABLE_PERCENT: availablePercent,
+                    FULLY_AVAILABLE: availablePercent >= 100
+                });
+            });
+            // FULLY AVAILABLE DATE
+            let fullyAvailableDate = null;
+            if (projects.length > 0) {
+                fullyAvailableDate =
+                    projects.reduce(
+                        (latest, project) => {
+                            if (
+                                !latest ||
+                                new Date(project.END_DATE) >
+                                new Date(latest)
+                            ) {
+                                return project.END_DATE;
+                            }
+
+                            return latest;
+                        },
+                        null
+                    );
+            }
+            // LEAVES
+            const employeeLeaves = leaves
+                .map(leave => ({
+                    ID: leave.ID,
+                    LEAVE_TYPE: leave.LEAVE_TYPE,
+                    LEAVE_FROM: leave.LEAVE_FROM,
+                    LEAVE_TO: leave.LEAVE_TO,
+                    STATUS: leave.STATUS
+                }))
+                .sort(
+                    (a, b) =>
+                        new Date(a.LEAVE_FROM) -
+                        new Date(b.LEAVE_FROM)
+                );
+
+            /*
+             * If an approved leave finishes after the last project,
+             * the employee cannot be considered fully available
+             * until that leave ends.
+             */
+            employeeLeaves.forEach(leave => {
+
+                if (
+                    !fullyAvailableDate ||
+                    new Date(leave.LEAVE_TO) >
+                    new Date(fullyAvailableDate)
+                ) {
+                    fullyAvailableDate =
+                        leave.LEAVE_TO;
+                }
+            });
+            // RESPONSE
+
+            return {
+                EMPLOYEE_ID: employee.ID,
+                EMP_ID: employee.EMP_ID,
+                NAME: employee.NAME,
+                DESIGNATION: employee.DESIGNATION,
+                CURRENT_ALLOCATION: currentAllocation,
+                CURRENT_AVAILABLE: currentAvailable,
+                PROJECTS:  projects,
+                LEAVES:  employeeLeaves,
+                AVAILABILITY_TIMELINE:  availabilityTimeline,
+                FULLY_AVAILABLE_DATE: fullyAvailableDate
+            };
         });
     }
 }

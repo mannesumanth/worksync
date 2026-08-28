@@ -12,22 +12,12 @@ const {
 
 module.exports = function (service) {
 
-    /*
-     * Read current employee profile
-     */
+    //Read current employee profile
+    
     service.on("READ", "MyProfile", async (req, next) => {
-
-        /*
-         * If this is a media property request,
-         * let CAP handle it.
-         *
-         * Example:
-         * /MyProfile(<ID>)/PROFILE_PHOTO
-         */
-        const target =
-            req.target &&
-            req.target.elements;
-
+          
+         //MyProfile(<ID>)/PROFILE_PHOTO
+        const target = req.target && req.target.elements;
         if (
             req.query?.SELECT?.columns?.some(
                 column =>
@@ -39,27 +29,15 @@ module.exports = function (service) {
         ) {
             return next();
         }
-
-
         const employee =await getCurrentEmployee(req);
-
         if (!employee) {
-            return req.reject(
-                404,
-                "Employee not found."
-            );
+            return req.reject( 404, "Employee not found." );
         }
-
-
-        const db =
-            await cds.connect.to("db");
-
-
-        /*
-         * Fetch designation
-         */
+        const db = await cds.connect.to("db");
+        
+         // Fetch designation
+         
         if (employee.designation_ID) {
-
             const designation =
                 await db.run(
                     SELECT.one
@@ -71,48 +49,29 @@ module.exports = function (service) {
                 );
 
             if (designation) {
-
                 employee.designation = {
-                    ID:
-                        designation.ID,
-
-                    DESIGNATION_ID:
-                        designation.DESIGNATION_ID,
-
-                    NAME:
-                        designation.NAME
+                    ID: designation.ID,
+                    DESIGNATION_ID: designation.DESIGNATION_ID,
+                    NAME: designation.NAME
                 };
             }
         }
-
-
         return employee;
     });
-
-
-    /*
-     * Calculate allocation percentage
-     */
+      //Calculate allocation percentage
+     
     service.after(
         "READ",
         "MyProfile",
         async (employees) => {
-
             if (!employees) {
                 return;
             }
-
             if (!Array.isArray(employees)) {
                 employees = [employees];
             }
-
-
-            const db =
-                await cds.connect.to("db");
-
-
+            const db = await cds.connect.to("db");
             for (const employee of employees) {
-
                 const allocations =
                     await db.run(
                         SELECT.from(ALLOCATIONS)
@@ -121,21 +80,10 @@ module.exports = function (service) {
                                     employee.ID
                             })
                     );
-
-
                 employee.ALLOCATION_PERCENT =
                     allocations.reduce(
-                        (
-                            total,
-                            allocation
-                        ) =>
-                            total +
-                            Number(
-                                allocation
-                                    .ALLOCATION_PERCENTAGE || 0
-                            ),
-                        0
-                    );
+                        (total,allocation) =>
+                            total + Number( allocation.ALLOCATION_PERCENTAGE || 0 ), 0 );
             }
         }
     );

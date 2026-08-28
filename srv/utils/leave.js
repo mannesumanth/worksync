@@ -83,7 +83,7 @@ function getWeekDays(from, to) {
 /*** Calculates how many leave days an employee has already used
 for a particular leave type in a particular year.
 Only APPROVED and WITHDRAW_REQUEST leaves are counted because those statuses
-reserve the employee's leave balance.*/ 
+reserve the employee's leave balance.*/
 async function getUsedDaysForYear(
     employeeId,
     leaveType,
@@ -107,8 +107,7 @@ async function getUsedDaysForYear(
     let usedDays = 0;
     // Check every leave returned from the database.
     for (const leave of rows) {
-        const leaveYear =
-            new Date(leave.LEAVE_FROM).getFullYear();
+        const leaveYear = new Date(leave.LEAVE_FROM).getFullYear();
         if (
             leaveYear === year &&
             RESERVED_STATUSES.includes(leave.STATUS)

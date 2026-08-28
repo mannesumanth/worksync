@@ -26,9 +26,7 @@ module.exports = function (service) {
         if (!employee) {
             return req.reject(404, "Employee not found.");
         }
-        req.query.where({
-            employee_ID: employee.ID
-        });
+        req.query.where({  employee_ID: employee.ID });
         const db = await cds.connect.to("db");
         const leaves = await db.run(req.query);
         leaves.forEach(leave => {
@@ -46,40 +44,20 @@ module.exports = function (service) {
         if (!employee) {
             return req.reject(404, "Employee not found.");
         }
-        const {
-            leaveType,
-            leaveFrom,
-            leaveTo,
-            reason
-        } = req.data;
+        const { leaveType, leaveFrom, leaveTo, reason  } = req.data;
         if (leaveFrom > leaveTo) {
             return req.reject(
                 400,
                 "Leave From date cannot be greater than Leave To date."
             );
         }
-        const requestedDays = getWeekDays(
-            leaveFrom,
-            leaveTo
-        );
-        const availableField =
-            LEAVE_TYPE_AVAILABLE_FIELD[leaveType];
+        const requestedDays = getWeekDays(  leaveFrom, leaveTo );
+        const availableField = LEAVE_TYPE_AVAILABLE_FIELD[leaveType];
         if (availableField) {
-            const requestYear =
-                new Date(leaveFrom).getFullYear();
-            const balance =
-                await getOrCreateLeaveBalance(
-                    employee.ID,
-                    requestYear
-                );
-            const usedDays =
-                await getUsedDaysForYear(
-                    employee.ID,
-                    leaveType,
-                    requestYear
-                );
-            const availableDays =
-                balance[availableField] - usedDays;
+            const requestYear =  new Date(leaveFrom).getFullYear();
+            const balance = await getOrCreateLeaveBalance(  employee.ID, requestYear );
+            const usedDays = await getUsedDaysForYear( employee.ID,  leaveType,  requestYear );
+            const availableDays = balance[availableField] - usedDays;
             if (requestedDays > availableDays) {
                 return req.reject(
                     400,

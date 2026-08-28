@@ -396,20 +396,15 @@
                     </Toolbar>
                 </headerToolbar>
 
-                <Table
-                    id="allocationHistoryTable"
-                    items="{
-                        path: '/AllocationHistory',
-                        parameters: {
-                            $expand: 'employee($select=EMP_ID,NAME),project($select=PROJECT_ID,PROJECT_NAME)'
-                        }
-                    }"
-                    width="auto"
-                    growing="true"
-                    growingThreshold="20"
-                    growingScrollToLoad="true"
-                    mode="None"
-                >
+             <Table
+    id="allocationHistoryTable"
+    items="{allocationHistory>/history}"
+    width="auto"
+    growing="true"
+    growingThreshold="20"
+    growingScrollToLoad="true"
+    mode="None"
+>
                     <columns>
                         <Column
                             width="10%"
@@ -483,41 +478,40 @@
                         </Column>
                     </columns>
 
-                    <items>
-                        <ColumnListItem>
-                            <cells>
-                                <Text
-                                    text="{ALLOC_HISTORY_ID}"
-                                    class="sapMTableContentMargin"
-                                />
-                                <ObjectIdentifier
-                                    class="sapMTableContentMargin"
-                                    title="{employee/NAME}"
-                                    text="{employee/EMP_ID}"
-                                />
-                                <Text
-                                    text="{project/PROJECT_ID}"
-                                    class="sapMTableContentMargin"
-                                />
-                                <ObjectNumber
-                                    number="{ALLOCATION_PERCENTAGE}"
-                                    unit="%"
-                                    class="sapMTableContentMargin"
-                                />
-                                <Text
-                                    text="{PROJECT_ROLE}"
-                                    class="sapMTableContentMargin"
-                                />
-                                <Text
-                                    text="{START_DATE}"
-                                    class="sapMTableContentMargin"
-                                />
-                                <Text
-                                    text="{END_DATE}"
-                                    class="sapMTableContentMargin"
-                                />
-                            </cells>
-                        </ColumnListItem>
+                    <items>        <ColumnListItem>
+            <cells>
+                <Text
+                    text="{allocationHistory>ALLOC_HISTORY_ID}"
+                    class="sapMTableContentMargin"
+                />
+                <ObjectIdentifier
+                    class="sapMTableContentMargin"
+                    title="{allocationHistory>EMPLOYEE_NAME}"
+                    text="{allocationHistory>EMP_ID}"
+                />
+                <Text
+                    text="{allocationHistory>PROJECT_ID}"
+                    class="sapMTableContentMargin"
+                />
+                <ObjectNumber
+                    number="{allocationHistory>ALLOCATION_PERCENTAGE}"
+                    unit="%"
+                    class="sapMTableContentMargin"
+                />
+                <Text
+                    text="{allocationHistory>PROJECT_ROLE}"
+                    class="sapMTableContentMargin"
+                />
+                <Text
+    text="{path: 'allocationHistory>START_DATE', formatter: '._formatDisplayDate'}"
+    class="sapMTableContentMargin"
+/>
+<Text
+    text="{path: 'allocationHistory>END_DATE', formatter: '._formatDisplayDate'}"
+    class="sapMTableContentMargin"
+/>
+            </cells>
+        </ColumnListItem>
                     </items>
                 </Table>
             </Panel>

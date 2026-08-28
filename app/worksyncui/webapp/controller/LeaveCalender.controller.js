@@ -1,122 +1,236 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"]
-    , function (
-        Controller,
-        Filter,
-        FilterOperator
-    ) {
-        "use strict";
+    "sap/ui/model/FilterOperator",
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast",
+    "sap/m/MessageBox"
+], function (
+    Controller,
+    Filter,
+    FilterOperator,
+    JSONModel,
+    MessageToast,
+    MessageBox
+) {
+    "use strict";
 
-        return Controller.extend("com.amista.worksyncui.controller.LeaveCalender", {
-            onInit: function () {
-                sap.ui.getCore().getEventBus().subscribe(
-                    "Leaves","Refresh", 
-                    this._onLeaveRefresh, 
-                    this
-                );
-            },
-            _onLeaveRefresh: function () {
-                this.getView().getModel().refresh();
-            },
-            onExit: function () {
-                sap.ui.getCore().getEventBus().unsubscribe(
-                    "Leaves","Refresh", 
-                    this._onLeaveRefresh, 
-                    this
-                );
-            },
-            onApproveLeave: function (oEvent) {
-                const oLeave =
-                    oEvent.getSource().getBindingContext().getObject();
-                this._updateLeaveStatus(
-                    oLeave.ID,
-                    "APPROVED"
-                );
-            },
-            onRejectLeave: function (oEvent) {
-                const oLeave = oEvent.getSource().getBindingContext().getObject();
-                this._updateLeaveStatus(
-                    oLeave.ID,
-                    "REJECTED"
-                );
-            },
-            _updateLeaveStatus: async function (leaveId, status) {
-                try {
-                    const oModel = this.getView().getModel();
+    return Controller.extend("com.amista.worksyncui.controller.LeaveCalender", {
 
-                    const oAction = oModel.bindContext("/ApproveLeave(...)");
+        onInit: function () {
+            this.getView().setModel(
+                new JSONModel({ bulkActionsEnabled: false, selectionMode: "None", selectedCount: 0 }),
+                "ui"
+            );
 
-                    oAction.setParameter("leaveId", leaveId);
-                    oAction.setParameter("status", status);
+            this._sCurrentStatus = "PENDING";
 
-                    await oAction.execute();
+            sap.ui.getCore().getEventBus().subscribe(
+                "Leaves", "Refresh",
+                this._onLeaveRefresh,
+                this
+            );
+        },
 
-                    sap.m.MessageToast.show(
-                        "Leave " + status.toLowerCase() + " successfully"
-                    );
+        onExit: function () {
+            sap.ui.getCore().getEventBus().unsubscribe(
+                "Leaves", "Refresh",
+                this._onLeaveRefresh,
+                this
+            );
+        },
 
-                    oModel.refresh();
+        _onLeaveRefresh: function () {
+            this.getView().getModel().refresh();
+        },
 
-                } catch (oError) {
-                    sap.m.MessageBox.error(oError.message);
+        _isActionable: function (sStatus) {
+            return sStatus === "PENDING" || sStatus === "WITHDRAW_REQUEST";
+        },
+
+        _getApproveTargetStatus: function (sCurrentStatus) {
+            return sCurrentStatus === "WITHDRAW_REQUEST" ? "WITHDRAWN" : "APPROVED";
+        },
+
+        _getRejectTargetStatus: function (sCurrentStatus) {
+            return sCurrentStatus === "WITHDRAW_REQUEST" ? "APPROVED" : "REJECTED";
+        },
+
+        _updateLeaveStatus: async function (sLeaveId, sStatus, oOptions) {
+            const bSilent = oOptions && oOptions.silent;
+            try {
+                const oModel = this.getView().getModel();
+                const oAction = oModel.bindContext("/ApproveLeave(...)");
+                oAction.setParameter("leaveId", sLeaveId);
+                oAction.setParameter("status", sStatus);
+                await oAction.execute();
+                return true;
+            } catch (oError) {
+                if (!bSilent) {
+                    MessageBox.error(oError.message);
                 }
-            },
-            onSearch: function () {
-                this._applyFilters();
-            },
-
-            onStatusFilter: function () {
-                this._applyFilters();
-            },
-            _applyFilters: function () {
-
-                const sSearch = this.byId("leaveSearch") ?
-                    this.byId("leaveSearch").getValue() : "";
-
-                const sStatus = this.byId("lStatusFilter").getSelectedKey();
-
-                const aFilters = [];
-
-                // Search filter
-                if (sSearch) {
-                    aFilters.push(
-                        new sap.ui.model.Filter({
-                            filters: [
-                                new sap.ui.model.Filter({
-                                    path: "employee/NAME",
-                                    operator: sap.ui.model.FilterOperator.Contains,
-                                    value1: sSearch,
-                                    caseSensitive: false
-                                }),
-                                new sap.ui.model.Filter({
-                                    // "tolower(LEAVE_ID)", FilterOperator.Contains, sSearch.toLowerCase()
-                                    path: "LEAVE_ID",
-                                    operator: sap.ui.model.FilterOperator.Contains,
-                                    value1: sSearch,
-                                    caseSensitive: false
-                                })
-                            ],
-                            and: false
-                        })
-                    );
-                }
-
-                // Status filter
-                if (sStatus) {
-                    aFilters.push(
-                        new sap.ui.model.Filter(
-                            "STATUS",
-                            sap.ui.model.FilterOperator.EQ,
-                            sStatus
-                        )
-                    );
-                }
-
-                this.byId("leaveTable")
-                    .getBinding("items")
-                    .filter(aFilters);
+                return false;
             }
-        });
+        },
+
+        onSelectionChange: function () {
+            const oTable = this.byId("leaveTable");
+            const aContexts = oTable.getSelectedContexts();
+            const aEligible = aContexts.filter(
+                (oContext) => this._isActionable(oContext.getObject().STATUS)
+            );
+
+            this.getView().getModel("ui").setProperty("/bulkActionsEnabled", aEligible.length > 0);
+            this.getView().getModel("ui").setProperty("/selectedCount", aEligible.length);
+        },
+
+        onBulkApprove: function () {
+            this._confirmAndRunBulk("approve");
+        },
+
+        onBulkReject: function () {
+            this._confirmAndRunBulk("reject");
+        },
+
+        _confirmAndRunBulk: function (sAction) {
+            const oTable = this.byId("leaveTable");
+            const aEligible = oTable.getSelectedContexts()
+                .filter((oContext) => this._isActionable(oContext.getObject().STATUS));
+
+            if (!aEligible.length) {
+                MessageToast.show("No eligible requests selected.");
+                return;
+            }
+
+            const sVerb = sAction === "approve" ? "approve" : "reject";
+
+            MessageBox.confirm(
+                `${sVerb.charAt(0).toUpperCase() + sVerb.slice(1)} ${aEligible.length} selected leave request(s)?`,
+                {
+                    actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                    onClose: async (sConfirm) => {
+                        if (sConfirm !== MessageBox.Action.YES) {
+                            return;
+                        }
+                        await this._runBulk(aEligible, sAction);
+                    }
+                }
+            );
+        },
+
+        _runBulk: async function (aContexts, sAction) {
+            const oTable = this.byId("leaveTable");
+
+            const aResults = await Promise.all(
+                aContexts.map((oContext) => {
+                    const oLeave = oContext.getObject();
+                    const sTarget = sAction === "approve"
+                        ? this._getApproveTargetStatus(oLeave.STATUS)
+                        : this._getRejectTargetStatus(oLeave.STATUS);
+                    return this._updateLeaveStatus(oLeave.ID, sTarget, { silent: true });
+                })
+            );
+
+            const iSucceeded = aResults.filter(Boolean).length;
+            const iFailed = aResults.length - iSucceeded;
+
+            if (iSucceeded) {
+                MessageToast.show(
+                    `${iSucceeded} request(s) ${sAction === "approve" ? "approved" : "rejected"}.` +
+                    (iFailed ? ` ${iFailed} failed.` : "")
+                );
+            } else {
+                MessageBox.error("Failed to update the selected leave requests.");
+            }
+
+            oTable.removeSelections(true);
+            this.getView().getModel("ui").setProperty("/bulkActionsEnabled", false);
+            this.getView().getModel("ui").setProperty("/selectedCount", 0);
+            this.getView().getModel().refresh();
+        },
+
+        onFilterChange: function (oEvent) {
+            this._sCurrentStatus = oEvent.getSource().getSelectedKey();
+
+            this.getView().getModel("ui").setProperty(
+                "/selectionMode",
+                this._sCurrentStatus === "ALL" ? "None" : "MultiSelect"
+            );
+
+            this._applyFilters();
+        },
+
+        onSearch: function () {
+            this._applyFilters();
+        },
+        _calculateDays: function (sFrom, sTo) {
+
+            if (!sFrom || !sTo) {
+                return "";
+            }
+
+            const dFrom = new Date(sFrom);
+            const dTo = new Date(sTo);
+
+            let iDays = 0;
+
+            const dCurrent = new Date(dFrom);
+
+            while (dCurrent <= dTo) {
+
+                const iDay = dCurrent.getDay();
+
+                // 0 = Sunday, 6 = Saturday
+                if (iDay !== 0 && iDay !== 6) {
+                    iDays++;
+                }
+
+                dCurrent.setDate(
+                    dCurrent.getDate() + 1
+                );
+            }
+
+            return iDays;
+        },
+
+        _applyFilters: function () {
+            const sSearch = this.byId("leaveSearch")
+                ? this.byId("leaveSearch").getValue()
+                : "";
+
+            const aFilters = [];
+
+            if (sSearch) {
+                aFilters.push(
+                    new Filter({
+                        filters: [
+                            new Filter({
+                                path: "employee/NAME",
+                                operator: FilterOperator.Contains,
+                                value1: sSearch,
+                                caseSensitive: false
+                            }),
+                            new Filter({
+                                path: "LEAVE_ID",
+                                operator: FilterOperator.Contains,
+                                value1: sSearch,
+                                caseSensitive: false
+                            })
+                        ],
+                        and: false
+                    })
+                );
+            }
+
+            if (this._sCurrentStatus && this._sCurrentStatus !== "ALL") {
+                aFilters.push(
+                    new Filter("STATUS", FilterOperator.EQ, this._sCurrentStatus)
+                );
+            }
+
+            this.byId("leaveTable")
+                .getBinding("items")
+                .filter(aFilters);
+        }
     });
+});

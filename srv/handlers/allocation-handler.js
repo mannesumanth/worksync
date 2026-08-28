@@ -3,36 +3,37 @@ const { generateBusinessId } = require("../utils/id-generator");
 
 module.exports = {
     register(service) {
-        const { ALLOCATIONS, PROJECTS, EMPLOYEES, AllocationHistory
+        const {
+            ALLOCATIONS,
+            PROJECTS,
+            EMPLOYEES,
+            AllocationHistory
         } = service.entities;
 
-        // Generate Allocation ID    
+        // Generate Allocation ID
         service.before('CREATE', ALLOCATIONS, async (req) => {
             req.data.ALLOCATION_ID = await generateBusinessId(req, 'ALLOCATION_SEQ', 'ALO');
         });
-        //Generate Allocation History ID
+
+        // Generate Allocation History ID
         service.before('CREATE', AllocationHistory, async (req) => {
             req.data.ALLOC_HISTORY_ID = await generateBusinessId(req, 'ALCHISTORY_SEQ', 'ALH');
-        })
+        });
+
         // Validate Allocation Percentage before creating a new allocation
         service.before('CREATE', ALLOCATIONS, async (req) => {
-            // Extract relevant data from the request
             const { employee_ID, ALLOCATION_PERCENTAGE, START_DATE, END_DATE } = req.data;
-            // If either employee_ID or ALLOCATION_PERCENTAGE is missing, skip validation
             if (!employee_ID || !ALLOCATION_PERCENTAGE) return;
-            // Fetch existing allocations for the employee
+
             const aAllocations = await cds.run(SELECT.from(ALLOCATIONS)
                 .columns('ALLOCATION_PERCENTAGE')
                 .where({ employee_ID })
             );
-            // Calculate the current total allocation percentage for the employee
             const currentTotal = aAllocations.reduce(
                 (sum, item) => sum + Number(item.ALLOCATION_PERCENTAGE || 0),
                 0
             );
-            // Calculate the new total allocation percentage after adding the new allocation
             const newTotal = currentTotal + Number(ALLOCATION_PERCENTAGE);
-            // If the new total exceeds 100%, reject the request with an error message
             if (newTotal > 100) {
                 req.reject(
                     400,
@@ -40,21 +41,9 @@ module.exports = {
                 );
             }
         });
-        //Allocation History
+
+        // Allocation History
         service.after("CREATE", ALLOCATIONS, async (allocation, req) => {
-
-            // const historyPayload = {
-            //     employee_ID: allocation.employee_ID,
-            //     project_ID: allocation.project_ID,
-            //     ALLOCATION_PERCENTAGE: allocation.ALLOCATION_PERCENTAGE,
-            //     PROJECT_ROLE: allocation.PROJECT_ROLE,
-            //     START_DATE: allocation.START_DATE,
-            //     END_DATE: allocation.END_DATE
-            // };
-
-            // await cds.run(
-            //     INSERT.into(ALLOCATION_HISTORY).entries(historyPayload)
-            // );
             await req.tx.run(
                 INSERT.into(AllocationHistory).entries({
                     employee_ID: allocation.employee_ID,
@@ -63,38 +52,28 @@ module.exports = {
                     PROJECT_ROLE: allocation.PROJECT_ROLE,
                     START_DATE: allocation.START_DATE,
                     END_DATE: allocation.END_DATE
-                }));
+                })
+            );
         });
+
         // Validate Allocation Percentage before updating an existing allocation
         service.before("UPDATE", ALLOCATIONS, async (req) => {
-            // Extract the allocation ID from the request parameters
             const allocationId = req.params[0].ID;
-            // Fetch the existing allocation record from the database
             const existing = await cds.run(SELECT.one
                 .from(ALLOCATIONS)
-                .columns(
-                    "ID",
-                    "employee_ID",
-                    "ALLOCATION_PERCENTAGE"
-                )
+                .columns("ID", "employee_ID", "ALLOCATION_PERCENTAGE")
                 .where({ ID: allocationId }));
             if (!existing) {
                 return;
             }
-            // Extract the employee ID and the new allocation percentage from the request
             const employeeId = existing.employee_ID;
             const newAllocation = Number(
                 req.data.ALLOCATION_PERCENTAGE ?? existing.ALLOCATION_PERCENTAGE
             );
-            // Fetch all allocations for the employee to calculate the total allocation percentage
             const allocations = await cds.run(SELECT
                 .from(ALLOCATIONS)
-                .columns(
-                    "ID",
-                    "ALLOCATION_PERCENTAGE"
-                )
+                .columns("ID", "ALLOCATION_PERCENTAGE")
                 .where({ employee_ID: employeeId }));
-            // Calculate the total allocation percentage for the employee, considering the new allocation percentage
             let total = 0;
             for (const allocation of allocations) {
                 if (allocation.ID === allocationId) {
@@ -103,14 +82,67 @@ module.exports = {
                     total += Number(allocation.ALLOCATION_PERCENTAGE);
                 }
             }
-            // If the total allocation percentage exceeds 100%, reject the request with an error message
             if (total > 100) {
                 req.reject(
                     400,
                     `Allocation exceeds 100%. Total would become ${total}%.`
                 );
             }
+        });
+        service.after("UPDATE", ALLOCATIONS, async (allocation, req) => {
+            // req.data only contains the changed fields; fetch the full current row
+            const allocationId = req.params[0].ID;
+            const oCurrent = await req.tx.run(
+                SELECT.one.from(ALLOCATIONS).where({ ID: allocationId })
+            );
+            if (!oCurrent) {
+                return;
+            }
 
+            await req.tx.run(
+                INSERT.into(AllocationHistory).entries({
+                    employee_ID: oCurrent.employee_ID,
+                    project_ID: oCurrent.project_ID,
+                    ALLOCATION_PERCENTAGE: oCurrent.ALLOCATION_PERCENTAGE,
+                    PROJECT_ROLE: oCurrent.PROJECT_ROLE,
+                    START_DATE: oCurrent.START_DATE,
+                    END_DATE: oCurrent.END_DATE
+                })
+            );
+        });
+
+        // Project-scoped Allocation History
+        service.on("GetProjectAllocationHistory", async (req) => {
+            const { projectId } = req.data;
+
+            const aHistory = await cds.run(
+                SELECT.from(AllocationHistory)
+                    .where({ project_ID: projectId })
+                    .columns(h => {
+                        h.ID,
+                            h.ALLOC_HISTORY_ID,
+                            h.ALLOCATION_PERCENTAGE,
+                            h.PROJECT_ROLE,
+                            h.START_DATE,
+                            h.END_DATE,
+                            h.employee(e => { e.EMP_ID, e.NAME }),
+                            h.project(p => { p.PROJECT_ID, p.PROJECT_NAME })
+                    })
+                    .orderBy("ALLOC_HISTORY_ID desc")
+            );
+
+            return aHistory.map(h => ({
+                ID: h.ID,
+                ALLOC_HISTORY_ID: h.ALLOC_HISTORY_ID,
+                EMP_ID: h.employee?.EMP_ID,
+                EMPLOYEE_NAME: h.employee?.NAME,
+                PROJECT_ID: h.project?.PROJECT_ID,
+                PROJECT_NAME: h.project?.PROJECT_NAME,
+                ALLOCATION_PERCENTAGE: h.ALLOCATION_PERCENTAGE,
+                PROJECT_ROLE: h.PROJECT_ROLE,
+                START_DATE: h.START_DATE,
+                END_DATE: h.END_DATE
+            }));
         });
     }
-}
+};

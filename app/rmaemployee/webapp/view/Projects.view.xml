@@ -57,9 +57,7 @@
                                     <Text text="Status" />
                                 </Column>
 
-                                <Column>
-                                    <Text text="Priority" />
-                                </Column>
+                                
 
                                 <Column
                                     width="3rem"
@@ -104,10 +102,6 @@
 
                                         <ObjectStatus
                                             text="{projects>PROJECT_STATUS}"
-                                        />
-
-                                        <ObjectStatus
-                                            text="{projects>PROJECT_PRIORITY}"
                                         />
 
                                         <Button

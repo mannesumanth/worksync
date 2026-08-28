@@ -274,9 +274,7 @@ sap.ui.define([
             },
 
             _openCurrentProjectDialog: async function () {
-
                 if (!this._oCurrentProjectDialog) {
-
                     this._oCurrentProjectDialog =
                         await Fragment.load({
                             id: this.getView().getId(),

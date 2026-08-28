@@ -50,15 +50,7 @@
                                     />
                                 </VBox>
 
-                                <VBox
-                                    width="10rem"
-                                    class="sapUiSmallMarginEnd sapUiSmallMarginBottom"
-                                >
-                                    <Label text="Priority" />
-                                    <Text
-                                        text="{projectDetails>/PRIORITY}"
-                                    />
-                                </VBox>
+                               
 
                                 <VBox
                                     width="10rem"

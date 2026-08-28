@@ -12,49 +12,68 @@
         <content>
 
             <VBox class="sapUiMediumMargin">
-                <!-- STATUS FILTERS                             -->
 
-                <IconTabHeader
-                    id="leaveStatusTabs"
-                    selectedKey="PENDING"
-                    select=".onStatusTabSelect"
-                    class="sapUiSmallMarginBottom"
+                <!-- Row 1: Title + Search -->
+                <Toolbar id="titleBar">
+                    <Title text="Leave Requests" level="H3" />
+                    <ToolbarSpacer />
+                    <SearchField
+                        id="leaveSearch"
+                        width="256px"
+                        placeholder="Search Employee or Leave ID"
+                        liveChange=".onSearch"
+                        search=".onSearch"
+                    />
+                </Toolbar>
+
+                <!-- Row 2: Status Filter -->
+                <OverflowToolbar
+                    id="filterBar"
+                    class="sapUiTinyMarginTop"
                 >
-                    <items>
+                    <SegmentedButton
+                        id="leaveStatusFilter"
+                        selectedKey="ALL"
+                        selectionChange=".onFilterChange"
+                    >
+                        <items>
+                            <SegmentedButtonItem key="ALL" text="All" />
+                            <SegmentedButtonItem key="PENDING" text="Pending" />
+                            <SegmentedButtonItem key="WITHDRAW_REQUEST" text="Withdrawal Requests" />
+                            <SegmentedButtonItem key="WITHDRAWN" text="Withdrawn" />
+                            <SegmentedButtonItem key="CANCELLED" text="Cancelled" />
+                            <SegmentedButtonItem key="APPROVED" text="Approved" />
+                            <SegmentedButtonItem key="REJECTED" text="Rejected" />
+                            
+                        </items>
+                    </SegmentedButton>
+                </OverflowToolbar>
 
-                        <IconTabFilter
-                            key="PENDING"
-                            text="Pending"
-                            icon="sap-icon://pending"
-                        />
+                <!-- Row 3: Actions Bar -->
+                <Toolbar
+                    id="actionsBar"
+                    design="Info"
+                    class="sapUiTinyMarginTop sapUiTinyMarginBottom"
+                >
+                    <Text text="{ui>/selectedCount} selected" />
+                    <ToolbarSpacer />
+                    <Button
+                        text="Approve Selected"
+                        type="Accept"
+                        icon="sap-icon://accept"
+                        enabled="{ui>/bulkActionsEnabled}"
+                        press=".onBulkApprove"
+                    />
+                    <Button
+                        text="Reject Selected"
+                        type="Reject"
+                        icon="sap-icon://decline"
+                        enabled="{ui>/bulkActionsEnabled}"
+                        press=".onBulkReject"
+                    />
+                </Toolbar>
 
-                        <IconTabFilter
-                            key="WITHDRAW_REQUEST"
-                            text="Withdrawal Requests"
-                            icon="sap-icon://undo"
-                        />
-
-                        <IconTabFilter
-                            key="APPROVED"
-                            text="Approved"
-                            icon="sap-icon://accept"
-                        />
-
-                        <IconTabFilter
-                            key="REJECTED"
-                            text="Rejected"
-                            icon="sap-icon://decline"
-                        />
-
-                    </items>
-
-                </IconTabHeader>
-
-
-                <!-- ========================================== -->
-                <!-- LEAVE TABLE                                -->
-                <!-- ========================================== -->
-
+                <!-- Table -->
                 <Table
                     id="leaveTable"
                     inset="false"
@@ -63,6 +82,8 @@
                     growingThreshold="20"
                     growingScrollToLoad="true"
                     noDataText="No leave requests available"
+                    mode="{ui>/selectionMode}"
+                    selectionChange=".onSelectionChange"
                     items="{
                         path: '/LEAVE_CALENDAR',
                         parameters: {
@@ -71,34 +92,6 @@
                         }
                     }"
                 >
-
-                    <headerToolbar>
-
-                        <OverflowToolbar>
-
-                            <Title
-                                text="Leave Requests"
-                                level="H3"
-                            />
-
-                            <ToolbarSpacer />
-
-                            <SearchField
-                                id="leaveSearch"
-                                width="18rem"
-                                placeholder="Search Employee or Leave ID"
-                                liveChange=".onSearch"
-                                search=".onSearch"
-                            />
-
-                        </OverflowToolbar>
-
-                    </headerToolbar>
-
-
-                    <!-- ====================================== -->
-                    <!-- COLUMNS                                -->
-                    <!-- ====================================== -->
 
                     <columns>
 
@@ -122,20 +115,20 @@
                             <Text text="To" />
                         </Column>
 
-                        <Column>
-                            <Text text="Status" />
+                        <Column hAlign="Center">
+                            <Text text="Days" />
                         </Column>
 
                         <Column>
-                            <Text text="Update Status" />
+                            <Text text="Reason" />
+                        </Column>
+
+                        <Column width="11rem">
+                            <Text text="Status" />
                         </Column>
 
                     </columns>
 
-
-                    <!-- ====================================== -->
-                    <!-- ROWS                                   -->
-                    <!-- ====================================== -->
 
                     <items>
 
@@ -143,26 +136,28 @@
 
                             <cells>
 
-                                <Text
-                                    text="{LEAVE_ID}"
-                                />
+                                <Text text="{LEAVE_ID}" />
 
-                                <Text
-                                    text="{employee/NAME}"
-                                />
+                                <Text text="{employee/NAME}" />
 
-                                <Text
-                                    text="{LEAVE_TYPE}"
-                                />
+                                <Text text="{LEAVE_TYPE}" />
 
-                                <Text
-                                    text="{LEAVE_FROM}"
+                                <Text text="{LEAVE_FROM}" textAlign="Center" />
+
+                                <Text text="{LEAVE_TO}" textAlign="Center" />
+
+                                <ObjectNumber
+                                    number="{
+                                        parts: [{path: 'LEAVE_FROM'}, {path: 'LEAVE_TO'}],
+                                        formatter: '._calculateDays'
+                                    }"
                                     textAlign="Center"
                                 />
 
                                 <Text
-                                    text="{LEAVE_TO}"
-                                    textAlign="Center"
+                                    text="{REASON}"
+                                    maxLines="2"
+                                    class="sapMTableContentMargin"
                                 />
 
                                 <ObjectStatus
@@ -182,31 +177,16 @@
                                             :
                                         'None'
                                     }"
+                                    icon="{=
+                                        ${STATUS} === 'WITHDRAWN'
+                                            ? 'sap-icon://undo'
+                                            :
+                                        ${STATUS} === 'CANCELLED'
+                                            ? 'sap-icon://cancel'
+                                            :
+                                        ''
+                                    }"
                                 />
-
-                                <!-- Approve / Reject -->
-                                <HBox
-                                    justifyContent="Center"
-                                    renderType="Bare"
-                                    visible="{=${STATUS} === 'PENDING'}"
-                                >
-
-                                    <Button
-                                        text="Approve"
-                                        type="Accept"
-                                        icon="sap-icon://accept"
-                                        press=".onApproveLeave"
-                                    />
-
-                                    <Button
-                                        text="Reject"
-                                        type="Reject"
-                                        icon="sap-icon://decline"
-                                        class="sapUiTinyMarginBegin"
-                                        press=".onRejectLeave"
-                                    />
-
-                                </HBox>
 
                             </cells>
 
